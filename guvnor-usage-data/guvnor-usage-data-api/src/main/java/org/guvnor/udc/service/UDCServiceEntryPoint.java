@@ -23,5 +23,10 @@ import org.jboss.errai.bus.server.annotations.Remote;
 public interface UDCServiceEntryPoint extends UDCStorageService {
 
     void auditEventUDC(UsageEventSummary eventSummary);
+    
+    
+    //TODO remove these methods
+    void readFile();
+    void editFile();
 
 }

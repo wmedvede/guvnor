@@ -30,8 +30,8 @@ import org.guvnor.udc.model.EventTypes;
 import org.guvnor.udc.model.UsageEventSummary;
 import org.guvnor.udc.service.UDCServiceEntryPoint;
 import org.guvnor.udc.service.UsageEventSummaryBuilder;
-import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.RemoteCallback;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
@@ -60,7 +60,7 @@ public class UsageDataPresenter {
 
     @Inject
     private Caller<UDCServiceEntryPoint> usageDataService;
-
+    
     @Inject
     private Identity identity;
 
@@ -106,6 +106,24 @@ public class UsageDataPresenter {
         return allUsageEventSummaries;
     }
 
+    
+    //TODO remove these methods
+    public void readFile(){
+        usageDataService.call(new RemoteCallback<Void>() {
+            @Override
+            public void callback(Void nothing) {
+                view.displayNotification("New event in UDC");
+            }
+        }).readFile();
+    }
+    public void editFile(){
+        usageDataService.call(new RemoteCallback<Void>() {
+            @Override
+            public void callback(Void nothing) {
+                view.displayNotification("New event in UDC");
+            }
+        }).editFile();
+    }
     public void refreshUsageDataCollector() {
         usageDataService.call(new RemoteCallback<Queue<UsageEventSummary>>() {
             @Override
@@ -117,6 +135,10 @@ public class UsageDataPresenter {
             }
         }).readEventsByFilter(EventTypes.valueOf(view.getEventTypesList().getValue()), identity.getName());
     }
+    
+    
+    
+    
 
     public void clearUsageData() {
         if (allUsageEventSummaries != null && !allUsageEventSummaries.isEmpty()) {

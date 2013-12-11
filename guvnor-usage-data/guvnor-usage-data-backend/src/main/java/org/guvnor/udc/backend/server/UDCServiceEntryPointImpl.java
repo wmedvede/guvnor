@@ -28,6 +28,7 @@ import org.guvnor.udc.service.UDCServiceEntryPoint;
 import org.guvnor.udc.service.UDCVfsService;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.uberfire.commons.validation.PortablePreconditions;
+import org.uberfire.workbench.events.ResourceOpenedEvent;
 
 @Service
 @ApplicationScoped
@@ -81,6 +82,15 @@ public class UDCServiceEntryPointImpl implements UDCServiceEntryPoint {
     private boolean validatePermissions(String module) {
         // TODO validate permissions
         return true;
+    }
+    
+    //TODO remove these methods
+    public void readFile(){
+        udcStorageService.readFile();
+    }
+    public void editFile(){
+        udcStorageService.editFile();
+        
     }
 
 }

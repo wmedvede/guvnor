@@ -49,6 +49,7 @@ public class UDCVfsServiceImpl extends UDCVfsManager implements UDCVfsService {
 
     private static final Logger log = LoggerFactory.getLogger(UDCVfsServiceImpl.class);
 
+
     @Override
     public Queue<UsageEventSummary> readUsageDataCollector() {
         return readEntriesByPath(super.getPathBySession());
@@ -249,6 +250,15 @@ public class UDCVfsServiceImpl extends UDCVfsManager implements UDCVfsService {
             }
         }
         return events;
+    }
+    
+    
+  //TODO remove these methods
+    public void readFile(){
+        this.recordOpeningEvent(getUriPath().toString(), "/BuildChangeListenerRepo/src/main/resources/"+ Math.random() + "opened.drl");
+    }
+    public void editFile(){
+        this.recordUserEditEvent(getUriPath().toString(), "/BuildChangeListenerRepo/src/main/resources/"+ Math.random() + "updated.drl");
     }
 
 }
