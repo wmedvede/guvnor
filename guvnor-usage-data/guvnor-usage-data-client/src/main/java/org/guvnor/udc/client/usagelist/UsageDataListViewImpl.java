@@ -79,17 +79,6 @@ public class UsageDataListViewImpl extends Composite implements UsageDataPresent
     @Inject
     @DataField
     public NavLink clearEventsNavLink;
-    
-    //TODO remove this mock bottom
-    @Inject
-    @DataField
-    public NavLink rndViewFile;
-    @Inject
-    @DataField
-    public NavLink rndEditFile;
-    
-    
-    
 
     @Inject
     @DataField
@@ -137,6 +126,7 @@ public class UsageDataListViewImpl extends Composite implements UsageDataPresent
     private ListHandler<UsageEventSummary> sortHandler;
 
     private MultiSelectionModel<UsageEventSummary> selectionModel;
+    
 
     @Override
     public void init(UsageDataPresenter presenter) {
@@ -151,11 +141,6 @@ public class UsageDataListViewImpl extends Composite implements UsageDataPresent
                 displayNotification(constants.Events_Refreshed());
             }
         });
-        
-        
-        
-        
-        
 
         // By Default we will start in Grid View
         initializeGridView();
@@ -207,25 +192,6 @@ public class UsageDataListViewImpl extends Composite implements UsageDataPresent
                 exportCsvEvents();
             }
         });
-        
-        
-      //TODO remove this mock
-        rndViewFile.setText("View rnd File(mock)");
-        rndViewFile.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                readFile();
-            }
-        });
-        rndEditFile.setText("Edit rnd File(mock)");
-        rndEditFile.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                editFile();
-            }
-        });
-        
-        
 
         usageDataViewLabel.setText(constants.List_Usage_Data());
         usageDataViewLabel.setStyleName("");
@@ -569,14 +535,6 @@ public class UsageDataListViewImpl extends Composite implements UsageDataPresent
     @Override
     public ListBox getEventTypesList() {
         return eventTypesList;
-    }
-    
-    //TODO remove these methods
-    private void readFile(){
-        presenter.readFile();
-    }
-    private void editFile(){
-        presenter.editFile();
     }
 
 }

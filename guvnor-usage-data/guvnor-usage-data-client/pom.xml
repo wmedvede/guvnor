@@ -30,16 +30,18 @@
 	<name>Guvnor - Usage Data Collector Client</name>
 
 	<dependencies>
+		
 		<dependency>
 			<groupId>org.guvnor</groupId>
 			<artifactId>guvnor-usage-data-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
+		
 		<dependency>
-			<groupId>org.uberfire</groupId>
-			<artifactId>uberfire-client-api</artifactId>
-		</dependency>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-api</artifactId>
+        </dependency>
+		
 		<dependency>
 			<groupId>org.uberfire</groupId>
 			<artifactId>uberfire-backend-api</artifactId>

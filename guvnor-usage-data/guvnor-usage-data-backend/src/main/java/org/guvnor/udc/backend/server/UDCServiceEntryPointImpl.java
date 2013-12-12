@@ -28,7 +28,6 @@ import org.guvnor.udc.service.UDCServiceEntryPoint;
 import org.guvnor.udc.service.UDCVfsService;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.uberfire.commons.validation.PortablePreconditions;
-import org.uberfire.workbench.events.ResourceOpenedEvent;
 
 @Service
 @ApplicationScoped
@@ -84,12 +83,11 @@ public class UDCServiceEntryPointImpl implements UDCServiceEntryPoint {
         return true;
     }
     
-    //TODO remove these methods
-    public void readFile(){
-        udcStorageService.readFile();
+    public void recordOpeningEvent(String itemPath, String itemName){
+        udcStorageService.recordOpeningEvent(itemPath, itemName);
     }
-    public void editFile(){
-        udcStorageService.editFile();
+    public void recordUserEditEvent(String itemPath, String itemName){
+        udcStorageService.recordUserEditEvent(itemPath, itemName);
         
     }
 

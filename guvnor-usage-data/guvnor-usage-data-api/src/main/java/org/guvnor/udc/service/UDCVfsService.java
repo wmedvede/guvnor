@@ -34,10 +34,8 @@ public interface UDCVfsService extends UDCStorageService {
 
     void addToRecentOpened(String itemPath, String note);
     
+    void recordUserEditEvent(String itemPath, String itemName);  
     
-    
-    //TODO remove these methods
-    public void readFile();
-    public void editFile();
+    void recordOpeningEvent(String itemPath, String itemName);
 
 }

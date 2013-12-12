@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.enterprise.context.Dependent;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.guvnor.udc.client.event.EventsUsageData;
@@ -37,9 +38,12 @@ import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.PlaceManager;
 import org.uberfire.client.mvp.UberView;
+import org.uberfire.commons.validation.PortablePreconditions;
 import org.uberfire.mvp.PlaceRequest;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.security.Identity;
+import org.uberfire.workbench.events.ResourceOpenedEvent;
+import org.uberfire.workbench.events.ResourceUpdatedEvent;
 
 import com.github.gwtbootstrap.client.ui.ListBox;
 import com.github.gwtbootstrap.client.ui.TextBox;
@@ -66,7 +70,7 @@ public class UsageDataPresenter {
 
     @Inject
     private PlaceManager placeManager;
-
+    
     @WorkbenchPartView
     public UberView<UsageDataPresenter> getView() {
         return view;
@@ -105,25 +109,7 @@ public class UsageDataPresenter {
     public List<UsageEventSummary> getAllEventsSummaries() {
         return allUsageEventSummaries;
     }
-
     
-    //TODO remove these methods
-    public void readFile(){
-        usageDataService.call(new RemoteCallback<Void>() {
-            @Override
-            public void callback(Void nothing) {
-                view.displayNotification("New event in UDC");
-            }
-        }).readFile();
-    }
-    public void editFile(){
-        usageDataService.call(new RemoteCallback<Void>() {
-            @Override
-            public void callback(Void nothing) {
-                view.displayNotification("New event in UDC");
-            }
-        }).editFile();
-    }
     public void refreshUsageDataCollector() {
         usageDataService.call(new RemoteCallback<Queue<UsageEventSummary>>() {
             @Override
@@ -135,10 +121,6 @@ public class UsageDataPresenter {
             }
         }).readEventsByFilter(EventTypes.valueOf(view.getEventTypesList().getValue()), identity.getName());
     }
-    
-    
-    
-    
 
     public void clearUsageData() {
         if (allUsageEventSummaries != null && !allUsageEventSummaries.isEmpty()) {
@@ -175,8 +157,7 @@ public class UsageDataPresenter {
                 dataProvider.getList().clear();
                 dataProvider.setList(filteredTasksSimple);
                 dataProvider.refresh();
-                auditEvent("Search", "Search words: " + text, identity.getName(), EventsUsageData.UDC_SEARCH,
-                        StatusUsageEvent.SUCCESS, LevelsUsageEvent.INFO);
+                
             }
         }
 
@@ -234,7 +215,7 @@ public class UsageDataPresenter {
     /**
      * consumers could use UsageEventSummaryBuilder
      */
-    public void auditEvent(UsageEventSummary usageEventSummary) {
+    public void auditEvent(@Observes UsageEventSummary usageEventSummary) {
         usageDataService.call(new RemoteCallback<Void>() {
             @Override
             public void callback(Void nothing) {
@@ -242,6 +223,28 @@ public class UsageDataPresenter {
             }
         }).auditEventUDC(usageEventSummary);
 
+    }
+    
+    public void recordOpeningEvent(@Observes final ResourceOpenedEvent event) {
+        PortablePreconditions.checkNotNull("event", event);
+        final org.uberfire.backend.vfs.Path resourcePath = event.getPath();
+        usageDataService.call(new RemoteCallback<Void>() {
+            @Override
+            public void callback(Void nothing) {
+                view.displayNotification("New event in UDC");
+            }
+        }).recordOpeningEvent(resourcePath.toURI(), resourcePath.getFileName().toString());
+    }
+
+    public void recordUserEditEvent(@Observes final ResourceUpdatedEvent event) {
+        PortablePreconditions.checkNotNull("event", event);
+        final org.uberfire.backend.vfs.Path resourcePath = event.getPath();
+        usageDataService.call(new RemoteCallback<Void>() {
+            @Override
+            public void callback(Void nothing) {
+                view.displayNotification("New event in UDC");
+            }
+        }).recordUserEditEvent(resourcePath.toURI(), resourcePath.getFileName().toString());
     }
 
 }

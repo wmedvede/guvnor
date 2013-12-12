@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 
 import org.guvnor.udc.model.EventTypes;
 import org.guvnor.udc.model.GfsSummary;
@@ -38,8 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.uberfire.commons.validation.PortablePreconditions;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.paging.PageResponse;
-import org.uberfire.workbench.events.ResourceOpenedEvent;
-import org.uberfire.workbench.events.ResourceUpdatedEvent;
 
 import com.google.common.collect.Lists;
 
@@ -155,10 +152,6 @@ public class UDCVfsServiceImpl extends UDCVfsManager implements UDCVfsService {
         return userList.toArray(new String[userList.size()]);
     }
 
-    /**
-     * This should be called when the user edits or comments on an asset. Simply
-     * adds to the list...
-     */
     @Override
     public void addToRecentEdited(String itemPath, String note) {
         addToInbox(RECENT_EDITED_ID, itemPath, note, identity.getName(), identity.getName());
@@ -169,30 +162,15 @@ public class UDCVfsServiceImpl extends UDCVfsManager implements UDCVfsService {
         addToInbox(RECENT_VIEWED_ID, itemPath, note, identity.getName(), identity.getName());
     }
 
-    public void recordOpeningEvent(@Observes final ResourceOpenedEvent event) {
-        PortablePreconditions.checkNotNull("event", event);
-        final org.uberfire.backend.vfs.Path resourcePath = event.getPath();
-        recordOpeningEvent(resourcePath.toURI(), resourcePath.getFileName().toString());
-    }
-
-    public void recordUserEditEvent(@Observes final ResourceUpdatedEvent event) {
-        PortablePreconditions.checkNotNull("event", event);
-        final org.uberfire.backend.vfs.Path resourcePath = event.getPath();
-        recordUserEditEvent(resourcePath.toURI(), resourcePath.getFileName().toString());
-    }
-
-    /**
-     * Helper method to note the event. addToRecentEdited and deliver messages
-     * to users inboxes (ie., the edited item is the itme that the current
-     * logged in user has edited in the past, or commented on)
-     */
-    private synchronized void recordUserEditEvent(String itemPath, String itemName) {
+    @Override
+    public synchronized void recordUserEditEvent(String itemPath, String itemName) {
         addToIncoming(itemPath, itemName, identity.getName(), MailboxService.MAIL_MAN);
         addToRecentEdited(itemPath, itemName);
         super.broadcastEvent();
     }
 
-    private synchronized void recordOpeningEvent(String itemPath, String itemName) {
+    @Override
+    public synchronized void recordOpeningEvent(String itemPath, String itemName) {
         addToRecentOpened(itemPath, itemName);
         Queue<UsageEventSummary> unreadIncoming = removeAnyExisting(itemPath, readEntries(identity.getName(), INCOMING_ID));
         writeEntries(unreadIncoming, getPath(INBOX, INCOMING_ID));
@@ -250,15 +228,6 @@ public class UDCVfsServiceImpl extends UDCVfsManager implements UDCVfsService {
             }
         }
         return events;
-    }
-    
-    
-  //TODO remove these methods
-    public void readFile(){
-        this.recordOpeningEvent(getUriPath().toString(), "/BuildChangeListenerRepo/src/main/resources/"+ Math.random() + "opened.drl");
-    }
-    public void editFile(){
-        this.recordUserEditEvent(getUriPath().toString(), "/BuildChangeListenerRepo/src/main/resources/"+ Math.random() + "updated.drl");
     }
 
 }
