@@ -25,13 +25,15 @@ public interface RepositoryInfoPageView
         extends
         UberView<RepositoryInfoPageView.Presenter> {
 
-    static final String NOT_SELECTED = "NOT_SELECTED";
+    String NOT_SELECTED = "NOT_SELECTED";
 
     interface Presenter {
 
-        void stateChanged();
+        void onNameChange();
 
-        String getName();
+        void onOUChange();
+
+        void onManagedRepositoryChange();
 
     }
 
@@ -39,7 +41,9 @@ public interface RepositoryInfoPageView
 
     void setName( String name );
 
-    void setValidName( final boolean isValid );
+    void setNameErrorMessage( String message );
+
+    void clearNameErrorMessage( );
 
     void initOrganizationalUnits( Collection<OrganizationalUnit> organizationalUnits );
 
@@ -52,5 +56,7 @@ public interface RepositoryInfoPageView
     boolean isManagedRepository();
 
     void enabledManagedRepositoryCreation( boolean enabled );
+
+    void alert( String message );
 
 }

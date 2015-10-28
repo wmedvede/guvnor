@@ -144,15 +144,20 @@ public class CreateRepositoryWizard extends AbstractWizard {
     @Override
     public void isComplete( final Callback<Boolean> callback ) {
 
-        callback.callback( true );
+        callback.callback( false );
+        final int[] unCompletedPages = {this.pages.size()};
 
         //only when all pages are complete we can say the wizard is complete.
         for ( WizardPage page : this.pages ) {
             page.isComplete( new Callback<Boolean>() {
                 @Override
                 public void callback( final Boolean result ) {
-                    if ( Boolean.FALSE.equals( result ) ) {
-                        callback.callback( false );
+
+                    if ( Boolean.TRUE.equals( result ) ) {
+                        unCompletedPages[0]--;
+                        if ( unCompletedPages[0] == 0 ) {
+                            callback.callback( true );
+                        }
                     }
                 }
             } );
@@ -375,8 +380,7 @@ public class CreateRepositoryWizard extends AbstractWizard {
 
         structurePage.setProjectDescription( null );
         structurePage.setVersion( "1.0.0-SNAPSHOT" );
-        structurePage.stateChanged();
-
+        structurePage.fireEvent();
     }
 
     private void setAssetsManagementGrant() {

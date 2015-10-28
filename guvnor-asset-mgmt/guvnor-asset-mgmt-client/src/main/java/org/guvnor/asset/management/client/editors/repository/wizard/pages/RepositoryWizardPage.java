@@ -27,18 +27,12 @@ import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 
 public abstract class RepositoryWizardPage implements WizardPage {
 
-    protected SimplePanel content = new SimplePanel();
-
     protected CreateRepositoryWizardModel model;
 
     @Inject
     protected Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-    protected boolean structurePageWasVisited = false;
 
-    @Override
-    public Widget asWidget() {
-        return content;
-    }
+    protected boolean structurePageWasVisited = false;
 
     public void fireEvent() {
         final WizardPageStatusChangeEvent event = new WizardPageStatusChangeEvent( this );

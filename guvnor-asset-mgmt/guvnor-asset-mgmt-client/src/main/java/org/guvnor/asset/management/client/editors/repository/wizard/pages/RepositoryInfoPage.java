@@ -22,12 +22,13 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.asset.management.client.editors.repository.wizard.CreateRepositoryWizardModel;
 import org.guvnor.asset.management.client.i18n.Constants;
 import org.guvnor.structure.client.editors.repository.RepositoryPreferences;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
+import org.guvnor.structure.repositories.RepositoryService;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.ErrorCallback;
@@ -36,6 +37,7 @@ import org.jboss.errai.ioc.client.container.IOC;
 import org.jboss.errai.ioc.client.container.IOCBeanDef;
 import org.jboss.errai.ioc.client.container.IOCResolutionException;
 import org.uberfire.client.callbacks.Callback;
+import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.ext.widgets.core.client.resources.i18n.CoreConstants;
 
 public class RepositoryInfoPage extends RepositoryWizardPage
@@ -48,15 +50,17 @@ public class RepositoryInfoPage extends RepositoryWizardPage
 
     }
 
-    @Inject
     private RepositoryInfoPageView view;
 
-    @Inject
     private Caller<OrganizationalUnitService> organizationalUnitService;
+
+    private Caller<RepositoryService> repositoryService;
 
     private boolean isNameValid = false;
 
     private boolean isOUValid = false;
+
+    private boolean isRepositoryStructurePageValid = false;
 
     private Map<String, OrganizationalUnit> availableOrganizationalUnits = new HashMap<String, OrganizationalUnit>();
     private boolean mandatoryOU = true;
@@ -64,6 +68,15 @@ public class RepositoryInfoPage extends RepositoryWizardPage
     private boolean isManagedRepository = false;
 
     private RepositoryInfoPageHandler handler;
+
+    @Inject
+    public RepositoryInfoPage( RepositoryInfoPageView view,
+                                Caller<OrganizationalUnitService> organizationalUnitService,
+                                Caller<RepositoryService> repositoryService ) {
+        this.view = view;
+        this.organizationalUnitService = organizationalUnitService;
+        this.repositoryService = repositoryService;
+    }
 
     @Override
     public String getTitle() {
@@ -73,19 +86,12 @@ public class RepositoryInfoPage extends RepositoryWizardPage
     @Override
     public void isComplete( final Callback<Boolean> callback ) {
         boolean completed = mandatoryOU ? isNameValid && isOUValid : isNameValid;
-
-        /*
-        if ( view.isManagedRepository() ) {
-            completed = completed && structurePageWasVisited;
-        }
-        */
         callback.callback( completed );
     }
 
     @Override
     public void initialise() {
         view.init( this );
-        content.setWidget( view );
     }
 
     @Override
@@ -94,34 +100,67 @@ public class RepositoryInfoPage extends RepositoryWizardPage
     }
 
     @Override
-    public String getName() {
-        return view.getName();
+    public Widget asWidget() {
+        return view.asWidget();
     }
 
     public void setHandler( RepositoryInfoPageHandler handler ) {
         this.handler = handler;
     }
 
-    @Override
-    public void stateChanged() {
+    public void onNameChange() {
+        String name = view.getName().trim();
+        model.setRepositoryName( name );
+        if ( !name.equals( view.getName() )) {
+            view.setName( name );
+        }
 
-        isNameValid = view.getName() != null && !view.getName().isEmpty();
-        view.setValidName( isNameValid );
-        model.setRepositoryName( view.getName() != null ? view.getName().trim() : null );
+        repositoryService.call( new RemoteCallback<Boolean>() {
+            @Override
+            public void callback( Boolean isValid ) {
+                if ( isValid ) {
+                    view.clearNameErrorMessage();
+                } else {
+                    view.setNameErrorMessage( Constants.INSTANCE.InvalidRepositoryName() );
+                }
+                if ( isValid != isNameValid ) {
+                    isNameValid = isValid;
+                    refreshRepositoryStructurePageStatus( );
+                }
+            } }, new DefaultErrorCallback() ).validateRepositoryName( model.getRepositoryName() );
+    }
 
-        isOUValid = view.getOrganizationalUnitName() != null && !RepositoryInfoPageView.NOT_SELECTED.equals( view.getOrganizationalUnitName() );
+    public void onOUChange() {
+
+        boolean newIsOUValid = view.getOrganizationalUnitName() != null && !RepositoryInfoPageView.NOT_SELECTED.equals( view.getOrganizationalUnitName() );
         if ( mandatoryOU ) {
-            view.setValidOU( isOUValid );
+            view.setValidOU( newIsOUValid );
         }
         model.setOrganizationalUnit( view.getOrganizationalUnitName() != null ? availableOrganizationalUnits.get( view.getOrganizationalUnitName() ) : null );
 
-        model.setManged( view.isManagedRepository() );
-
-        if ( handler != null && ( isManagedRepository != view.isManagedRepository() ) ) {
-            isManagedRepository = view.isManagedRepository();
-            handler.managedRepositoryStatusChanged( isManagedRepository );
+        if ( isOUValid != newIsOUValid ) {
+            isOUValid = newIsOUValid;
+            refreshRepositoryStructurePageStatus( );
         }
+    }
 
+    public void onManagedRepositoryChange() {
+
+        model.setManged( view.isManagedRepository() );
+        if ( isManagedRepository != view.isManagedRepository() ) {
+            isManagedRepository = view.isManagedRepository();
+            refreshRepositoryStructurePageStatus( );
+        }
+    }
+
+    private void refreshRepositoryStructurePageStatus( ) {
+        boolean newIsRepositoryStructurePageValid = isManagedRepository && isNameValid && isOUValid;
+        if ( newIsRepositoryStructurePageValid != isRepositoryStructurePageValid ) {
+            isRepositoryStructurePageValid = newIsRepositoryStructurePageValid;
+            if ( handler != null ) {
+                handler.managedRepositoryStatusChanged( isRepositoryStructurePageValid );
+            }
+        }
         fireEvent();
     }
 
@@ -129,7 +168,6 @@ public class RepositoryInfoPage extends RepositoryWizardPage
     private void init() {
 
         view.init( this );
-        content.setWidget( view );
 
         mandatoryOU = isOUMandatory();
 
@@ -155,7 +193,7 @@ public class RepositoryInfoPage extends RepositoryWizardPage
                                             @Override
                                             public boolean error( final Message message,
                                                                   final Throwable throwable ) {
-                                                Window.alert( CoreConstants.INSTANCE.CantLoadOrganizationalUnits() + " \n" + message.toString() );
+                                                view.alert( CoreConstants.INSTANCE.CantLoadOrganizationalUnits() + " \n" + message.toString() );
 
                                                 return false;
                                             }
@@ -174,7 +212,7 @@ public class RepositoryInfoPage extends RepositoryWizardPage
         view.enabledManagedRepositoryCreation( enable );
     }
 
-    private boolean isOUMandatory() {
+    protected boolean isOUMandatory() {
         try {
             final IOCBeanDef<RepositoryPreferences> beanDef = IOC.getBeanManager().lookupBean( RepositoryPreferences.class );
             return beanDef == null || beanDef.getInstance().isOUMandatory();
