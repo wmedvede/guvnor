@@ -23,8 +23,8 @@ import com.github.gwtbootstrap.client.ui.TextBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -245,25 +245,23 @@ public class RepositoryStructurePageViewImpl extends Composite
             }
         } );
 
-        isSingleModuleRadioButton.addValueChangeHandler( new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange( ValueChangeEvent<Boolean> event ) {
+        isSingleModuleRadioButton.addClickHandler( new ClickHandler() {
+            @Override public void onClick( ClickEvent event ) {
                 presenter.onSingleModuleChange();
             }
         } );
 
-        isMultiModuleRadioButton.addValueChangeHandler( new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange( ValueChangeEvent<Boolean> event ) {
+        isMultiModuleRadioButton.addClickHandler( new ClickHandler() {
+            @Override public void onClick( ClickEvent event ) {
                 presenter.onMultiModuleChange();
             }
         } );
 
-        isConfigureRepositoryCheckBox.addValueChangeHandler( new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange( ValueChangeEvent<Boolean> event ) {
+        isConfigureRepositoryCheckBox.addClickHandler( new ClickHandler() {
+            @Override public void onClick( ClickEvent event ) {
                 presenter.onConfigureRepositoryChange();
             }
         } );
+
     }
 }

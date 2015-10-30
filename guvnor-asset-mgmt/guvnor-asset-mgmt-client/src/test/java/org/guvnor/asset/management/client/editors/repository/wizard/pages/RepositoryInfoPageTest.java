@@ -17,30 +17,22 @@
 package org.guvnor.asset.management.client.editors.repository.wizard.pages;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gwtmockito.GwtMock;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import org.guvnor.asset.management.client.editors.repository.wizard.CreateRepositoryWizardModel;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
+import org.guvnor.structure.organizationalunit.OrganizationalUnitServiceCallerMock;
 import org.guvnor.structure.organizationalunit.impl.OrganizationalUnitImpl;
-import org.guvnor.structure.repositories.Repository;
-import org.guvnor.structure.repositories.RepositoryAlreadyExistsException;
-import org.guvnor.structure.repositories.RepositoryInfo;
 import org.guvnor.structure.repositories.RepositoryService;
+import org.guvnor.structure.repositories.RepositoryServiceCallerMock;
 import org.jboss.errai.common.client.api.Caller;
-import org.jboss.errai.common.client.api.ErrorCallback;
-import org.jboss.errai.common.client.api.RemoteCallback;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.uberfire.backend.vfs.Path;
-import org.uberfire.client.callbacks.Callback;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
-import org.uberfire.java.nio.base.version.VersionRecord;
 
+import static org.guvnor.asset.management.client.editors.repository.wizard.pages.TestUtils.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -215,7 +207,6 @@ public class RepositoryInfoPageTest {
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
 
-
         when( organizationalUnitService.getOrganizationalUnits() ).thenReturn( organizationalUnits );
         when( repositoryService.validateRepositoryName( "ValidRepo" ) ).thenReturn( true );
         when( view.getOrganizationalUnitName() ).thenReturn( "OrganizationalUnit1" );
@@ -231,7 +222,7 @@ public class RepositoryInfoPageTest {
         assertPageComplete( true, infoPage );
     }
 
-    public List<OrganizationalUnit> buildOrganiztionalUnits() {
+    public static List<OrganizationalUnit> buildOrganiztionalUnits() {
         List<OrganizationalUnit> organizationalUnits = new ArrayList<OrganizationalUnit>(  );
 
         OrganizationalUnit organizationalUnit = new OrganizationalUnitImpl( "OrganizationalUnit1", "user1", "group1");
@@ -242,15 +233,7 @@ public class RepositoryInfoPageTest {
         return organizationalUnits;
     }
 
-    public void assertPageComplete( final boolean expectedResult, WizardPage page ) {
-        page.isComplete( new Callback<Boolean>() {
-            @Override public void callback( Boolean result ) {
-                assertEquals( expectedResult, result );
-            }
-        } );
-    }
-
-    private class RepositoryInfoPageExtended extends RepositoryInfoPage {
+    public static class RepositoryInfoPageExtended extends RepositoryInfoPage {
 
         private boolean ouMandatory = false;
 
@@ -269,189 +252,6 @@ public class RepositoryInfoPageTest {
 
         @Override public void fireEvent() {
 
-        }
-    }
-
-    private class OrganizationalUnitServiceCallerMock implements Caller<OrganizationalUnitService> {
-
-        OrganizationalUnitServiceWrapper organizationalUnitServiceWrapper;
-
-        RemoteCallback remoteCallback;
-
-        public OrganizationalUnitServiceCallerMock( OrganizationalUnitService organizationalUnitService ) {
-            this.organizationalUnitServiceWrapper = new OrganizationalUnitServiceWrapper( organizationalUnitService );
-        }
-
-        @Override public OrganizationalUnitService call() {
-            return organizationalUnitServiceWrapper;
-        }
-
-        @Override public OrganizationalUnitService call( RemoteCallback<?> remoteCallback ) {
-            return call( remoteCallback, null );
-        }
-
-        @Override public OrganizationalUnitService call( RemoteCallback<?> remoteCallback, ErrorCallback<?> errorCallback ) {
-            this.remoteCallback = remoteCallback;
-            return organizationalUnitServiceWrapper;
-        }
-
-        private class OrganizationalUnitServiceWrapper implements OrganizationalUnitService {
-
-            OrganizationalUnitService organizationalUnitService;
-
-            public OrganizationalUnitServiceWrapper( OrganizationalUnitService organizationalUnitService ) {
-                this.organizationalUnitService = organizationalUnitService;
-            }
-
-            @Override public OrganizationalUnit getOrganizationalUnit( String name ) {
-                return organizationalUnitService.getOrganizationalUnit( name );
-            }
-
-            @Override public Collection<OrganizationalUnit> getOrganizationalUnits() {
-                Collection<OrganizationalUnit> result = organizationalUnitService.getOrganizationalUnits();
-                remoteCallback.callback( result );
-                return result;
-            }
-
-            @Override public OrganizationalUnit createOrganizationalUnit( String name, String owner, String defaultGroupId ) {
-                return organizationalUnitService.createOrganizationalUnit( name, owner, defaultGroupId );
-            }
-
-            @Override public OrganizationalUnit createOrganizationalUnit( String name, String owner, String defaultGroupId, Collection<Repository> repositories ) {
-                return organizationalUnitService.createOrganizationalUnit( name, owner, defaultGroupId, repositories );
-            }
-
-            @Override public OrganizationalUnit updateOrganizationalUnit( String name, String owner, String defaultGroupId ) {
-                return organizationalUnitService.updateOrganizationalUnit( name, owner, defaultGroupId );
-            }
-
-            @Override public void addRepository( OrganizationalUnit organizationalUnit, Repository repository ) {
-                organizationalUnitService.addRepository( organizationalUnit, repository );
-            }
-
-            @Override public void removeRepository( OrganizationalUnit organizationalUnit, Repository repository ) {
-                organizationalUnitService.removeRepository( organizationalUnit, repository );
-            }
-
-            @Override public void addGroup( OrganizationalUnit organizationalUnit, String group ) {
-                organizationalUnitService.addGroup( organizationalUnit, group );
-            }
-
-            @Override public void removeGroup( OrganizationalUnit organizationalUnit, String group ) {
-                organizationalUnitService.removeGroup( organizationalUnit, group );
-            }
-
-            @Override public void removeOrganizationalUnit( String name ) {
-                organizationalUnitService.removeOrganizationalUnit( name );
-            }
-
-            @Override public OrganizationalUnit getParentOrganizationalUnit( Repository repository ) {
-                return organizationalUnitService.getParentOrganizationalUnit( repository );
-            }
-
-            @Override public String getSanitizedDefaultGroupId( String proposedGroupId ) {
-                return organizationalUnitService.getSanitizedDefaultGroupId( proposedGroupId );
-            }
-
-            @Override public Boolean isValidGroupId( String proposedGroupId ) {
-                return organizationalUnitService.isValidGroupId( proposedGroupId );
-            }
-        };
-
-    }
-
-    private class RepositoryServiceCallerMock implements Caller<RepositoryService> {
-
-        RepositoryServiceWrapper repositoryServiceWrapper;
-
-        RemoteCallback remoteCallback;
-
-        public RepositoryServiceCallerMock( RepositoryService repositoryService ) {
-            repositoryServiceWrapper = new RepositoryServiceWrapper( repositoryService );
-        }
-
-        @Override public RepositoryService call() {
-            return repositoryServiceWrapper;
-        }
-
-        @Override public RepositoryService call( RemoteCallback<?> remoteCallback ) {
-            return call( remoteCallback, null );
-        }
-
-        @Override public RepositoryService call( RemoteCallback<?> remoteCallback, ErrorCallback<?> errorCallback ) {
-            this.remoteCallback = remoteCallback;
-            return repositoryServiceWrapper;
-        }
-
-        private class RepositoryServiceWrapper implements RepositoryService {
-
-            RepositoryService repositoryService;
-
-            public RepositoryServiceWrapper( RepositoryService repositoryService ) {
-                this.repositoryService = repositoryService;
-            }
-
-            @Override public RepositoryInfo getRepositoryInfo( String alias ) {
-                return null;
-            }
-
-            @Override public List<VersionRecord> getRepositoryHistory( String alias, int startIndex ) {
-                return null;
-            }
-
-            @Override public List<VersionRecord> getRepositoryHistory( String alias, int startIndex, int endIndex ) {
-                return null;
-            }
-
-            @Override public List<VersionRecord> getRepositoryHistoryAll( String alias ) {
-                return null;
-            }
-
-            @Override public Repository getRepository( String alias ) {
-                return null;
-            }
-
-            @Override public Repository getRepository( Path root ) {
-                return null;
-            }
-
-            @Override public Collection<Repository> getRepositories() {
-                return null;
-            }
-
-            @Override public Repository createRepository( OrganizationalUnit organizationalUnit, String scheme, String alias, Map<String, Object> env ) throws RepositoryAlreadyExistsException {
-                return null;
-            }
-
-            @Override public Repository createRepository( String scheme, String alias, Map<String, Object> env ) throws RepositoryAlreadyExistsException {
-                return null;
-            }
-
-            @Override public String normalizeRepositoryName( String name ) {
-                return null;
-            }
-
-            @Override public boolean validateRepositoryName( String name ) {
-                boolean result = repositoryService.validateRepositoryName( name );
-                remoteCallback.callback( result );
-                return result;
-            }
-
-            @Override public void addGroup( Repository repository, String group ) {
-
-            }
-
-            @Override public void removeGroup( Repository repository, String group ) {
-
-            }
-
-            @Override public void removeRepository( String alias ) {
-
-            }
-
-            @Override public Repository updateRepository( Repository repository, Map<String, Object> config ) {
-                return null;
-            }
         }
     }
 

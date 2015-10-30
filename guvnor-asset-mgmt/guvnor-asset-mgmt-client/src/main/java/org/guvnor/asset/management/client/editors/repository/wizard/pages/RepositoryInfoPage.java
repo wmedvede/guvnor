@@ -74,6 +74,7 @@ public class RepositoryInfoPage extends RepositoryWizardPage
                                 Caller<OrganizationalUnitService> organizationalUnitService,
                                 Caller<RepositoryService> repositoryService ) {
         this.view = view;
+        view.init( this );
         this.organizationalUnitService = organizationalUnitService;
         this.repositoryService = repositoryService;
     }
@@ -91,7 +92,7 @@ public class RepositoryInfoPage extends RepositoryWizardPage
 
     @Override
     public void initialise() {
-        view.init( this );
+        //no additional processing required
     }
 
     @Override
@@ -166,8 +167,6 @@ public class RepositoryInfoPage extends RepositoryWizardPage
 
     @PostConstruct
     private void init() {
-
-        view.init( this );
 
         mandatoryOU = isOUMandatory();
 

@@ -47,6 +47,7 @@ public class RepositoryStructurePage extends RepositoryWizardPage
     public RepositoryStructurePage( RepositoryStructurePageView view,
                                     Caller <RepositoryStructureService> repositoryStructureService ) {
         this.view = view;
+        view.init( this );
         this.repositoryStructureService = repositoryStructureService;
     }
 
@@ -76,7 +77,7 @@ public class RepositoryStructurePage extends RepositoryWizardPage
 
     @Override
     public void initialise() {
-        view.init( this );
+        //no additional processing required
     }
 
     @Override

@@ -64,35 +64,48 @@ public class CreateRepositoryWizard extends AbstractWizard {
 
     private final List<WizardPage> pages = new ArrayList<WizardPage>();
 
-    @Inject
     private RepositoryInfoPage infoPage;
 
-    @Inject
     private RepositoryStructurePage structurePage;
 
     private CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
 
-    @Inject
     private Caller<RepositoryService> repositoryService;
 
-    @Inject
     private Caller<RepositoryStructureService> repositoryStructureService;
 
-    @Inject
     private Caller<AssetManagementService> assetManagementService;
 
-    @Inject
     private Event<NotificationEvent> notification;
 
-    @Inject
     private KieWorkbenchACL kieACL;
 
-    @Inject
     private SessionInfo sessionInfo;
 
     private Callback<Void> onCloseCallback = null;
 
     private boolean assetsManagementIsGranted = false;
+
+    @Inject
+    public CreateRepositoryWizard( RepositoryInfoPage infoPage,
+            RepositoryStructurePage structurePage,
+            CreateRepositoryWizardModel model,
+            Caller<RepositoryService> repositoryService,
+            Caller<RepositoryStructureService> repositoryStructureService,
+            Caller<AssetManagementService> assetManagementService,
+            Event<NotificationEvent> notification,
+            KieWorkbenchACL kieACL,
+            SessionInfo sessionInfo ) {
+        this.infoPage = infoPage;
+        this.structurePage = structurePage;
+        this.model = model;
+        this.repositoryService = repositoryService;
+        this.repositoryStructureService = repositoryStructureService;
+        this.assetManagementService = assetManagementService;
+        this.notification = notification;
+        this.kieACL = kieACL;
+        this.sessionInfo = sessionInfo;
+    }
 
     @PostConstruct
     public void setupPages() {

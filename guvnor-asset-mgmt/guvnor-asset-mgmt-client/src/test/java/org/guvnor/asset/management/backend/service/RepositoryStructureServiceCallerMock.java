@@ -32,9 +32,9 @@ import org.uberfire.backend.vfs.Path;
 public class RepositoryStructureServiceCallerMock
         implements Caller<RepositoryStructureService> {
 
-    RepositoryStructureServiceWrapper repositoryStructureServiceWrapper;
+    protected RepositoryStructureServiceWrapper repositoryStructureServiceWrapper;
 
-    RemoteCallback remoteCallback;
+    protected RemoteCallback remoteCallback;
 
     public RepositoryStructureServiceCallerMock( RepositoryStructureService repositoryStructureService ) {
         this.repositoryStructureServiceWrapper = new RepositoryStructureServiceWrapper( repositoryStructureService );
@@ -56,7 +56,8 @@ public class RepositoryStructureServiceCallerMock
         return repositoryStructureServiceWrapper;
     }
 
-    private class RepositoryStructureServiceWrapper implements RepositoryStructureService {
+    private class RepositoryStructureServiceWrapper
+            implements RepositoryStructureService {
 
         RepositoryStructureService repositoryStructureService;
 
@@ -64,60 +65,84 @@ public class RepositoryStructureServiceCallerMock
             this.repositoryStructureService = repositoryStructureService;
         }
 
-        @Override public Path initRepositoryStructure( GAV gav, Repository repo ) {
-            return null;
+        @Override
+        public Path initRepositoryStructure( GAV gav, Repository repo ) {
+            Path result = repositoryStructureService.initRepositoryStructure( gav, repo );
+            remoteCallback.callback( result );
+            return result;
         }
 
-        @Override public Path initRepositoryStructure( POM pom, String baseUrl, Repository repo, boolean multiProject ) {
-            return null;
+        @Override
+        public Path initRepositoryStructure( POM pom, String baseUrl, Repository repo, boolean multiProject ) {
+            Path result = repositoryStructureService.initRepositoryStructure( pom, baseUrl, repo, multiProject );
+            remoteCallback.callback( result );
+            return result;
         }
 
-        @Override public Repository initRepository( Repository repo, boolean managed ) {
-            return null;
+        @Override
+        public Repository initRepository( Repository repo, boolean managed ) {
+            Repository result = repositoryStructureService.initRepository( repo, managed );
+            remoteCallback.callback( result );
+            return result;
         }
 
-        @Override public Path convertToMultiProjectStructure( List<Project> projects, GAV parentGav, Repository repo, boolean updateChildrenGav, String comment ) {
-            return null;
+        @Override
+        public Path convertToMultiProjectStructure( List<Project> projects, GAV parentGav, Repository repo, boolean updateChildrenGav, String comment ) {
+            Path result = repositoryStructureService.convertToMultiProjectStructure( projects, parentGav, repo, updateChildrenGav, comment );
+            remoteCallback.callback( result );
+            return result;
         }
 
-        @Override public RepositoryStructureModel load( Repository repository ) {
-            return null;
+        @Override
+        public RepositoryStructureModel load( Repository repository ) {
+            RepositoryStructureModel result = repositoryStructureService.load( repository );
+            remoteCallback.callback( result );
+            return result;
         }
 
-        @Override public RepositoryStructureModel load( Repository repository, boolean includeModules ) {
-            return null;
+        @Override
+        public RepositoryStructureModel load( Repository repository, boolean includeModules ) {
+            RepositoryStructureModel result = repositoryStructureService.load( repository, includeModules );
+            remoteCallback.callback( result );
+            return result;
         }
 
-        @Override public void save( Path pathToPomXML, RepositoryStructureModel model, String comment ) {
-
+        @Override
+        public void save( Path pathToPomXML, RepositoryStructureModel model, String comment ) {
+            repositoryStructureService.save( pathToPomXML, model, comment );
         }
 
-        @Override public boolean isValidProjectName( String name ) {
+        @Override
+        public boolean isValidProjectName( String name ) {
             boolean result = repositoryStructureService.isValidProjectName( name );
             remoteCallback.callback( result );
             return result;
         }
 
-        @Override public boolean isValidGroupId( String groupId ) {
+        @Override
+        public boolean isValidGroupId( String groupId ) {
             boolean result = repositoryStructureService.isValidGroupId( groupId );
             remoteCallback.callback( result );
             return result;
         }
 
-        @Override public boolean isValidArtifactId( String artifactId ) {
+        @Override
+        public boolean isValidArtifactId( String artifactId ) {
             boolean result = repositoryStructureService.isValidArtifactId( artifactId );
             remoteCallback.callback( result );
             return result;
         }
 
-        @Override public boolean isValidVersion( String version ) {
+        @Override
+        public boolean isValidVersion( String version ) {
             boolean result = repositoryStructureService.isValidVersion( version );
             remoteCallback.callback( result );
             return result;
         }
 
-        @Override public void delete( Path pathToPomXML, String comment ) {
-
+        @Override
+        public void delete( Path pathToPomXML, String comment ) {
+            repositoryStructureService.delete( pathToPomXML, comment );
         }
     }
 }

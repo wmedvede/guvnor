@@ -16,106 +16,285 @@
 
 package org.guvnor.asset.management.client.editors.repository.wizard.pages;
 
-import java.util.List;
-
+import com.google.gwtmockito.GwtMock;
 import com.google.gwtmockito.GwtMockitoTestRunner;
-import org.guvnor.asset.management.model.RepositoryStructureModel;
+import org.guvnor.asset.management.backend.service.RepositoryStructureServiceCallerMock;
+import org.guvnor.asset.management.client.editors.repository.wizard.CreateRepositoryWizardModel;
 import org.guvnor.asset.management.service.RepositoryStructureService;
-import org.guvnor.common.services.project.model.GAV;
-import org.guvnor.common.services.project.model.POM;
-import org.guvnor.common.services.project.model.Project;
-import org.guvnor.structure.repositories.Repository;
 import org.jboss.errai.common.client.api.Caller;
-import org.jboss.errai.common.client.api.ErrorCallback;
-import org.jboss.errai.common.client.api.RemoteCallback;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.uberfire.backend.vfs.Path;
+
+import static org.guvnor.asset.management.client.editors.repository.wizard.pages.TestUtils.*;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith( GwtMockitoTestRunner.class )
 public class RepositoryStructurePageTest {
 
+    private static final String VALID_VALUE = "Valid";
+
+    private static final String INVALID_VALUE = "Invalid";
+
+    @GwtMock
+    RepositoryStructurePageView view;
+
+    RepositoryStructureService repositoryStructureService = mock( RepositoryStructureService.class );
 
     @Test
-    void testPageLoad() {
-        //RepositoryStructurePage structurePage = new RepositoryStructurePage(  ) ;
+    public void testPageLoad() {
+        RepositoryStructurePage structurePage = new RepositoryStructurePage( view,
+                new RepositoryStructureServiceCallerMock( repositoryStructureService ) );
+
     }
 
-    private class RepositoryStructureStructureServiceCallerMock implements Caller<RepositoryStructureService> {
+    /**
+     * Tests that the page reacts properly when a valid project name is typed.
+     */
+    @Test
+    public void testValidProjectNameChange() {
+        testProjectNameChange( true );
+    }
 
-        RemoteCallback remoteCallback;
+    /**
+     * Tests that the page reacts properly when an invalid project name is typed.
+     */
+    @Test
+    public void testInvalidProjectNameChange() {
+        testProjectNameChange( false );
+    }
 
-        @Override public RepositoryStructureService call() {
-            return null;
+    private void testProjectNameChange( boolean testValidChange ) {
+
+        RepositoryStructurePageExtended structurePage = new RepositoryStructurePageExtended( view,
+                new RepositoryStructureServiceCallerMock( repositoryStructureService ) );
+
+        CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
+        structurePage.setModel( model );
+
+        if ( testValidChange ) {
+            when( view.getProjectName() ).thenReturn( VALID_VALUE );
+        } else {
+            when( view.getProjectName() ).thenReturn( INVALID_VALUE );
         }
 
-        @Override public RepositoryStructureService call( RemoteCallback<?> remoteCallback ) {
-            return null;
+        when( repositoryStructureService.isValidProjectName( VALID_VALUE ) ).thenReturn( true );
+        when( repositoryStructureService.isValidProjectName( INVALID_VALUE ) ).thenReturn( false );
+
+        structurePage.onProjectNameChange();
+
+        verify( view, times( 2 ) ).getProjectName();
+
+        if ( testValidChange ) {
+            verify( view, times( 1 ) ).clearProjectNameErrorMessage( );
+            assertEquals( VALID_VALUE, model.getProjectName() );
+        } else {
+            verify( view, times( 1 ) ).setProjectNameErrorMessage( anyString() );
+            assertEquals( INVALID_VALUE, model.getProjectName() );
         }
 
-        @Override public RepositoryStructureService call( RemoteCallback<?> remoteCallback, ErrorCallback<?> errorCallback ) {
-            return null;
+        assertPageComplete( false, structurePage );
+    }
+
+    /**
+     * Tests that the page reacts properly when a valid groupId is typed.
+     */
+    @Test
+    public void testValidGroupIdChange() {
+        testGroupIdChange( true );
+    }
+
+    /**
+     * Tests that the page reacts properly when an invalid groupId is typed.
+     */
+    @Test
+    public void testInvalidGroupIdChange() {
+        testGroupIdChange( false );
+    }
+
+    private void testGroupIdChange( boolean testValidChange ) {
+
+        RepositoryStructurePageExtended structurePage = new RepositoryStructurePageExtended( view,
+                new RepositoryStructureServiceCallerMock( repositoryStructureService ) );
+
+        CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
+        structurePage.setModel( model );
+
+        if ( testValidChange ) {
+            when( view.getGroupId() ).thenReturn( VALID_VALUE );
+        } else {
+            when( view.getGroupId() ).thenReturn( INVALID_VALUE );
         }
 
-        private class RepositoryStructureServiceWrapper implements RepositoryStructureService {
+        when( repositoryStructureService.isValidGroupId( INVALID_VALUE ) ).thenReturn( false );
+        when( repositoryStructureService.isValidGroupId( VALID_VALUE ) ).thenReturn( true );
 
-            RepositoryStructureService repositoryStructureService;
+        structurePage.onGroupIdChange();
 
-            @Override public Path initRepositoryStructure( GAV gav, Repository repo ) {
-                return null;
-            }
+        verify( view, times( 2 ) ).getGroupId();
 
-            @Override public Path initRepositoryStructure( POM pom, String baseUrl, Repository repo, boolean multiProject ) {
-                return null;
-            }
+        if ( testValidChange ) {
+            verify( view, times( 1 ) ).clearGroupIdErrorMessage();
+            assertEquals( VALID_VALUE, model.getGroupId() );
+        } else {
+            verify( view, times( 1 ) ).setGroupIdErrorMessage( anyString() );
+            assertEquals( INVALID_VALUE, model.getGroupId() );
+        }
 
-            @Override public Repository initRepository( Repository repo, boolean managed ) {
-                return null;
-            }
+        assertPageComplete( false, structurePage );
+    }
 
-            @Override public Path convertToMultiProjectStructure( List<Project> projects, GAV parentGav, Repository repo, boolean updateChildrenGav, String comment ) {
-                return null;
-            }
+    /**
+     * Tests that the page reacts properly when a valid artifactId is typed.
+     */
+    @Test
+    public void testValidArtifactIdChange() {
+        testArtifactIdChange( true );
+    }
 
-            @Override public RepositoryStructureModel load( Repository repository ) {
-                return null;
-            }
+    /**
+     * Tests that the page reacts properly when an invalid artifactId is typed.
+     */
+    @Test
+    public void testInvalidArtifactIdChange() {
+        testArtifactIdChange( false );
+    }
 
-            @Override public RepositoryStructureModel load( Repository repository, boolean includeModules ) {
-                return null;
-            }
+    private void testArtifactIdChange( boolean testValidChange ) {
 
-            @Override public void save( Path pathToPomXML, RepositoryStructureModel model, String comment ) {
+        RepositoryStructurePageExtended structurePage = new RepositoryStructurePageExtended( view,
+                new RepositoryStructureServiceCallerMock( repositoryStructureService ) );
 
-            }
+        CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
+        structurePage.setModel( model );
 
-            @Override public boolean isValidProjectName( String name ) {
-                boolean result = repositoryStructureService.isValidProjectName( name );
-                remoteCallback.callback( result );
-                return result;
-            }
+        if ( testValidChange ) {
+            when( view.getArtifactId() ).thenReturn( VALID_VALUE );
+        } else {
+            when( view.getArtifactId() ).thenReturn( INVALID_VALUE );
+        }
 
-            @Override public boolean isValidGroupId( String groupId ) {
-                boolean result = repositoryStructureService.isValidGroupId( groupId );
-                remoteCallback.callback( result );
-                return result;
-            }
+        when( repositoryStructureService.isValidArtifactId( VALID_VALUE ) ).thenReturn( true );
+        when( repositoryStructureService.isValidArtifactId( INVALID_VALUE ) ).thenReturn( false );
 
-            @Override public boolean isValidArtifactId( String artifactId ) {
-                boolean result = repositoryStructureService.isValidArtifactId( artifactId );
-                remoteCallback.callback( result );
-                return result;
-            }
+        structurePage.onArtifactIdChange();
 
-            @Override public boolean isValidVersion( String version ) {
-                boolean result = repositoryStructureService.isValidVersion( version );
-                remoteCallback.callback( result );
-                return result;
-            }
+        verify( view, times( 2 ) ).getArtifactId();
 
-            @Override public void delete( Path pathToPomXML, String comment ) {
+        if ( testValidChange ) {
+            verify( view, times( 1 ) ).clearArtifactIdErrorMessage();
+            assertEquals( VALID_VALUE, model.getArtifactId() );
+        } else {
+            verify( view, times( 1 ) ).setArtifactIdErrorMessage( anyString() );
+            assertEquals( INVALID_VALUE, model.getArtifactId() );
+        }
 
-            }
+        assertPageComplete( false, structurePage );
+    }
+
+    /**
+     * Tests that the page reacts properly when a valid version typed.
+     */
+    @Test
+    public void testValidVersionChange() {
+        testVersionChange( true );
+    }
+
+    /**
+     * Tests that the page reacts properly when an invalid version is typed.
+     */
+    @Test
+    public void testInvalidVersionChange() {
+        testVersionChange( false );
+    }
+
+    private void testVersionChange( boolean testValidChange ) {
+
+        RepositoryStructurePageExtended structurePage = new RepositoryStructurePageExtended( view,
+                new RepositoryStructureServiceCallerMock( repositoryStructureService ) );
+
+        CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
+        structurePage.setModel( model );
+
+        if ( testValidChange ) {
+            when( view.getVersion() ).thenReturn( VALID_VALUE );
+        } else {
+            when( view.getVersion() ).thenReturn( INVALID_VALUE );
+        }
+
+        when( repositoryStructureService.isValidVersion( VALID_VALUE ) ).thenReturn( true );
+        when( repositoryStructureService.isValidVersion( INVALID_VALUE ) ).thenReturn( false );
+
+        structurePage.onVersionChange();
+
+        verify( view, times( 2 ) ).getVersion();
+
+        if ( testValidChange ) {
+            verify( view, times( 1 ) ).clearVersionErrorMessage();
+            assertEquals( VALID_VALUE, model.getVersion() );
+        } else {
+            verify( view, times( 1 ) ).setVersionErrorMessage( anyString() );
+            assertEquals( INVALID_VALUE, model.getVersion() );
+        }
+
+        assertPageComplete( false, structurePage );
+    }
+
+
+    /**
+     * Test a sequence of steps that will successfully complete the page.
+     */
+    @Test
+    public void testPageCompleted() {
+
+        String projectName = "ProjectName";
+        String groupId = "GroupId";
+        String artifactId = "ArtifactId";
+        String version = "Version";
+
+        RepositoryStructurePageExtended structurePage = new RepositoryStructurePageExtended( view,
+                new RepositoryStructureServiceCallerMock( repositoryStructureService ) );
+
+        CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
+        structurePage.setModel( model );
+
+        when( view.getProjectName() ).thenReturn( projectName );
+        when( view.getGroupId() ).thenReturn( groupId );
+        when( view.getArtifactId() ).thenReturn( artifactId );
+        when( view.getVersion() ).thenReturn( version );
+
+        when( repositoryStructureService.isValidProjectName( projectName ) ).thenReturn( true );
+        when( repositoryStructureService.isValidGroupId( groupId ) ).thenReturn( true );
+        when( repositoryStructureService.isValidArtifactId( artifactId ) ).thenReturn( true );
+        when( repositoryStructureService.isValidVersion( version ) ).thenReturn( true );
+
+        structurePage.prepareView();
+        //emulate that the page was visited at least one time as required.
+        structurePage.setStructurePageWasVisited( true );
+
+        //this sequence is not relevant
+        structurePage.onProjectNameChange();
+        structurePage.onGroupIdChange();
+        structurePage.onArtifactIdChange();
+        structurePage.onVersionChange();
+
+        assertPageComplete( true, structurePage );
+
+        assertEquals( projectName, model.getProjectName() );
+        assertEquals( groupId, model.getGroupId() );
+        assertEquals( artifactId, model.getArtifactId() );
+        assertEquals( version, model.getVersion() );
+    }
+
+    public static class RepositoryStructurePageExtended extends RepositoryStructurePage {
+
+        public RepositoryStructurePageExtended( RepositoryStructurePageView view,
+                Caller<RepositoryStructureService> repositoryStructureService ) {
+            super( view, repositoryStructureService );
+        }
+
+        @Override
+        public void fireEvent() {
         }
     }
 
