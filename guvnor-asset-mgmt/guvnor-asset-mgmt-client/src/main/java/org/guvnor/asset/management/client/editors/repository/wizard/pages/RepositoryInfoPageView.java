@@ -16,10 +16,10 @@
 
 package org.guvnor.asset.management.client.editors.repository.wizard.pages;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.uberfire.client.mvp.UberView;
+import org.uberfire.commons.data.Pair;
 
 public interface RepositoryInfoPageView
         extends
@@ -45,7 +45,7 @@ public interface RepositoryInfoPageView
 
     void clearNameErrorMessage( );
 
-    void initOrganizationalUnits( Collection<OrganizationalUnit> organizationalUnits );
+    void initOrganizationalUnits( List<Pair<String, String>> organizationalUnits );
 
     String getOrganizationalUnitName();
 

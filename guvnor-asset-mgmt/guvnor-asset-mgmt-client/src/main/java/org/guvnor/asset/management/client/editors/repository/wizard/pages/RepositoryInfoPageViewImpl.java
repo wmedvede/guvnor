@@ -16,7 +16,7 @@
 
 package org.guvnor.asset.management.client.editors.repository.wizard.pages;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.github.gwtbootstrap.client.ui.CheckBox;
 import com.github.gwtbootstrap.client.ui.ControlGroup;
@@ -36,7 +36,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Widget;
-import org.guvnor.structure.organizationalunit.OrganizationalUnit;
+import org.uberfire.commons.data.Pair;
 import org.uberfire.ext.widgets.core.client.resources.i18n.CoreConstants;
 
 public class RepositoryInfoPageViewImpl extends Composite
@@ -117,7 +117,7 @@ public class RepositoryInfoPageViewImpl extends Composite
 
     @Override
     public void setValidOU( boolean ouValid ) {
-        //TODO enable disable error messages.
+        //not apply for this case
     }
 
     @Override
@@ -126,13 +126,14 @@ public class RepositoryInfoPageViewImpl extends Composite
     }
 
     @Override
-    public void initOrganizationalUnits( Collection<OrganizationalUnit> organizationalUnits ) {
+    public void initOrganizationalUnits( List<Pair<String, String>> organizationalUnits ) {
 
+        organizationalUnitDropdown.clear();
         organizationalUnitDropdown.addItem( CoreConstants.INSTANCE.SelectEntry(), NOT_SELECTED );
-        if ( organizationalUnits != null && !organizationalUnits.isEmpty() ) {
-            for ( OrganizationalUnit organizationalUnit : organizationalUnits ) {
-                organizationalUnitDropdown.addItem( organizationalUnit.getName(),
-                                                    organizationalUnit.getName() );
+        if ( organizationalUnits != null ) {
+            for ( Pair<String, String> organizationalUnitInfo : organizationalUnits ) {
+                organizationalUnitDropdown.addItem( organizationalUnitInfo.getK1(),
+                                                    organizationalUnitInfo.getK2() );
 
             }
         }

@@ -16,8 +16,10 @@
 
 package org.guvnor.asset.management.client.editors.repository.wizard.pages;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ import org.jboss.errai.ioc.client.container.IOC;
 import org.jboss.errai.ioc.client.container.IOCBeanDef;
 import org.jboss.errai.ioc.client.container.IOCResolutionException;
 import org.uberfire.client.callbacks.Callback;
+import org.uberfire.commons.data.Pair;
 import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.ext.widgets.core.client.resources.i18n.CoreConstants;
 
@@ -166,7 +169,7 @@ public class RepositoryInfoPage extends RepositoryWizardPage
     }
 
     @PostConstruct
-    private void init() {
+    protected void init() {
 
         mandatoryOU = isOUMandatory();
 
@@ -179,13 +182,7 @@ public class RepositoryInfoPage extends RepositoryWizardPage
 
                                             @Override
                                             public void callback( Collection<OrganizationalUnit> organizationalUnits ) {
-                                                if ( organizationalUnits != null && !organizationalUnits.isEmpty() ) {
-                                                    for ( OrganizationalUnit organizationalUnit : organizationalUnits ) {
-                                                        availableOrganizationalUnits.put( organizationalUnit.getName(),
-                                                                                          organizationalUnit );
-                                                    }
-                                                    view.initOrganizationalUnits( organizationalUnits );
-                                                }
+                                                initOrganizationalUnits( organizationalUnits );
                                             }
                                         },
                                         new ErrorCallback<Message>() {
@@ -220,4 +217,15 @@ public class RepositoryInfoPage extends RepositoryWizardPage
         return true;
     }
 
+    protected void initOrganizationalUnits( Collection<OrganizationalUnit> organizationalUnits ) {
+        List<Pair<String, String>> organizationalUnitsInfo = new ArrayList<Pair<String, String>>(  );
+        if ( organizationalUnits != null && !organizationalUnits.isEmpty() ) {
+            for ( OrganizationalUnit organizationalUnit : organizationalUnits ) {
+                availableOrganizationalUnits.put( organizationalUnit.getName(),
+                        organizationalUnit );
+                organizationalUnitsInfo.add( new Pair( organizationalUnit.getName(), organizationalUnit.getName() ) );
+            }
+        }
+        view.initOrganizationalUnits( organizationalUnitsInfo );
+    }
 }

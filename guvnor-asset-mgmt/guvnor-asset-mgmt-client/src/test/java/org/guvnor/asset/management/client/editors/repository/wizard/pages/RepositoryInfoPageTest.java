@@ -17,11 +17,13 @@
 package org.guvnor.asset.management.client.editors.repository.wizard.pages;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gwtmockito.GwtMock;
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import org.guvnor.asset.management.client.editors.repository.wizard.CreateRepositoryWizardModel;
+import org.guvnor.asset.management.client.editors.repository.wizard.WizardTestUtils;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
 import org.guvnor.structure.organizationalunit.OrganizationalUnitServiceCallerMock;
@@ -31,8 +33,9 @@ import org.guvnor.structure.repositories.RepositoryServiceCallerMock;
 import org.jboss.errai.common.client.api.Caller;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.uberfire.commons.data.Pair;
 
-import static org.guvnor.asset.management.client.editors.repository.wizard.pages.TestUtils.*;
+import static org.guvnor.asset.management.client.editors.repository.wizard.WizardTestUtils.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -48,6 +51,8 @@ public class RepositoryInfoPageTest {
 
     List<OrganizationalUnit> organizationalUnits = buildOrganiztionalUnits();
 
+    List<Pair<String, String>> organizationalUnitsInfo = buildOrganiztionalUnitsInfo( organizationalUnits );
+
     /**
      * Tests that organizational units information is properly loaded when the page is initialized.
      */
@@ -57,7 +62,8 @@ public class RepositoryInfoPageTest {
         RepositoryInfoPage infoPage = new RepositoryInfoPageExtended( view,
                 new OrganizationalUnitServiceCallerMock( organizationalUnitService ),
                 new RepositoryServiceCallerMock( repositoryService ),
-                true );
+                true,
+                new WizardTestUtils.WizardPageStatusChangeEventMock() );
 
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
@@ -67,7 +73,7 @@ public class RepositoryInfoPageTest {
         infoPage.prepareView();
 
         verify( view, times( 1 ) ).init( infoPage );
-        verify( view ).initOrganizationalUnits( eq( organizationalUnits ) );
+        verify( view ).initOrganizationalUnits( eq( organizationalUnitsInfo ) );
 
         assertPageComplete( false, infoPage );
     }
@@ -80,7 +86,8 @@ public class RepositoryInfoPageTest {
         RepositoryInfoPage infoPage = new RepositoryInfoPageExtended( view,
                 new OrganizationalUnitServiceCallerMock( organizationalUnitService ),
                 new RepositoryServiceCallerMock( repositoryService ),
-                true );
+                true,
+                new WizardTestUtils.WizardPageStatusChangeEventMock() );
 
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
@@ -107,7 +114,8 @@ public class RepositoryInfoPageTest {
         RepositoryInfoPage infoPage = new RepositoryInfoPageExtended( view,
                 new OrganizationalUnitServiceCallerMock( organizationalUnitService ),
                 new RepositoryServiceCallerMock( repositoryService ),
-                true );
+                true,
+                new WizardTestUtils.WizardPageStatusChangeEventMock() );
 
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
@@ -137,7 +145,8 @@ public class RepositoryInfoPageTest {
         RepositoryInfoPage infoPage = new RepositoryInfoPageExtended( view,
                 new OrganizationalUnitServiceCallerMock( organizationalUnitService ),
                 new RepositoryServiceCallerMock( repositoryService ),
-                true );
+                true,
+                new WizardTestUtils.WizardPageStatusChangeEventMock() );
 
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
@@ -178,7 +187,8 @@ public class RepositoryInfoPageTest {
         RepositoryInfoPage infoPage = new RepositoryInfoPageExtended( view,
                 new OrganizationalUnitServiceCallerMock( organizationalUnitService ),
                 new RepositoryServiceCallerMock( repositoryService ),
-                true );
+                true,
+                new WizardTestUtils.WizardPageStatusChangeEventMock() );
 
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
@@ -202,7 +212,8 @@ public class RepositoryInfoPageTest {
         RepositoryInfoPage infoPage = new RepositoryInfoPageExtended( view,
                 new OrganizationalUnitServiceCallerMock( organizationalUnitService ),
                 new RepositoryServiceCallerMock( repositoryService ),
-                true );
+                true,
+                new WizardTestUtils.WizardPageStatusChangeEventMock() );
 
         CreateRepositoryWizardModel model = new CreateRepositoryWizardModel();
         infoPage.setModel( model );
@@ -233,6 +244,15 @@ public class RepositoryInfoPageTest {
         return organizationalUnits;
     }
 
+    public static List<Pair<String, String>> buildOrganiztionalUnitsInfo( Collection<OrganizationalUnit> organizationalUnits ) {
+        List<Pair<String, String>> organizationalUnitsInfo = new ArrayList<Pair<String, String>>(  );
+        for ( OrganizationalUnit organizationalUnit : organizationalUnits ) {
+            organizationalUnitsInfo.add( new Pair( organizationalUnit.getName(), organizationalUnit.getName() ) );
+        }
+        return organizationalUnitsInfo;
+    }
+
+
     public static class RepositoryInfoPageExtended extends RepositoryInfoPage {
 
         private boolean ouMandatory = false;
@@ -240,19 +260,21 @@ public class RepositoryInfoPageTest {
         public RepositoryInfoPageExtended( RepositoryInfoPageView view,
                 Caller<OrganizationalUnitService> organizationalUnitService,
                 Caller<RepositoryService> repositoryService,
-                boolean ouMandatory ) {
+                boolean ouMandatory,
+                WizardPageStatusChangeEventMock event ) {
 
             super( view, organizationalUnitService, repositoryService );
             this.ouMandatory = ouMandatory;
+            super.wizardPageStatusChangeEvent = event;
+            //emulates the invocation of the @PostConstruct method.
+            super.init();
         }
 
-        @Override protected boolean isOUMandatory() {
+        @Override
+        protected boolean isOUMandatory() {
             return ouMandatory;
         }
 
-        @Override public void fireEvent() {
-
-        }
     }
 
 }

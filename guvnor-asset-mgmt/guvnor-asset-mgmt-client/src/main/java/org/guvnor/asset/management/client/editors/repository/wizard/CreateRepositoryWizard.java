@@ -157,8 +157,8 @@ public class CreateRepositoryWizard extends AbstractWizard {
     @Override
     public void isComplete( final Callback<Boolean> callback ) {
 
-        callback.callback( false );
         final int[] unCompletedPages = {this.pages.size()};
+        final boolean[] completed = {false};
 
         //only when all pages are complete we can say the wizard is complete.
         for ( WizardPage page : this.pages ) {
@@ -169,12 +169,14 @@ public class CreateRepositoryWizard extends AbstractWizard {
                     if ( Boolean.TRUE.equals( result ) ) {
                         unCompletedPages[0]--;
                         if ( unCompletedPages[0] == 0 ) {
-                            callback.callback( true );
+                            completed[0] = true;
                         }
                     }
                 }
             } );
         }
+
+        callback.callback( completed[0] );
     }
 
     @Override
