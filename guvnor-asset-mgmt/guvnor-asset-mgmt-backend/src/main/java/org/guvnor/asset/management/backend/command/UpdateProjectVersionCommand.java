@@ -34,6 +34,7 @@ import org.guvnor.common.services.project.model.POM;
 import org.guvnor.common.services.project.model.Project;
 import org.guvnor.common.services.project.service.POMService;
 import org.guvnor.common.services.project.service.ProjectService;
+import org.guvnor.m2repo.backend.server.GuvnorM2Repository;
 import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.repositories.RepositoryService;
 import org.kie.api.executor.CommandContext;
@@ -62,11 +63,15 @@ public class UpdateProjectVersionCommand extends AbstractCommand {
             BeanManager beanManager = CDIUtils.lookUpBeanManager(ctx);
             logger.debug("BeanManager " + beanManager);
 
-            ProjectService projectService = CDIUtils.createBean(new TypeLiteral<ProjectService<?>>() {}.getType(), beanManager);
+            ProjectService projectService = CDIUtils.createBean( new TypeLiteral<ProjectService<?>>() {
+            }.getType(), beanManager );
             logger.debug("ProjectService " + projectService);
 
-            IOService ioService = CDIUtils.createBean(IOService.class, beanManager, new NamedLiteral("ioStrategy"));
+            IOService ioService = CDIUtils.createBean( IOService.class, beanManager, new NamedLiteral( "ioStrategy" ) );
             logger.debug("IoService " + ioService);
+
+            GuvnorM2Repository m2service = CDIUtils.createBean( GuvnorM2Repository.class, beanManager );
+            logger.debug( "GuvnorM2Repository " + m2service );
 
             List<ProjectInfo> updatedProject = new ArrayList<ProjectInfo>();
 
@@ -79,49 +84,61 @@ public class UpdateProjectVersionCommand extends AbstractCommand {
 
                 Repository repo = repositoryService.getRepository(uri);
 
+                // update and register parent pom if exists
+                String branchRoot = repo.getBranchRoot(branchToUpdate).toURI();
+                Path parentPomPath = ioService.get( URI.create( branchRoot + "pom.xml" ) );
+                final List<String> modules = new ArrayList<String>(  );
+
+                if (ioService.exists(parentPomPath)) {
+                    org.uberfire.backend.vfs.Path convertedPomPath = Paths.convert( parentPomPath );
+                    POM pom = pomService.load(convertedPomPath);
+                    pom.getGav().setVersion( version );
+                    pomService.save( convertedPomPath, pom, null, "Update parent pom version during release" );
+
+                    //The new parent needs to be deployed before his children starts to be being built.
+                    m2service.deployParentPom( pom.getGav() );
+
+                    if ( pom.getModules() != null ) {
+                        modules.addAll( pom.getModules() );
+                    }
+                }
+
+                // update child modules
                 Set<Project> projects = projectService.getProjects(repo, branchToUpdate);
-
-
                 for (Project project : projects) {
 
                     POM pom = pomService.load(project.getPomXMLPath());
                     pom.getGav().setVersion(version);
+                    if ( pom.getParent() != null ) {
+                        pom.getParent().setVersion( version );
+                    }
                     pomService.save(project.getPomXMLPath(), pom, null, "Update project version during release");
                     executionResults.setData("GAV", pom.getGav().toString());
 
                     boolean isKieProject = KIE_PROJECT_CLASS.equals(project.getClass().getName());
                     updatedProject.add(new ProjectInfo(repo.getAlias(), branchToUpdate, project.getProjectName(), isKieProject));
                 }
-                // update parent pom if exists
-                String branchRoot = repo.getBranchRoot(branchToUpdate).toURI();
 
-                Path parentPomPath = ioService.get(URI.create(branchRoot + "pom.xml"));
-                if (ioService.exists(parentPomPath)) {
-                    org.uberfire.backend.vfs.Path convertedPomPath = Paths.convert(parentPomPath);
-                    POM pom = pomService.load(convertedPomPath);
-                    pom.getGav().setVersion(version);
-                    pomService.save(convertedPomPath, pom, null, "Update parent pom version during release");
+                if ( modules.size() > 0 ) {
 
-                    final List<String> modules = pom.getModules();
-
-                    Collections.sort(updatedProject, new Comparator<ProjectInfo>() {
+                    Collections.sort( updatedProject, new Comparator<ProjectInfo>() {
                         @Override
-                        public int compare(ProjectInfo projectInfo, ProjectInfo projectInfo2) {
-                            Integer indexP1 = modules.indexOf(projectInfo.getName());
-                            Integer indexP2 = modules.indexOf(projectInfo2.getName());
+                        public int compare( ProjectInfo projectInfo, ProjectInfo projectInfo2 ) {
+                            Integer indexP1 = modules.indexOf( projectInfo.getName() );
+                            Integer indexP2 = modules.indexOf( projectInfo2.getName() );
 
-                            return indexP1.compareTo(indexP2);
+                            return indexP1.compareTo( indexP2 );
                         }
-                    });
-                }
+                    } );
 
+                }
 
                 RepositoryChangeEvent event = getSocialEvent( (String)ctx.getData( "_ProcessName" ),
                         uri,
                         branchToUpdate,
                         version,
                         repositoryService);
-                beanManager.fireEvent(event);
+                beanManager.fireEvent( event );
             }
             executionResults.setData("UpdatedProjects", updatedProject);
             return executionResults;
