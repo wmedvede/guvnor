@@ -30,7 +30,7 @@ public class WildflyProviderConfigImpl implements WildflyProviderConfig,
     private String password;
 
     public WildflyProviderConfigImpl() {
-        this.name = WildflyProviderConfig.super.getName();
+        this.name = WildflyProviderConfig.super.getName( );
         this.hostIp = WildflyProviderConfig.super.getHostIp();
         this.port = WildflyProviderConfig.super.getPort();
         this.managementPort = WildflyProviderConfig.super.getManagementPort();

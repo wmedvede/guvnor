@@ -6,7 +6,7 @@
     <extension qualifier="docker">
         
         <property name="autoStartContainers">[none]</property>
-        <property name="serverVersion">1.22</property>
+        <property name="serverVersion">1.24</property>
         <property name="definitionFormat">CUBE</property>
         <property name="dockerContainers">
             swarm:
@@ -14,13 +14,13 @@
                 dockerfileLocation: src/test/resources/wildfly
                 noCache: true
                 remove: true
-              exposedPorts: [8080/tcp, 9990/tcp]
+              exposedPorts: [8080/tcp, 9990/tcp, 8787/tcp]
               await:
                    strategy: polling
                    sleepPollingTime: 5 s
                    iterations: 5
                    type: ping
-              portBindings: [8080/tcp, 9990/tcp]
+              portBindings: [8080/tcp, 9990/tcp, 8787/tcp]
         </property>
     </extension>
 </arquillian>

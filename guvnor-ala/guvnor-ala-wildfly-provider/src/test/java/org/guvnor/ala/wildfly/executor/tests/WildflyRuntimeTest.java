@@ -92,7 +92,9 @@ public class WildflyRuntimeTest {
 
     @Test
     @InSequence( 2 )
-    public void waitForAppBuildTest() {
+    public void waitForAppBuildTest() throws Exception {
+        System.out.println( "ESPERANDOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" );
+        Thread.sleep( 10 * 1000 );
         final GitHub gitHub = new GitHub();
         final GitRepository repository = ( GitRepository ) gitHub.getRepository( "salaboy/drools-workshop", new HashMap<String, String>() {
             {
