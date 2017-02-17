@@ -22,18 +22,25 @@ import java.util.Optional;
 import java.util.Properties;
 import javax.inject.Inject;
 
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.project.MavenProject;
 import org.guvnor.ala.build.Project;
 import org.guvnor.ala.build.maven.config.MavenBuildExecConfig;
 import org.guvnor.ala.build.maven.model.MavenBinary;
 import org.guvnor.ala.build.maven.model.MavenBuild;
+import org.guvnor.ala.build.maven.model.impl.MavenProjectBinaryBuildImpl;
 import org.guvnor.ala.build.maven.model.impl.MavenProjectBinaryImpl;
 import org.guvnor.ala.config.BinaryConfig;
 import org.guvnor.ala.config.Config;
 import org.guvnor.ala.exceptions.BuildException;
 import org.guvnor.ala.pipeline.BiFunctionConfigExecutor;
 import org.guvnor.ala.registry.BuildRegistry;
+import org.guvnor.common.services.project.builder.model.BuildMessage;
+import org.guvnor.common.services.project.builder.model.BuildResults;
+import org.guvnor.common.services.project.model.GAV;
+import org.guvnor.common.services.shared.message.Level;
 import org.kie.scanner.embedder.MavenProjectLoader;
+import org.kie.scanner.embedder.logger.LocalLoggerConsumer;
 import org.uberfire.java.nio.file.FileSystems;
 import org.uberfire.java.nio.file.Path;
 
@@ -54,16 +61,46 @@ public class MavenBuildExecConfigExecutor implements BiFunctionConfigExecutor<Ma
 
         final Project project = mavenBuild.getProject();
 
-        final MavenProject mavenProject = build(project, mavenBuild.getGoals(), mavenBuild.getProperties() );
+        final BuildResults buildResults = new BuildResults( );
+
+        final MavenExecutionResult executionResult = build( project, mavenBuild.getGoals( ), mavenBuild.getProperties( ), new LocalLoggerConsumer( ) {
+            @Override
+            public void debug( String message, Throwable throwable ) {
+                buildResults.addBuildMessage( newBuildMessage( Level.INFO, message ) );
+            }
+
+            @Override
+            public void info( String message, Throwable throwable ) {
+                buildResults.addBuildMessage( newBuildMessage( Level.INFO, message ) );
+            }
+
+            @Override
+            public void warn( String message, Throwable throwable ) {
+                buildResults.addBuildMessage( newBuildMessage( Level.WARNING, message ) );
+            }
+
+            @Override
+            public void error( String message, Throwable throwable ) {
+                buildResults.addBuildMessage( newBuildMessage( Level.ERROR, message ) );
+            }
+
+            @Override
+            public void fatalError( String message, Throwable throwable ) {
+                buildResults.addBuildMessage( newBuildMessage( Level.ERROR, message ) );
+            }
+        } );
+
+        final MavenProject mavenProject = executionResult.getProject();
 
         final Path path = FileSystems.getFileSystem(URI.create("file://default")).getPath(project.getTempDir() + "/target/" + project.getExpectedBinary());
 
-        final MavenBinary binary = new MavenProjectBinaryImpl(
+        final MavenBinary binary = new MavenProjectBinaryBuildImpl(
                 path,
                 project,
                 mavenProject.getGroupId(),
                 mavenProject.getArtifactId(),
-                mavenProject.getVersion() );
+                mavenProject.getVersion(),
+                buildResults );
 
         buildRegistry.registerBinary( binary );
         return Optional.of( binary );
@@ -84,12 +121,27 @@ public class MavenBuildExecConfigExecutor implements BiFunctionConfigExecutor<Ma
         return "maven-exec-config";
     }
 
-    public MavenProject build(final Project project,
+    public MavenExecutionResult build( final Project project,
+                                       final List<String> goals,
+                                       final Properties properties,
+                                       final LocalLoggerConsumer consumer ) throws BuildException {
+        final File pom = new File( project.getTempDir(), "pom.xml" );
+        return executeMaven( pom, properties, consumer, goals.toArray( new String[]{} ) );
+    }
+
+
+    public MavenProject build_old(final Project project,
                               final List<String> goals,
                               final Properties properties ) throws BuildException {
         final File pom = new File( project.getTempDir(), "pom.xml" );
-        executeMaven( pom, properties, goals.toArray( new String[]{} ) );
+        MavenExecutionResult result = executeMaven( pom, properties, null, goals.toArray( new String[]{} ) );
         return MavenProjectLoader.parseMavenPom(pom);
     }
 
+    BuildMessage newBuildMessage( Level level, String message ) {
+        BuildMessage buildMessage = new BuildMessage();
+        buildMessage.setLevel( level );
+        buildMessage.setText( message );
+        return buildMessage;
+    }
 }

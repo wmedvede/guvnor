@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.project.MavenProject;
 import org.guvnor.ala.build.Project;
 
@@ -47,6 +48,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.scanner.embedder.MavenProjectLoader;
+import org.kie.scanner.embedder.logger.LocalLoggerConsumer;
 import org.uberfire.java.nio.file.InvalidPathException;
 
 /**
@@ -69,7 +71,7 @@ public class MavenCliOutputTest {
         FileUtils.deleteQuietly( tempPath );
     }
 
-    @Test
+    //@Test
     public void buildAppAndWaitForMavenOutputTest() throws IOException {
         final GitHub gitHub = new GitHub();
         gitHub.getRepository( "salaboy/drools-workshop", new HashMap<String, String>() {
@@ -127,6 +129,59 @@ public class MavenCliOutputTest {
 
     }
 
+    @Test
+    public void localLoggerConsumerTest() throws IOException {
+/*
+        final GitHub gitHub = new GitHub();
+        gitHub.getRepository( "wmedvede/TestBuild", new HashMap<String, String>() {
+            {
+                put( "out-dir", tempPath.getAbsolutePath() );
+            }
+        } );
+*/
+        final Optional<Source> _source = new GitConfigExecutor( new InMemorySourceRegistry() ).apply( new GitConfigImpl( tempPath.getAbsolutePath(),
+                "master",
+                "https://github.com/wmedvede/appformer-projects",
+                "TestBuild",
+                "true" ) );
+
+        assertTrue( _source.isPresent() );
+        final Source source = _source.get();
+
+        //MavenExecutionResult result = buildMavenProject( source, null );
+
+
+        MavenExecutionResult result1 = buildMavenProject( source, new LocalLoggerConsumer( ) {
+
+            @Override
+            public void debug( String s, Throwable throwable ) {
+                System.out.println( "[X-DEBUG] " + s );
+            }
+
+            @Override
+            public void info( String s, Throwable throwable ) {
+                System.out.println( "[X-INFO] " + s );
+            }
+
+            @Override
+            public void warn( String s, Throwable throwable ) {
+                System.out.println( "[X-WARN] " + s );
+            }
+
+            @Override
+            public void error( String s, Throwable throwable ) {
+                System.out.println( "[X-ERROR] " + s );
+            }
+
+            @Override
+            public void fatalError( String s, Throwable throwable ) {
+                System.out.println( "[X FATAL] " + s );
+            }
+        } );
+
+
+    }
+
     /*
      * Build Maven Project from Source using Out and Err PrintStreams for getting the output
      */
@@ -151,6 +206,34 @@ public class MavenCliOutputTest {
                 null );
         final File pom = new File( getRepositoryVisitor( mavenProject ).getRoot(), "pom.xml" );
         MavenBuildExecutor.executeMaven( pom, out, err, p, goals.toArray( new String[0] ) );
+    }
+
+    /*
+    * Build Maven Project from Source using Out and Err PrintStreams for getting the output
+    */
+    private MavenExecutionResult buildMavenProject( Source source, LocalLoggerConsumer consumer )
+            throws org.uberfire.java.nio.IOException, SecurityException, UnsupportedOperationException, IllegalArgumentException {
+        List< String > goals = new ArrayList<>( );
+        goals.add( "package" );
+        Properties p = new Properties( );
+        p.setProperty( "failIfNoTests", "false" );
+
+        final InputStream pomStream = org.uberfire.java.nio.file.Files.newInputStream( source.getPath( ).resolve( "TestBuild" ).resolve( "pom.xml" ) );
+        MavenProject project = MavenProjectLoader.parseMavenPom( pomStream );
+
+        final String expectedBinary = project.getArtifact( ).getArtifactId( ) + "-" + project.getArtifact( ).getVersion( ) + "." + project.getArtifact( ).getType( );
+        final org.guvnor.ala.build.maven.model.MavenProject mavenProject = new MavenProjectImpl( project.getId( ),
+                project.getArtifact( ).getType( ),
+                project.getName( ),
+                expectedBinary,
+                source.getPath( ),
+                source.getPath( ).resolve( "TestBuild" ),
+                source.getPath( ).resolve( "target" ).resolve( expectedBinary ).toAbsolutePath( ),
+                null,
+                null );
+        final File pom = new File( getRepositoryVisitor( mavenProject ).getRoot( ), "pom.xml" );
+        //MavenBuildExecutor.executeMaven( pom, p, goals.toArray( new String [0]) );
+        return MavenBuildExecutor.executeMaven( pom, p, consumer, goals.toArray( new String[ 0 ] ) );
     }
 
     private RepositoryVisitor getRepositoryVisitor( final Project project ) {
