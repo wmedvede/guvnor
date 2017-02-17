@@ -26,6 +26,8 @@ import org.kie.scanner.embedder.MavenEmbedder;
 import org.kie.scanner.embedder.MavenEmbedderException;
 import org.kie.scanner.embedder.MavenProjectLoader;
 import org.kie.scanner.embedder.MavenRequest;
+import org.kie.scanner.embedder.logger.LocalLoggerConsumer;
+import org.kie.scanner.embedder.logger.LocalLoggerManager;
 import org.slf4j.LoggerFactory;
 
 public final class MavenBuildExecutor {
@@ -39,6 +41,28 @@ public final class MavenBuildExecutor {
             final Properties properties,
             final String... goals ) {
         executeMaven( pom, System.out, System.err, properties, goals );
+    }
+
+    public static MavenExecutionResult executeMaven( final File pom,
+                                                     final Properties properties,
+                                                     final LocalLoggerConsumer loggerConsumer,
+                                                     final String... goals ) {
+        try {
+            final MavenRequest mavenRequest = MavenProjectLoader.createMavenRequest( false );
+            mavenRequest.setGoals( Arrays.asList( goals ) );
+            mavenRequest.setPom( pom.getAbsolutePath() );
+            if ( properties != null ) {
+                mavenRequest.setSystemProperties( properties );
+            }
+            if ( loggerConsumer != null ) {
+                mavenRequest.setMavenLoggerManager( new LocalLoggerManager( loggerConsumer ) );
+            }
+            final MavenEmbedder mavenEmbedder = new MavenEmbedder( mavenRequest );
+            return mavenEmbedder.execute( mavenRequest );
+
+        } catch ( final MavenEmbedderException ex ) {
+            throw new BuildException( "Maven cloud'n build the project for pom file: " + pom.getAbsolutePath(), ex );
+        }
     }
 
     public static void executeMaven( final File pom,
