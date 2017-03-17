@@ -29,7 +29,6 @@ import org.guvnor.ala.build.maven.config.MavenBuildExecConfig;
 import org.guvnor.ala.build.maven.model.MavenBinary;
 import org.guvnor.ala.build.maven.model.MavenBuild;
 import org.guvnor.ala.build.maven.model.impl.MavenProjectBinaryBuildImpl;
-import org.guvnor.ala.build.maven.model.impl.MavenProjectBinaryImpl;
 import org.guvnor.ala.config.BinaryConfig;
 import org.guvnor.ala.config.Config;
 import org.guvnor.ala.exceptions.BuildException;
@@ -37,14 +36,12 @@ import org.guvnor.ala.pipeline.BiFunctionConfigExecutor;
 import org.guvnor.ala.registry.BuildRegistry;
 import org.guvnor.common.services.project.builder.model.BuildMessage;
 import org.guvnor.common.services.project.builder.model.BuildResults;
-import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.common.services.shared.message.Level;
-import org.kie.scanner.embedder.MavenProjectLoader;
 import org.kie.scanner.embedder.logger.LocalLoggerConsumer;
 import org.uberfire.java.nio.file.FileSystems;
 import org.uberfire.java.nio.file.Path;
 
-import static org.guvnor.ala.build.maven.util.MavenBuildExecutor.executeMaven;
+import static org.guvnor.ala.build.maven.util.MavenBuildExecutor.*;
 
 public class MavenBuildExecConfigExecutor implements BiFunctionConfigExecutor<MavenBuild, MavenBuildExecConfig, BinaryConfig> {
 
@@ -63,7 +60,8 @@ public class MavenBuildExecConfigExecutor implements BiFunctionConfigExecutor<Ma
 
         final BuildResults buildResults = new BuildResults( );
 
-        final MavenExecutionResult executionResult = build( project, mavenBuild.getGoals( ), mavenBuild.getProperties( ), new LocalLoggerConsumer( ) {
+        final MavenExecutionResult executionResult = build( project, mavenBuild.getGoals( ),
+                mavenBuild.getProperties( ), new LocalLoggerConsumer( ) {
             @Override
             public void debug( String message, Throwable throwable ) {
                 buildResults.addBuildMessage( newBuildMessage( Level.INFO, message ) );
@@ -132,16 +130,7 @@ public class MavenBuildExecConfigExecutor implements BiFunctionConfigExecutor<Ma
         return executeMaven( pom, properties, consumer, goals.toArray( new String[]{} ) );
     }
 
-
-    public MavenProject build_old(final Project project,
-                              final List<String> goals,
-                              final Properties properties ) throws BuildException {
-        final File pom = new File( project.getTempDir(), "pom.xml" );
-        MavenExecutionResult result = executeMaven( pom, properties, null, goals.toArray( new String[]{} ) );
-        return MavenProjectLoader.parseMavenPom(pom);
-    }
-
-    BuildMessage newBuildMessage( Level level, String message ) {
+    private BuildMessage newBuildMessage( Level level, String message ) {
         BuildMessage buildMessage = new BuildMessage();
         buildMessage.setLevel( level );
         buildMessage.setText( message );
