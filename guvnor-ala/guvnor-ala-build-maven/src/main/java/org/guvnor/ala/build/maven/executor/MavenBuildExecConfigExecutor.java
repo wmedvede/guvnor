@@ -91,15 +91,18 @@ public class MavenBuildExecConfigExecutor implements BiFunctionConfigExecutor<Ma
         } );
 
         final MavenProject mavenProject = executionResult.getProject();
+        String groupId = mavenProject != null ? mavenProject.getGroupId() : null;
+        String artifactId = mavenProject != null ? mavenProject.getArtifactId() : null;
+        String version = mavenProject != null ? mavenProject.getVersion() : null;
 
         final Path path = FileSystems.getFileSystem(URI.create("file://default")).getPath(project.getTempDir() + "/target/" + project.getExpectedBinary());
 
         final MavenBinary binary = new MavenProjectBinaryBuildImpl(
                 path,
                 project,
-                mavenProject.getGroupId(),
-                mavenProject.getArtifactId(),
-                mavenProject.getVersion(),
+                groupId,
+                artifactId,
+                version,
                 buildResults );
 
         buildRegistry.registerBinary( binary );

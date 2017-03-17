@@ -71,7 +71,7 @@ public class MavenCliOutputTest {
         FileUtils.deleteQuietly( tempPath );
     }
 
-    //@Test
+    @Test
     public void buildAppAndWaitForMavenOutputTest() throws IOException {
         final GitHub gitHub = new GitHub();
         gitHub.getRepository( "salaboy/drools-workshop", new HashMap<String, String>() {
@@ -126,10 +126,11 @@ public class MavenCliOutputTest {
         assertTrue( sb.toString().contains( "Building war:" ) );
         assertTrue( buildProcessReady );
         assertTrue( error == null );
+        System.out.println( sb.toString() );
 
     }
 
-    @Test
+    //@Test
     public void localLoggerConsumerTest() throws IOException {
 /*
         final GitHub gitHub = new GitHub();
