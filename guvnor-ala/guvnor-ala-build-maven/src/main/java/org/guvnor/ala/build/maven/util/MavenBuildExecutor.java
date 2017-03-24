@@ -43,6 +43,14 @@ public final class MavenBuildExecutor {
         executeMaven( pom, System.out, System.err, properties, goals );
     }
 
+    /**
+     * Executes a maven build for a project.
+     * @param pom File with the pom.xml file for the given project.
+     * @param properties additional properties that will passed as System properties to the maven build.
+     * @param loggerConsumer logger consumer for enabling the maven build logs consumption.
+     * @param goals list of maven goals to execute.
+     * @return the maven build result.
+     */
     public static MavenExecutionResult executeMaven( final File pom,
                                                      final Properties properties,
                                                      final LocalLoggerConsumer loggerConsumer,
@@ -61,7 +69,8 @@ public final class MavenBuildExecutor {
             return mavenEmbedder.execute( mavenRequest );
 
         } catch ( final MavenEmbedderException ex ) {
-            throw new BuildException( "Maven cloud'n build the project for pom file: " + pom.getAbsolutePath(), ex );
+            throw new BuildException( "Maven found issues trying to build the pom file: "
+                    + pom.getAbsolutePath() + ". Look at the Error Logs for more information" );
         }
     }
 

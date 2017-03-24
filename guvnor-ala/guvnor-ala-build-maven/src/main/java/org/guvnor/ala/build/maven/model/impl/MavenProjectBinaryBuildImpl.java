@@ -17,24 +17,35 @@
 package org.guvnor.ala.build.maven.model.impl;
 
 import org.guvnor.ala.build.Project;
-import org.guvnor.common.services.project.builder.model.BuildResults;
+import org.guvnor.ala.build.maven.model.MavenBuildResult;
 import org.uberfire.java.nio.file.Path;
 
+/**
+ * This class model the information for a Binary produced by a Maven Build process by adding the ability of querying
+ * the build messages produced the build.
+ * @see MavenBuildResult
+ */
 public class MavenProjectBinaryBuildImpl
         extends MavenProjectBinaryImpl {
 
-    private BuildResults buildResults;
+    private MavenBuildResult mavenBuildResult;
 
-    public MavenProjectBinaryBuildImpl( Path path, Project sourceProject, String groupId, String artifactId, String version, BuildResults buildResults ) {
+    public MavenProjectBinaryBuildImpl( final Path path,
+                                        final Project sourceProject,
+                                        final String groupId,
+                                        final String artifactId,
+                                        final String version,
+                                        final MavenBuildResult mavenBuildResult ) {
         super( path, sourceProject, groupId, artifactId, version );
-        this.buildResults = buildResults;
+        this.mavenBuildResult = mavenBuildResult;
     }
 
-    public BuildResults getBuildResults( ) {
-        return buildResults;
+    public MavenProjectBinaryBuildImpl( MavenBuildResult mavenBuildResult ) {
+        this.mavenBuildResult = mavenBuildResult;
     }
 
-    public void setBuildResults( BuildResults buildResults ) {
-        this.buildResults = buildResults;
+    public MavenBuildResult getMavenBuildResult( ) {
+        return mavenBuildResult;
     }
+
 }
