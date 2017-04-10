@@ -1,0 +1,83 @@
+/*
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.guvnor.ala.ui.model;
+
+import org.jboss.errai.common.client.api.annotations.MapsTo;
+import org.jboss.errai.common.client.api.annotations.Portable;
+
+@Portable
+public class Runtime extends RuntimeKey {
+
+    private RuntimeStatus status;
+    private Pipeline pipeline;
+    private String endpoint;
+    private Source source;
+
+    public Runtime() {
+
+    }
+
+    public Runtime( final ProviderKey providerKey,
+                    final String id,
+                    final RuntimeStatus status,
+                    final Source source ) {
+        super( providerKey, id );
+        this.status = status;
+        this.source = source;
+    }
+
+    public Runtime( @MapsTo( "providerKey" ) final ProviderKey providerKey,
+                    @MapsTo( "id" ) final String id,
+                    @MapsTo( "status" ) final RuntimeStatus status,
+                    @MapsTo( "source" ) final Source source,
+                    @MapsTo( "endpoint" ) final String endpoint ) {
+        this( providerKey, id, status, source );
+        this.endpoint = endpoint;
+    }
+
+    public void setPipeline( final Pipeline pipeline ) {
+        this.pipeline = pipeline;
+    }
+
+    public RuntimeStatus getStatus() {
+        return status;
+    }
+
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
+
+    public String createDate() {
+        return null;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint( final String endpoint ) {
+        this.endpoint = endpoint;
+    }
+
+    public void setStatus( final RuntimeStatus status ) {
+        this.status = status;
+    }
+
+    public Source getSource() {
+        return source;
+    }
+}

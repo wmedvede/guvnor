@@ -35,6 +35,7 @@
     <module>guvnor-ala-services-backend</module>
     <module>guvnor-ala-services-rest</module>
     <module>guvnor-ala-distribution</module>
+    <module>guvnor-ala-ui</module>
   </modules>
 
 </project>
