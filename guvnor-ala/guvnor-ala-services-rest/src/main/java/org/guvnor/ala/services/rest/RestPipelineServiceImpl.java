@@ -57,8 +57,9 @@ public class RestPipelineServiceImpl implements PipelineService {
     @Any
     private Instance<ConfigExecutor> configExecutors;
 
-    @Inject
-    private PipelineExecutor executor;
+    //TODO check this, should the pipeline executor by injected or global?
+    //@Inject
+    private PipelineExecutor executor = new PipelineExecutor(  );
 
     @Inject
     @Any
