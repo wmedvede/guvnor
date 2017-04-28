@@ -26,6 +26,7 @@ public class Runtime extends RuntimeKey {
     private Pipeline pipeline;
     private String endpoint;
     private Source source;
+    private String createdDate;
 
     public Runtime() {
 
@@ -44,9 +45,11 @@ public class Runtime extends RuntimeKey {
                     @MapsTo( "id" ) final String id,
                     @MapsTo( "status" ) final RuntimeStatus status,
                     @MapsTo( "source" ) final Source source,
-                    @MapsTo( "endpoint" ) final String endpoint ) {
+                    @MapsTo( "endpoint" ) final String endpoint,
+                    @MapsTo( "createdDate" ) final String createdDate) {
         this( providerKey, id, status, source );
         this.endpoint = endpoint;
+        this.createdDate = createdDate;
     }
 
     public void setPipeline( final Pipeline pipeline ) {
@@ -62,7 +65,7 @@ public class Runtime extends RuntimeKey {
     }
 
     public String createDate() {
-        return null;
+        return createdDate;
     }
 
     public String getEndpoint() {

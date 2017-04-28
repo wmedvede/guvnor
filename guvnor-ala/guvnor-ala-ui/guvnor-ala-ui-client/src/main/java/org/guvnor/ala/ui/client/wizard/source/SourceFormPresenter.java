@@ -17,6 +17,8 @@
 package org.guvnor.ala.ui.client.wizard.source;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
@@ -25,17 +27,30 @@ import javax.inject.Inject;
 import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
+import org.guvnor.ala.ui.model.IDataSourceInfo;
+import org.guvnor.ala.ui.model.InternalGitSource;
+import org.guvnor.ala.ui.model.Provider;
+import org.guvnor.ala.ui.model.Source;
+import org.guvnor.ala.ui.service.IProvisioningService;
+import org.guvnor.ala.ui.service.SourceService;
 import org.guvnor.common.services.project.model.Project;
+import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.ErrorCallback;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jboss.errai.common.client.ui.ElementWrapperWidget;
-import org.guvnor.ala.ui.model.InternalGitSource;
-import org.guvnor.ala.ui.model.Source;
-import org.guvnor.ala.ui.service.SourceService;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
+import org.uberfire.ext.widgets.common.client.common.popups.errors.ErrorPopup;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
+
+import static org.guvnor.ala.ui.client.util.UIUtil.getIntValue;
+import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
+import static org.guvnor.ala.ui.model.WF10ProviderConfigParams.HOST;
+import static org.guvnor.ala.ui.model.WF10ProviderConfigParams.MANAGEMENT_PORT;
+import static org.guvnor.ala.ui.model.WF10ProviderConfigParams.PASSWORD;
+import static org.guvnor.ala.ui.model.WF10ProviderConfigParams.USER;
 
 @Dependent
 public class SourceFormPresenter implements WizardPage {
@@ -69,7 +84,8 @@ public class SourceFormPresenter implements WizardPage {
         return new InternalGitSource(getOU(),
                                      getRepository(),
                                      getBranch(),
-                                     getProject());
+                                     getProject(),
+                                     getDataSourceInfo());
     }
 
     public interface View extends UberElement< SourceFormPresenter > {
@@ -84,6 +100,8 @@ public class SourceFormPresenter implements WizardPage {
 
         String getProject();
 
+        String getDataSource();
+
         void disable();
 
         void enable();
@@ -97,6 +115,8 @@ public class SourceFormPresenter implements WizardPage {
         void setBranchStatus(final FormStatus formStatus);
 
         void setProjectStatus(final FormStatus formStatus);
+
+        void setDataSourceStatus(final FormStatus status);
 
         void clear();
 
@@ -119,11 +139,17 @@ public class SourceFormPresenter implements WizardPage {
         void clearProjects();
 
         void addProject(String projectName);
+
+        void clearDataSources();
+
+        void addDataSource(String dataSourceName, String value);
     }
 
     private View view;
     private Caller< SourceService > serviceCaller;
+    private Caller<IProvisioningService> provisioningService;
     private Event< WizardPageStatusChangeEvent > wizardPageStatusChangeEvent;
+    private Map< String, IDataSourceInfo > dataSourceInfos = new HashMap<>( );
 
     public SourceFormPresenter() {
 
@@ -132,9 +158,11 @@ public class SourceFormPresenter implements WizardPage {
     @Inject
     public SourceFormPresenter(final View view,
                                final Caller< SourceService > serviceCaller,
+                               final Caller<IProvisioningService> provisioningService,
                                final Event< WizardPageStatusChangeEvent > wizardPageStatusChangeEvent) {
         this.view = view;
         this.serviceCaller = serviceCaller;
+        this.provisioningService = provisioningService;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
     }
 
@@ -160,7 +188,8 @@ public class SourceFormPresenter implements WizardPage {
         view.clear();
     }
 
-    public void setup() {
+    public void setup(Provider provider) {
+        loadDataSources(provider);
         loadOUs();
     }
 
@@ -224,6 +253,11 @@ public class SourceFormPresenter implements WizardPage {
         return view.getProject();
     }
 
+    private IDataSourceInfo getDataSourceInfo() {
+        String dataSourceId = view.getDataSource() == null ? "" : view.getDataSource().trim();
+        return !dataSourceId.isEmpty() ? dataSourceInfos.get(dataSourceId) : null;
+    }
+
     public String getWizardTitle() {
         return view.getWizardTitle();
     }
@@ -245,6 +279,39 @@ public class SourceFormPresenter implements WizardPage {
                 view.clearProjects();
             }
         }).getOrganizationUnits();
+    }
+
+    private void loadDataSources(Provider provider) {
+        provisioningService.call( loadDataSourcesSuccessCallback(), loadDataSourcesErrorCallback() ).findAvailableDataSources(
+                getStringValue(provider.getValues(), HOST),
+                getIntValue(provider.getValues(), MANAGEMENT_PORT, 9990),
+                getStringValue(provider.getValues(), USER),
+                getStringValue(provider.getValues(), PASSWORD),
+                "ManagementRealm");
+    }
+
+    private RemoteCallback< Collection< IDataSourceInfo > > loadDataSourcesSuccessCallback() {
+        return this::loadDataSources;
+    }
+
+    private ErrorCallback< Message > loadDataSourcesErrorCallback() {
+        return (message, throwable) -> {
+            ErrorPopup.showMessage("An error was produced while loading data sources information: " + throwable.getMessage());
+            return false;
+        };
+    }
+
+    private void loadDataSources( Collection< IDataSourceInfo > dataSources ) {
+        view.clearDataSources();
+        dataSourceInfos.clear();
+        dataSources.forEach( dsInfo -> {
+            this.dataSourceInfos.put( dsInfo.getDeploymentId( ), dsInfo );
+            view.addDataSource(buildDescription(dsInfo), dsInfo.getDeploymentId());
+        } );
+    }
+
+    private String buildDescription( IDataSourceInfo dsInfo ) {
+        return dsInfo.isKieDataSource( ) ? dsInfo.getName( ) : ( dsInfo.getName() + "(external)" );
     }
 
     public void loadRepositories(final String ou) {
@@ -285,4 +352,6 @@ public class SourceFormPresenter implements WizardPage {
         }).getProjects(repository,
                        branch);
     }
+
+
 }

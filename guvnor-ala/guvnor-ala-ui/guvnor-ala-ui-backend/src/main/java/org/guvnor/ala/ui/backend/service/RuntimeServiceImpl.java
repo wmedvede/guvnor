@@ -19,6 +19,7 @@ package org.guvnor.ala.ui.backend.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,8 +39,10 @@ import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
 import org.guvnor.ala.ui.events.NewPipelineStep;
 import org.guvnor.ala.ui.events.RuntimeStatusChange;
+import org.guvnor.ala.ui.model.IDataSourceInfo;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.Pipeline;
+import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -47,6 +50,7 @@ import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Step;
 import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
+import org.guvnor.ala.ui.service.PipelineConstants;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.jboss.errai.bus.server.annotations.Service;
@@ -168,8 +172,29 @@ public class RuntimeServiceImpl
         Runtime result = new Runtime(providerKey,
                                      runtime.getId(),
                                      convertToUIRuntimeStatus(runtime.getState().getState()),
-                                     null);
+                                     null,
+                                     buildRuntimeEndpoint(runtime),
+                                     runtime.getState() != null ? runtime.getState().getStartedAt() : "");
+
+        Pipeline pipeline = new Pipeline(PipelineConstants.WILDFLY_PROVISIONING_PIPELINE, result);
+        pipeline.addStep( new Step(pipeline, "Clone Repository"));
+        pipeline.addStep( new Step(pipeline, "Prepare Project"));
+        pipeline.addStep( new Step(pipeline, "Build Application"));
+        pipeline.addStep( new Step(pipeline, "Deploy Application"));
+
+        result.setPipeline(pipeline);
         return result;
+    }
+
+    private String buildRuntimeEndpoint(org.guvnor.ala.runtime.Runtime runtime) {
+        StringBuilder url = new StringBuilder();
+        if ( runtime.getEndpoint() != null ) {
+            return "http://" + runtime.getEndpoint().getHost() +
+                    ":" + runtime.getEndpoint().getPort() +
+                    "/" + runtime.getEndpoint().getContext();
+        } else {
+            return "";
+        }
     }
 
     private RuntimeStatus convertToUIRuntimeStatus( String status ) {
@@ -187,6 +212,14 @@ public class RuntimeServiceImpl
         return internalPipelines.getOrDefault( providerTypeKey, new ArrayList<>( ) )
                 .stream( )
                 .map( org.guvnor.ala.pipeline.Pipeline::getName )
+                .sorted(new Comparator< String >() {
+                    @Override
+                    public int compare(String o1,
+                                       String o2) {
+                        //force the WILDFLY_PROVISIONING_PIPELINE to the left ;)
+                        return o1.equals(PipelineConstants.WILDFLY_PROVISIONING_PIPELINE) ? -1 : 1;
+                    }
+                })
                 .collect( toList( ) );
     }
 
@@ -215,11 +248,21 @@ public class RuntimeServiceImpl
 
         Input input = new Input();
         input.put(WF10ProviderConfigParams.PROVIDER_NAME, provider.getId() );
+        input.put(WF10ProviderConfigParams.MANAGEMENT_REALM, "ManagementRealm");
         putAsStrings( input, provider.getValues() );
 
         input.put("repo-name", ((InternalGitSource)source).getRepository() );
         input.put("branch", ((InternalGitSource)source).getBranch() );
         input.put("project-dir", ((InternalGitSource)source).getProject() );
+
+        if ( ((InternalGitSource) source).getDataSourceInfo() != null ) {
+            IDataSourceInfo dataSourceInfo = ((InternalGitSource) source).getDataSourceInfo();
+            input.put("jndi-data-source", dataSourceInfo.getJndi( ) );
+            if ( dataSourceInfo.isKieDataSource( ) ) {
+                input.put( "kie-data-source", dataSourceInfo.getKieUuid( ) );
+                input.put( "kie-data-source-deployment-id", dataSourceInfo.getDeploymentId( ) );
+            }
+        }
 
         /*
         put( "repo-name", repository.getAlias() );
@@ -236,6 +279,25 @@ public class RuntimeServiceImpl
         input.put(pro)
         */
 
+
+        /*
+
+        Map< String, String > result = new HashMap<>( );
+        DataSourceInfo dataSourceInfo = model.getDataSourceInfo( );
+        result.put( "host", model.getHost( ) );
+        result.put( "port", String.valueOf( model.getPort( ) ) );
+        result.put( "management-port", String.valueOf( model.getManagementPort( ) ) );
+        result.put( "management-realm", model.getManagementRealm( ) );
+        result.put( "wildfly-user", model.getManagementUser( ) );
+        result.put( "wildfly-password", model.getManagementPassword( ) );
+        result.put( "wildfly-realm", model.getManagementRealm( ) );
+        result.put( "jndi-data-source", dataSourceInfo.getJndi( ) );
+        if ( dataSourceInfo.isKieDataSource( ) ) {
+            result.put( "kie-data-source", dataSourceInfo.getKieUuid( ) );
+            result.put( "kie-data-source-deployment-id", dataSourceInfo.getDeploymentId( ) );
+        }
+        return result;
+         */
         return input;
     }
 
@@ -292,7 +354,7 @@ public class RuntimeServiceImpl
             } ).start();
 
         } else if ( cont % 2 == 0 ) {
-            runtime = new Runtime( provider, runtimeId, RuntimeStatus.STARTED, source, "http://10.0.0.1/my-app" );
+            runtime = new Runtime( provider, runtimeId, RuntimeStatus.STARTED, source, "http://10.0.0.1/my-app", "date1");
             runtime.setPipeline( getDonePipeline( pipeline, runtime ) );
             runtimes.putIfAbsent( provider, new ArrayList<>() );
             runtimes.get( provider ).add( runtime );
@@ -308,7 +370,7 @@ public class RuntimeServiceImpl
             } ).start();
 
         } else {
-            runtime = new Runtime( provider, runtimeId, RuntimeStatus.ERROR, source, "http://10.0.0.1/my-app" );
+            runtime = new Runtime( provider, runtimeId, RuntimeStatus.ERROR, source, "http://10.0.0.1/my-app", "date2" );
             runtime.setPipeline( getDonePipeline( pipeline, runtime ) );
             runtimes.putIfAbsent( provider, new ArrayList<>() );
             runtimes.get( provider ).add( runtime );

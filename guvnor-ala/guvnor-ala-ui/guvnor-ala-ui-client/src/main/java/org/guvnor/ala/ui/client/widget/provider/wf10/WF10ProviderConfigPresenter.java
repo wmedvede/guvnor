@@ -22,15 +22,24 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import com.google.gwt.user.client.Window;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.client.widget.provider.FormProvider;
+import org.guvnor.ala.ui.model.ITestConnectionResult;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
+import org.guvnor.ala.ui.service.IProvisioningService;
+import org.jboss.errai.bus.client.api.messaging.Message;
+import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.ErrorCallback;
+import org.jboss.errai.common.client.api.RemoteCallback;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
+import org.uberfire.ext.widgets.common.client.common.popups.YesNoCancelPopup;
+import org.uberfire.ext.widgets.common.client.common.popups.errors.ErrorPopup;
 
 import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
 import static org.uberfire.commons.validation.PortablePreconditions.checkCondition;
@@ -86,10 +95,12 @@ public class WF10ProviderConfigPresenter
     }
 
     private final View view;
+    private Caller<IProvisioningService> provisioningService;
 
     @Inject
-    public WF10ProviderConfigPresenter(final View view) {
+    public WF10ProviderConfigPresenter(final View view, final Caller<IProvisioningService> provisioningService) {
         this.view = view;
+        this.provisioningService = provisioningService;
     }
 
     @PostConstruct
@@ -264,4 +275,81 @@ public class WF10ProviderConfigPresenter
                                        USER),
                         "****");
     }
+
+    public void onTestConnection( ) {
+        if ( validateRemoteParams( ) ) {
+            provisioningService.call( getTestConnectionSuccessCallback(),
+                                      getTestConnectionErrorCallback() ).testConnection( view.getHost( ),
+                                                                                         getInt(view.getPort( )),
+                                                                                         getInt(view.getManagementPort( )),
+                                                                                         view.getUsername(),
+                                                                                         view.getPassword(),
+                                                                                         "ManagementRealm" );
+        }
+    }
+
+    private RemoteCallback<ITestConnectionResult> getTestConnectionSuccessCallback() {
+        return response -> {
+            String message = response.getManagementConnectionError( ) ?
+                    translateMessage( TestConnectionFailMessage, response.getManagementConnectionMessage( ) ) :
+                    translateMessage( TestConnectionSuccessfulMessage, response.getManagementConnectionMessage( ) );
+            YesNoCancelPopup.newYesNoCancelPopup("Information", message, null, null, ( org.uberfire.mvp.Command ) ( ) -> {
+                //do nothing.
+            } ).show( );
+        };
+    }
+
+    private ErrorCallback< Message > getTestConnectionErrorCallback() {
+        return (message, throwable) -> {
+            ErrorPopup.showMessage("An error was produced during connection test: " + throwable.getMessage());
+            return false;
+        };
+    }
+
+    private String translateMessage( String msg, String content ) {
+        return msg + content;
+    }
+    private static final String TestConnectionSuccessfulMessage="<strong>Management connection test successful:</strong><BR>";
+    private static final String TestConnectionFailMessage="<strong>Management connection test failed:</strong><BR>";
+
+
+    private boolean validateRemoteParams( ) {
+        boolean result = !isEmpty( view.getHost() ) &&
+                isValidPort( view.getPort() ) &&
+                isValidPort( view.getManagementPort() ) &&
+                !isEmpty( view.getUsername() ) &&
+                !isEmpty( view.getPassword() );
+        if ( !result ) {
+            YesNoCancelPopup.newYesNoCancelPopup("Information",
+                                                 "All parameters must be completed for performing validation",
+                                                 null,
+                                                 null,
+                                                 ( ) -> {
+                //do nothing.
+            }).show( );
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidPort( String port ) {
+        int value = getInt(port);
+        return value > 0 && value <= 65535;
+    }
+
+    private int getInt( String port ) {
+        if ( port == null || port.trim().isEmpty() ) return -1;
+        int value = -1;
+        try {
+            value = Integer.parseInt( port.trim() );
+        } catch (Exception e) {
+        }
+        return value;
+    }
+
+
+    private boolean isEmpty( String value ) {
+        return value == null || value.trim( ).isEmpty( );
+    }
+
 }

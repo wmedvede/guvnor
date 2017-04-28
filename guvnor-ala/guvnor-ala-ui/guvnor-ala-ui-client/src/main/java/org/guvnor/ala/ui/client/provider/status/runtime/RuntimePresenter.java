@@ -28,6 +28,7 @@ import org.guvnor.ala.ui.client.widget.pipeline.PipelinePresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.step.State;
 import org.guvnor.ala.ui.client.widget.pipeline.step.StepPresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.transition.TransitionPresenter;
+import org.guvnor.ala.ui.service.PipelineConstants;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.ioc.client.container.IOC;
@@ -85,9 +86,9 @@ public class RuntimePresenter {
         this.runtime = runtime;
 
         //TODO quede acá, ver como puedo retornar el pileline.
-        view.setup( runtime.getId(),
-                    runtime.createDate(),
-                    runtime.getPipeline() != null ? runtime.getPipeline().getId() : "unknown pipeline" );
+        view.setup(runtime.getId(),
+                   runtime.createDate(),
+                   runtime.getPipeline() != null ? runtime.getPipeline().getId() : PipelineConstants.WILDFLY_PROVISIONING_PIPELINE );
 
         processStatus( runtime );
 

@@ -26,15 +26,19 @@ import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.gwtbootstrap3.client.ui.constants.ValidationState;
 import org.jboss.errai.common.client.dom.Div;
+import org.jboss.errai.common.client.dom.Document;
 import org.jboss.errai.common.client.dom.HTMLElement;
+import org.jboss.errai.common.client.dom.Option;
 import org.jboss.errai.common.client.dom.Select;
 import org.jboss.errai.common.client.dom.TextInput;
 import org.jboss.errai.common.client.dom.Window;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.SinkNative;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+import org.uberfire.commons.data.Pair;
 
 import static org.guvnor.ala.ui.client.widget.StyleHelper.*;
 import static org.uberfire.commons.validation.PortablePreconditions.*;
@@ -86,6 +90,17 @@ public class SourceFormView implements IsElement,
     @DataField
     Select projects;
 
+    @Inject
+    @DataField("data-source-form")
+    Div dataSourceForm;
+
+    @Inject
+    @DataField
+    Select datasources;
+
+    @Inject
+    private Document doc;
+
     private final ArrayList< ContentChangeHandler > changeHandlers = new ArrayList< ContentChangeHandler >();
 
     @Override
@@ -119,6 +134,11 @@ public class SourceFormView implements IsElement,
     }
 
     @Override
+    public String getDataSource() {
+        return datasources.getValue();
+    }
+
+    @Override
     public void disable() {
         resetFormState();
         this.runtimeName.setDisabled(true);
@@ -126,6 +146,7 @@ public class SourceFormView implements IsElement,
         this.repos.setDisabled(true);
         this.branches.setDisabled(true);
         this.projects.setDisabled(true);
+        this.datasources.setDisabled(true);
     }
 
     @Override
@@ -136,6 +157,7 @@ public class SourceFormView implements IsElement,
         this.repos.setDisabled(false);
         this.branches.setDisabled(false);
         this.projects.setDisabled(false);
+        this.datasources.setDisabled(false);
     }
 
     @Override
@@ -225,6 +247,21 @@ public class SourceFormView implements IsElement,
     }
 
     @Override
+    public void setDataSourceStatus(final FormStatus status) {
+        checkNotNull("status",
+                     status);
+        if (status.equals(FormStatus.ERROR)) {
+            addUniqueEnumStyleName(dataSourceForm,
+                                   ValidationState.class,
+                                   ValidationState.ERROR);
+        } else {
+            addUniqueEnumStyleName(dataSourceForm,
+                                   ValidationState.class,
+                                   ValidationState.NONE);
+        }
+    }
+
+    @Override
     public void clear() {
         resetFormState();
         this.clearOrganizationUnits();
@@ -236,6 +273,7 @@ public class SourceFormView implements IsElement,
         this.repos.setValue("");
         this.branches.setValue("");
         this.projects.setValue("");
+        this.datasources.setValue("");
     }
 
     @Override
@@ -380,6 +418,21 @@ public class SourceFormView implements IsElement,
                      null);
     }
 
+    @Override
+    public void clearDataSources() {
+        for (int i = 0; i < datasources.getOptions().getLength() + 1; i++) {
+            datasources.remove(i);
+        }
+        datasources.setInnerHTML("");
+        datasources.add(defaultOption(),
+                  null);
+    }
+
+    @Override
+    public void addDataSource(String dataSourceName, String value) {
+        datasources.appendChild( newOption( dataSourceName, value));
+    }
+
     @EventHandler("projects")
     private void onProjectChange(final ChangeEvent event) {
         if (!projects.getValue().trim().isEmpty()) {
@@ -392,6 +445,11 @@ public class SourceFormView implements IsElement,
                                    ValidationState.ERROR);
         }
         fireChangeHandlers();
+    }
+
+    @EventHandler( "datasources" )
+    private void onDataSourceChange( @ForEvent( "change" ) org.jboss.errai.common.client.dom.Event event ) {
+        //do nothing by now com.google.gwt.user.client.Window.alert("datasource change:" + getDataSource());
     }
 
     private HTMLElement defaultOption() {
@@ -428,5 +486,12 @@ public class SourceFormView implements IsElement,
         for (final ContentChangeHandler changeHandler : changeHandlers) {
             changeHandler.onContentChange();
         }
+    }
+
+    private Option newOption(final String text, final String value ) {
+        final Option option = ( Option ) doc.createElement( "option" );
+        option.setTextContent( text );
+        option.setValue( value );
+        return option;
     }
 }

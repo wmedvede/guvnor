@@ -16,11 +16,14 @@
 
 package org.guvnor.ala.wildfly.model;
 
+import java.util.Date;
+
 import org.guvnor.ala.runtime.base.BaseRuntimeState;
 
 public class WildflyRuntimeState extends BaseRuntimeState {
 
     public WildflyRuntimeState() {
+        super("", new Date().toString());
     }
 
     public WildflyRuntimeState( String state,
