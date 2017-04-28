@@ -83,6 +83,10 @@ public class RuntimeView implements org.jboss.errai.ui.client.local.api.IsElemen
     Div expansionArea;
 
     @Inject
+    @DataField("expansion-content")
+    Div expansionContent;
+
+    @Inject
     @DataField("expand-chevron")
     Span chevron;
 
@@ -185,6 +189,6 @@ public class RuntimeView implements org.jboss.errai.ui.client.local.api.IsElemen
 
     @Override
     public void addExpandedContent( final IsElement element ) {
-        expansionArea.appendChild( element.getElement() );
+        expansionContent.appendChild( element.getElement() );
     }
 }

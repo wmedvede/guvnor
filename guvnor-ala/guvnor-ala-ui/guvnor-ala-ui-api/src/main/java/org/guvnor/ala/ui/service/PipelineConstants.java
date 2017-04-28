@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.model;
+package org.guvnor.ala.ui.service;
 
-public interface WF10ProviderConfigParams {
+public interface PipelineConstants {
 
-    String PROVIDER_NAME = "provider-name";
-
-    String HOST = "host";
-
-    String PORT = "port";
-
-    String MANAGEMENT_PORT = "management-port";
-
-    String MANAGEMENT_REALM = "wildfly-realm";
-
-    String USER = "wildfly-user";
-
-    String PASSWORD = "wildfly-password";
-
-
+    /**
+     * WM, OBS, don't touch this name for the summit demo!
+     */
+    String WILDFLY_PROVISIONING_PIPELINE = "wildfly provisioning pipeline";
 
 }

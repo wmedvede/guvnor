@@ -31,14 +31,18 @@ public class InternalGitSource
 
     private String project;
 
+    private IDataSourceInfo dataSourceInfo;
+
     public InternalGitSource( @MapsTo( "ou" ) String ou,
                               @MapsTo( "repository" ) String repository,
                               @MapsTo( "branch" ) String branch,
-                              @MapsTo("project") String project) {
+                              @MapsTo("project") String project,
+                              @MapsTo("dataSourceInfo") IDataSourceInfo dataSourceInfo) {
         this.ou = ou;
         this.repository = repository;
         this.branch = branch;
         this.project = project;
+        this.dataSourceInfo = dataSourceInfo;
     }
 
     public String getOu( ) {
@@ -71,5 +75,13 @@ public class InternalGitSource
 
     public void setProject(String project) {
         this.project = project;
+    }
+
+    public IDataSourceInfo getDataSourceInfo() {
+        return dataSourceInfo;
+    }
+
+    public void setDataSourceInfo(IDataSourceInfo dataSourceInfo) {
+        this.dataSourceInfo = dataSourceInfo;
     }
 }

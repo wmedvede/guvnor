@@ -119,7 +119,9 @@ public class UIAppSetup {
                 .andThen( providerConfig )
                 .andThen( runtimeExec ).buildAs( "wildfly provisioning pipeline" );
         //Registering the Wildfly Pipeline to be available to the whole workbench
-        pipelineRegistry.registerPipeline(wildflyPipeline);
+        //TODO, un comment this
+        //Skip this registration for the summit demo.
+        //pipelineRegistry.registerPipeline(wildflyPipeline);
     }
 
 }

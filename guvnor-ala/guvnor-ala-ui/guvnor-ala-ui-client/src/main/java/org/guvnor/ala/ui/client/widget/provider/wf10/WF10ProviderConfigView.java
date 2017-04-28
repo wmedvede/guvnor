@@ -24,11 +24,13 @@ import com.google.gwt.user.client.Event;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.gwtbootstrap3.client.ui.constants.ValidationState;
+import org.jboss.errai.common.client.dom.Button;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.TextInput;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.SinkNative;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
@@ -89,6 +91,10 @@ public class WF10ProviderConfigView implements IsElement,
     @Inject
     @DataField("password")
     TextInput password;
+
+    @Inject
+    @DataField( "test-connection-button" )
+    private Button testConnectionButton;
 
     private final ArrayList< ContentChangeHandler > changeHandlers = new ArrayList<>();
 
@@ -218,6 +224,7 @@ public class WF10ProviderConfigView implements IsElement,
         this.managementPort.setDisabled(true);
         this.username.setDisabled(true);
         this.password.setDisabled(true);
+        this.testConnectionButton.setDisabled(true);
     }
 
     @Override
@@ -229,6 +236,7 @@ public class WF10ProviderConfigView implements IsElement,
         this.managementPort.setDisabled(false);
         this.username.setDisabled(false);
         this.password.setDisabled(false);
+        this.testConnectionButton.setDisabled(false);
     }
 
     @Override
@@ -367,5 +375,10 @@ public class WF10ProviderConfigView implements IsElement,
         for (final ContentChangeHandler changeHandler : changeHandlers) {
             changeHandler.onContentChange();
         }
+    }
+
+    @EventHandler( "test-connection-button" )
+    private void onTestConnection( @ForEvent( "click" ) org.jboss.errai.common.client.dom.Event event ) {
+        presenter.onTestConnection();
     }
 }

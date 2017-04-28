@@ -24,4 +24,11 @@ public class UIUtil {
                                         String key) {
         return map.get(key) != null ? map.get(key).toString() : null;
     }
+
+    public static final int getIntValue(Map map,
+                                        String key,
+                                        int defaultValue) {
+        return map.get(key) != null ? Integer.parseInt(map.get(key).toString()) : defaultValue;
+    }
+
 }

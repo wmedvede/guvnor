@@ -90,7 +90,7 @@ public class NewDeployWizard extends AbstractMultiPageWizard {
     public void setup( final Provider provider,
                        final Collection<String> pipelines ) {
         this.provider = provider;
-        sourceFormPresenter.setup();
+        sourceFormPresenter.setup(provider);
         pipelinePresenter.setup( pipelines );
         pages.clear();
         pages.add( pipelinePresenter );
