@@ -36,7 +36,7 @@ public interface PipelineServiceBackend {
      * @see PipelineConfigsList
      */
     PipelineConfigsList getPipelineConfigs( Integer page, Integer pageSize,
-            String sort, boolean sortOrder ) throws BusinessException;
+                                            String sort, boolean sortOrder ) throws BusinessException;
 
     /*
      * Register a new Pipeline with the provided configuration
@@ -53,4 +53,7 @@ public interface PipelineServiceBackend {
      */
     void runPipeline( final String id, final Input input ) throws BusinessException;
 
+    void runPipeline( final String id, final Input input, String executionId ) throws BusinessException;
+
+    String generateExecutionId() throws BusinessException;
 }

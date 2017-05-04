@@ -16,9 +16,13 @@
 
 package org.guvnor.ala.ui.client.provider.status.runtime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
@@ -28,6 +32,9 @@ import org.guvnor.ala.ui.client.widget.pipeline.PipelinePresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.step.State;
 import org.guvnor.ala.ui.client.widget.pipeline.step.StepPresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.transition.TransitionPresenter;
+import org.guvnor.ala.ui.events.StageStatusChange;
+import org.guvnor.ala.ui.model.StageStatus;
+import org.guvnor.ala.ui.model.Step;
 import org.guvnor.ala.ui.service.PipelineConstants;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
@@ -65,6 +72,8 @@ public class RuntimePresenter {
     private final View view;
     private final PipelinePresenter pipelinePresenter;
     private final Caller<RuntimeService> runtimeService;
+    private final List<Step> currentSteps = new ArrayList<>();
+    private final Map<Step, StepPresenter> stepPresenters = new HashMap<>();
 
     private Runtime runtime;
 
@@ -85,32 +94,45 @@ public class RuntimePresenter {
     public void setup( final Runtime runtime ) {
         this.runtime = runtime;
 
-        //TODO quede acá, ver como puedo retornar el pileline.
         view.setup(runtime.getId(),
                    runtime.createDate(),
                    runtime.getPipeline() != null ? runtime.getPipeline().getId() : PipelineConstants.WILDFLY_PROVISIONING_PIPELINE );
 
         processStatus( runtime );
 
-        if ( runtime.getPipeline() != null ) {
-            pipelinePresenter.setup( runtime );
-            for ( int i = 0; i < runtime.getPipeline().getSteps().size(); i++ ) {
-                if ( i != 0 ) {
-                    pipelinePresenter.addStage( IOC.getBeanManager().lookupBean( TransitionPresenter.class ).getInstance().getView() );
+        currentSteps.clear();
+        if (runtime.getPipeline() != null) {
+            boolean showStep = true;
+            for (int i = 0; showStep && i < runtime.getPipeline().getSteps().size(); i++) {
+                Step step = runtime.getPipeline().getSteps().get(i);
+                showStep = showStep(step);
+                if (showStep) {
+                    if (i > 0) {
+                        pipelinePresenter.addStage(newTransitionPresenter().getView());
+                    }
+                    final StepPresenter stepPresenter = newStepPresenter();
+                    stepPresenter.setup(step);
+                    stepPresenter.setState(calculateState(step.getStatus()));
+                    pipelinePresenter.addStage(stepPresenter.getView());
                 }
-                final StepPresenter step = IOC.getBeanManager().lookupBean( StepPresenter.class ).getInstance();
-                step.setup( runtime.getPipeline().getSteps().get( i ) );
-                if ( i + 1 == runtime.getPipeline().getSteps().size() &&
-                        runtime.getStatus().equals( RuntimeStatus.LOADING ) ) {
-                    step.setState( State.EXECUTING );
-                } else {
-                    step.setState( State.DONE );
-                }
-                pipelinePresenter.addStage( step.getView() );
             }
         }
-
         view.addExpandedContent( pipelinePresenter.getView() );
+    }
+
+    private boolean showStep(Step step) {
+        return step.getStatus() == StageStatus.RUNNING ||
+                step.getStatus() == StageStatus.FINISHED ||
+                step.getStatus() == StageStatus.ERROR;
+
+    }
+
+    private State calculateState( StageStatus stageStatus ) {
+        if (stageStatus == StageStatus.RUNNING) {
+            return State.EXECUTING;
+        } else {
+            return State.DONE;
+        }
     }
 
     private void processStatus( final Runtime runtime ) {
@@ -133,8 +155,40 @@ public class RuntimePresenter {
 
     public void onStatusChange( @Observes RuntimeStatusChange statusChange ) {
         if ( statusChange.getRuntime().equals( runtime ) ) {
-            view.setEndpoint( statusChange.getRuntime().getEndpoint() );
+            if ( statusChange.getRuntime().getStatus() == RuntimeStatus.STARTED ) {
+                view.setEndpoint( statusChange.getRuntime().getEndpoint() );
+            }
             processStatus( statusChange.getRuntime() );
+        }
+    }
+
+    public void onStageStatusChange(@Observes StageStatusChange statusChange) {
+        if ( statusChange.getRuntime().equals(runtime) ) {
+
+            Step currentStep = currentSteps.stream().
+                    filter(step -> statusChange.getStage().equals(step.getMessage()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (currentStep != null) {
+                StepPresenter stepPresenter = stepPresenters.get(currentStep);
+                stepPresenter.setState(calculateState(statusChange.getStatus()));
+            } else {
+                Step step = new Step(runtime.getPipeline(),
+                                     statusChange.getStage(),
+                                     statusChange.getStatus());
+                StepPresenter stepPresenter = newStepPresenter();
+                stepPresenter.setup(step);
+                stepPresenter.setState(calculateState(step.getStatus()));
+                if (!currentSteps.isEmpty()) {
+                    pipelinePresenter.addStage(newTransitionPresenter().getView());
+                }
+                pipelinePresenter.addStage(stepPresenter.getView());
+
+                currentSteps.add(step);
+                stepPresenters.put(step,
+                                   stepPresenter);
+            }
         }
     }
 
@@ -173,5 +227,13 @@ public class RuntimePresenter {
 
     public View getView() {
         return view;
+    }
+
+    private StepPresenter newStepPresenter() {
+        return IOC.getBeanManager().lookupBean(StepPresenter.class).getInstance();
+    }
+
+    private TransitionPresenter newTransitionPresenter() {
+        return IOC.getBeanManager().lookupBean(TransitionPresenter.class).getInstance();
     }
 }

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -35,19 +34,25 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.registry.PipelineRegistry;
+import org.guvnor.ala.runtime.RuntimeId;
+import org.guvnor.ala.runtime.providers.ProviderId;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
+import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionRecord;
+import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionRegistry;
+import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionTask;
+import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionTaskManager;
 import org.guvnor.ala.ui.events.NewPipelineStep;
 import org.guvnor.ala.ui.events.RuntimeStatusChange;
 import org.guvnor.ala.ui.model.IDataSourceInfo;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.Pipeline;
-import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeStatus;
+import org.guvnor.ala.ui.model.StageStatus;
 import org.guvnor.ala.ui.model.Step;
 import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
 import org.guvnor.ala.ui.service.PipelineConstants;
@@ -89,6 +94,10 @@ public class RuntimeServiceImpl
 
     private PipelineServiceBackend pipelineService;
 
+    private PipelineExecutionTaskManager pipelineExecutionTaskManager;
+
+    private PipelineExecutionRegistry pipelineExecutionRegistry;
+
     public RuntimeServiceImpl( ) {
         //Empty constructor for Weld proxying
     }
@@ -101,7 +110,9 @@ public class RuntimeServiceImpl
                                PipelineRegistry pipelineRegistry,
                                ProviderTypeService providerTypeService,
                                ProviderService providerService,
-                               PipelineServiceBackend pipelineService ) {
+                               PipelineServiceBackend pipelineService,
+                               PipelineExecutionTaskManager pipelineExecutionTaskManager,
+                               PipelineExecutionRegistry pipelineExecutionRegistry) {
         this.executablePipelineInstance = executablePipelineInstance;
         this.newPipelineStep = newPipelineStep;
         this.runtimeStatusChange = runtimeStatusChange;
@@ -110,6 +121,8 @@ public class RuntimeServiceImpl
         this.providerTypeService = providerTypeService;
         this.providerService = providerService;
         this.pipelineService = pipelineService;
+        this.pipelineExecutionTaskManager = pipelineExecutionTaskManager;
+        this.pipelineExecutionRegistry = pipelineExecutionRegistry;
     }
 
     @PostConstruct
@@ -153,18 +166,67 @@ public class RuntimeServiceImpl
 
     @Override
     public Collection< Runtime > getRuntimes(final Provider provider) {
-        List< org.guvnor.ala.runtime.Runtime > runtimes = runtimeProvisioningService.getRuntimes(0,
-                                                                                                 10,
-                                                                                                 "id",
-                                                                                                 true);
-        return runtimes.stream()
-                .filter(runtime -> {
-                    //TODO check this filtering...
-                    return runtime.getProviderId().getId().equals(provider.getId());
-                })
-                .map(runtime -> convertToUIRuntime(runtime,
-                                                   provider)
-                ).collect(Collectors.toList());
+
+        Collection<Runtime> result = pipelineExecutionRegistry.getExecutionRecords().stream()
+                .filter( record -> {
+                    //TODO check this filtering
+                    return record.getTask().getProviderId().getId().equals(provider.getId());
+                } )
+                .map( record -> convertToUIRuntime(record) )
+                .collect(Collectors.toList());
+
+        return result;
+    }
+
+    private Runtime convertToUIRuntime(PipelineExecutionRecord record) {
+
+        Runtime result = new Runtime(new ProviderKey(new ProviderTypeKey(record.getTask().getProviderId().getProviderType().getProviderTypeName()),
+                                                     record.getTask().getProviderId().getId(),
+                                                     record.getTask().getProviderId().getId()),
+                                     record.getTask().getRuntimeId().getId(),
+                                     transformToRuntimeStatus(record.getTask().getPipelineStatus()),
+                                     null,
+                                     "endpoint",
+                                     "started at");
+
+        Pipeline pipeline = new Pipeline(record.getTask().getPipeline().getName(),
+                                         result);
+
+        record.getTask().getPipeline().getStages().stream()
+                .forEach(stage -> pipeline.addStep(new Step(pipeline,
+                                                            stage.getName(),
+                                                            transformToStageStatus(record.getTask().getStageStatus(stage.getName())))));
+
+        result.setPipeline(pipeline);
+
+        return result;
+    }
+
+    private RuntimeStatus transformToRuntimeStatus( PipelineExecutionTask.Status status ) {
+        switch (status) {
+            case SCHEDULED:
+            case RUNNING:
+                return RuntimeStatus.LOADING;
+            case FINISHED:
+                return RuntimeStatus.STARTED;
+            case ERROR:
+                return RuntimeStatus.ERROR;
+        }
+        return null;
+    }
+
+    private StageStatus transformToStageStatus(PipelineExecutionTask.Status status ) {
+        switch (status) {
+            case SCHEDULED:
+                return StageStatus.SCHEDULED;
+            case RUNNING:
+                return StageStatus.RUNNING;
+            case FINISHED:
+                return StageStatus.FINISHED;
+            case ERROR:
+                return StageStatus.ERROR;
+        }
+        return null;
     }
 
     private Runtime convertToUIRuntime(org.guvnor.ala.runtime.Runtime runtime,
@@ -177,10 +239,10 @@ public class RuntimeServiceImpl
                                      runtime.getState() != null ? runtime.getState().getStartedAt() : "");
 
         Pipeline pipeline = new Pipeline(PipelineConstants.WILDFLY_PROVISIONING_PIPELINE, result);
-        pipeline.addStep( new Step(pipeline, "Clone Repository"));
-        pipeline.addStep( new Step(pipeline, "Prepare Project"));
-        pipeline.addStep( new Step(pipeline, "Build Application"));
-        pipeline.addStep( new Step(pipeline, "Deploy Application"));
+        pipeline.addStep( new Step(pipeline, "Clone Repository", StageStatus.SCHEDULED));
+        pipeline.addStep( new Step(pipeline, "Prepare Project", StageStatus.SCHEDULED));
+        pipeline.addStep( new Step(pipeline, "Build Application", StageStatus.SCHEDULED));
+        pipeline.addStep( new Step(pipeline, "Deploy Application", StageStatus.SCHEDULED));
 
         result.setPipeline(pipeline);
         return result;
@@ -239,8 +301,46 @@ public class RuntimeServiceImpl
             throw new RuntimeException( "No pipeline was found for provider: " + provider + "and pipelineName: " + pipelineName );
         }
 
+        //TODO review this ProviderId
+        //BaseProviderType
         Input input = buildPipelineInput(provider, pipeline, runtimeId, source);
-        pipelineService.runPipeline( pipelineName, input );
+
+        //pipelineService.runPipeline( pipelineName, input );
+
+        ProviderId alaProviderId = new ProviderId() {
+            @Override
+            public String getId() {
+                return providerKey.getId();
+            }
+
+            @Override
+            public org.guvnor.ala.runtime.providers.ProviderType getProviderType() {
+                return new org.guvnor.ala.runtime.providers.ProviderType() {
+                    @Override
+                    public String getProviderTypeName() {
+                        return provider.getProviderTypeKey().getId();
+                    }
+
+                    @Override
+                    public String getVersion() {
+                        return null;
+                    }
+                };
+            }
+        };
+        RuntimeId alaRuntimeId = new RuntimeId() {
+            @Override
+            public String getId() {
+                return runtimeId;
+            }
+
+            @Override
+            public ProviderId getProviderId() {
+                return alaProviderId;
+            }
+        };
+        PipelineExecutionTask task = new PipelineExecutionTask(pipeline, input, alaProviderId, alaRuntimeId );
+        pipelineExecutionTaskManager.execute(task);
     }
 
     private Input buildPipelineInput( Provider provider, org.guvnor.ala.pipeline.Pipeline pipeline, String runtimeId, Source source ) {
@@ -302,7 +402,7 @@ public class RuntimeServiceImpl
     }
 
 
-
+/*
     int cont = 0;
     public void createRuntimeOLD( ProviderKey provider, String runtimeId, Source source, String pipeline ) {
         cont++;
@@ -398,7 +498,9 @@ public class RuntimeServiceImpl
 
         return pipeline;
     }
+*/
 
+/*
     private Pipeline getDonePipeline( final String pipelineName,
                                       final Runtime runtime ) {
 
@@ -412,6 +514,7 @@ public class RuntimeServiceImpl
         return pipeline;
     }
 
+*/
     @Override
     public void start( RuntimeKey runtimeKey ) {
 

@@ -24,15 +24,18 @@ public class Step {
 
     private PipelineKey pipelineKey;
     private String message;
+    private StageStatus status;
 
     public Step() {
 
     }
 
     public Step( @MapsTo( "pipelineKey" ) final PipelineKey pipelineKey,
-                 @MapsTo( "message" ) final String message ) {
+                 @MapsTo( "message" ) final String message,
+                 @MapsTo("status") final StageStatus status ) {
         this.pipelineKey = pipelineKey;
         this.message = message;
+        this.status = status;
     }
 
     public PipelineKey getPipelineKey() {
@@ -43,30 +46,39 @@ public class Step {
         return message;
     }
 
+    public StageStatus getStatus() {
+        return status;
+    }
+
     @Override
-    public boolean equals( final Object o ) {
-        if ( this == o ) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if ( !( o instanceof Step ) ) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        final Step step = (Step) o;
+        Step step = (Step) o;
 
-        if ( pipelineKey != null ? !pipelineKey.equals( step.pipelineKey ) : step.pipelineKey != null ) {
+        if (pipelineKey != null ? !pipelineKey.equals(step.pipelineKey) : step.pipelineKey != null) {
             return false;
         }
-        return message != null ? message.equals( step.message ) : step.message == null;
-
+        if (message != null ? !message.equals(step.message) : step.message != null) {
+            return false;
+        }
+        return status == step.status;
     }
 
     @Override
     public int hashCode() {
         int result = pipelineKey != null ? pipelineKey.hashCode() : 0;
         result = ~~result;
-        result = 31 * result + ( message != null ? message.hashCode() : 0 );
+        result = 31 * result + (message != null ? message.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (status != null ? status.hashCode() : 0);
         result = ~~result;
         return result;
     }
+
 }

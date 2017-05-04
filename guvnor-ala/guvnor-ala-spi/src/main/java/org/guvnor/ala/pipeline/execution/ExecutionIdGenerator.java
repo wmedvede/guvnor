@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.pipeline.events;
+package org.guvnor.ala.pipeline.execution;
 
-import org.guvnor.ala.pipeline.Pipeline;
+import java.util.UUID;
 
-/*
- * Event emitted by the PipelineExecutor after the pipeline execution ended
-*/
-public class AfterPipelineExecutionEvent
-        extends BasePipelineEvent {
+public class ExecutionIdGenerator {
 
-    public AfterPipelineExecutionEvent(final String executionId,
-                                       final Pipeline pipeline) {
-        super(executionId,
-              pipeline);
+    public static final String generateExecutionId() {
+        return UUID.randomUUID().toString();
     }
 }

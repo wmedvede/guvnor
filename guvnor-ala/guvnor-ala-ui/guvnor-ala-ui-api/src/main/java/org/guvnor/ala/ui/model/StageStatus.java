@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.pipeline.events;
+package org.guvnor.ala.ui.model;
 
-import org.guvnor.ala.pipeline.Pipeline;
+import org.jboss.errai.common.client.api.annotations.Portable;
 
-/*
- * Event emitted by the PipelineExecutor after the pipeline execution ended
-*/
-public class AfterPipelineExecutionEvent
-        extends BasePipelineEvent {
-
-    public AfterPipelineExecutionEvent(final String executionId,
-                                       final Pipeline pipeline) {
-        super(executionId,
-              pipeline);
-    }
+@Portable
+public enum StageStatus {
+    SCHEDULED, RUNNING, FINISHED, ERROR,
 }

@@ -18,15 +18,27 @@ package org.guvnor.ala.pipeline.events;
 
 import org.guvnor.ala.pipeline.Pipeline;
 
-/*
- * Event emitted by the PipelineExecutor after the pipeline execution ended
-*/
-public class AfterPipelineExecutionEvent
-        extends BasePipelineEvent {
+public class BasePipelineEvent
+        implements PipelineEvent {
 
-    public AfterPipelineExecutionEvent(final String executionId,
-                                       final Pipeline pipeline) {
-        super(executionId,
-              pipeline);
+
+    private final String executionId;
+
+    private final Pipeline pipeline;
+
+    public BasePipelineEvent(final String executionId,
+                             final Pipeline pipeline) {
+        this.executionId = executionId;
+        this.pipeline = pipeline;
     }
+
+    @Override
+    public String getExecutionId() {
+        return executionId;
+    }
+
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
+
 }

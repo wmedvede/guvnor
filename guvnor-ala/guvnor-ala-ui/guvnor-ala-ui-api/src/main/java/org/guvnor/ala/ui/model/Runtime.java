@@ -32,10 +32,16 @@ public class Runtime extends RuntimeKey {
 
     }
 
-    public Runtime( final ProviderKey providerKey,
-                    final String id,
-                    final RuntimeStatus status,
-                    final Source source ) {
+    public Runtime(final ProviderKey providerKey,
+                   final String id) {
+        super(providerKey,
+              id);
+    }
+
+    public Runtime(final ProviderKey providerKey,
+                   final String id,
+                   final RuntimeStatus status,
+                   final Source source ) {
         super( providerKey, id );
         this.status = status;
         this.source = source;
