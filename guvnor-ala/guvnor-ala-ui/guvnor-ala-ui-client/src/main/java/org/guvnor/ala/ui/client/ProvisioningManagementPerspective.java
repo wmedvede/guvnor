@@ -97,7 +97,7 @@ public class ProvisioningManagementPerspective {
                 newDeployWizard.setup( addNewRuntime.getProvider(), result );
                 newDeployWizard.start();
             }
-        } ).getPipelines( addNewRuntime.getProvider() );
+        } ).getPipelines( addNewRuntime.getProvider().getKey() );
     }
 
 }

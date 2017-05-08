@@ -96,7 +96,7 @@ public class RuntimePresenter {
 
         view.setup(runtime.getId(),
                    runtime.createDate(),
-                   runtime.getPipeline() != null ? runtime.getPipeline().getId() : PipelineConstants.WILDFLY_PROVISIONING_PIPELINE );
+                   runtime.getPipeline() != null ? runtime.getPipeline().getKey().getId() : PipelineConstants.WILDFLY_PROVISIONING_PIPELINE );
 
         processStatus( runtime );
 
@@ -174,7 +174,7 @@ public class RuntimePresenter {
                 StepPresenter stepPresenter = stepPresenters.get(currentStep);
                 stepPresenter.setState(calculateState(statusChange.getStatus()));
             } else {
-                Step step = new Step(runtime.getPipeline(),
+                Step step = new Step(runtime.getPipeline().getKey(),
                                      statusChange.getStage(),
                                      statusChange.getStatus());
                 StepPresenter stepPresenter = newStepPresenter();

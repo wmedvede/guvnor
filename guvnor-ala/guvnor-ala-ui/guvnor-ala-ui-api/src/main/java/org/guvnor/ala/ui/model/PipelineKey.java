@@ -26,43 +26,42 @@ public class PipelineKey {
 
     private RuntimeKey runtimeKey;
 
-    public PipelineKey( @MapsTo( "id" ) final String id,
-                        @MapsTo( "runtimeKey" ) final RuntimeKey runtimeKey ) {
+    public PipelineKey(@MapsTo("id") final String id,
+                       @MapsTo("runtimeKey") final RuntimeKey runtimeKey) {
         this.id = id;
         this.runtimeKey = runtimeKey;
     }
 
-    public String getId( ) {
+    public String getId() {
         return id;
     }
 
-    public RuntimeKey getRuntimeKey( ) {
+    public RuntimeKey getRuntimeKey() {
         return runtimeKey;
     }
 
     @Override
-    public boolean equals( final Object o ) {
-        if ( this == o ) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if ( !( o instanceof PipelineKey ) ) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        final PipelineKey that = ( PipelineKey ) o;
+        PipelineKey that = (PipelineKey) o;
 
-        if ( !id.equals( that.id ) ) {
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
-        return runtimeKey.equals( that.runtimeKey );
-
+        return runtimeKey != null ? runtimeKey.equals(that.runtimeKey) : that.runtimeKey == null;
     }
 
     @Override
-    public int hashCode( ) {
-        int result = id.hashCode( );
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
         result = ~~result;
-        result = 31 * result + runtimeKey.hashCode( );
+        result = 31 * result + (runtimeKey != null ? runtimeKey.hashCode() : 0);
         result = ~~result;
         return result;
     }

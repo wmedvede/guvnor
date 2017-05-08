@@ -121,12 +121,12 @@ public class NewDeployWizard extends AbstractMultiPageWizard {
             notification.fire( new NotificationEvent( "Deployment successfully started.", NotificationEvent.NotificationType.SUCCESS ) );
             clear();
             NewDeployWizard.super.complete();
-            refreshRuntimeEvent.fire( new RefreshRuntime( provider ) );
+            refreshRuntimeEvent.fire( new RefreshRuntime( provider.getKey() ) );
         }, ( o, throwable ) -> {
             notification.fire( new NotificationEvent( "Failed to create a Deploy.", NotificationEvent.NotificationType.ERROR ) );
             NewDeployWizard.this.pageSelected( 0 );
             NewDeployWizard.this.start();
             return false;
-        } ).createRuntime( provider, runtime, source, pipeline );
+        } ).createRuntime( provider.getKey(), runtime, source, pipeline );
     }
 }

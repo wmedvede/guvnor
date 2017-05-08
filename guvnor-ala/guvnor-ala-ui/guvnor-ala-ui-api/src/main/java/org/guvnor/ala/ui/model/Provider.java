@@ -23,20 +23,23 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public class Provider
-        extends ProviderKey {
+public class Provider {
 
-    private Map values = new HashMap( );
+    private ProviderKey key;
 
-    public Provider( @MapsTo( "providerTypeKey" ) final ProviderTypeKey providerTypeKey,
-                     @MapsTo( "id" ) final String id,
-                     @MapsTo( "name" ) final String name,
-                     @MapsTo( "values" ) final Map values ) {
-        super( providerTypeKey, id, name );
+    private Map values = new HashMap();
+
+    public Provider(@MapsTo("key") final ProviderKey key,
+                    @MapsTo("values") final Map values) {
+        this.key = key;
         this.values = values;
     }
 
-    public Map getValues( ) {
+    public ProviderKey getKey() {
+        return key;
+    }
+
+    public Map getValues() {
         return values;
     }
 }

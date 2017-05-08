@@ -47,6 +47,7 @@ import org.guvnor.ala.ui.events.RuntimeStatusChange;
 import org.guvnor.ala.ui.model.IDataSourceInfo;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.Pipeline;
+import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -170,7 +171,7 @@ public class RuntimeServiceImpl
         Collection<Runtime> result = pipelineExecutionRegistry.getExecutionRecords().stream()
                 .filter( record -> {
                     //TODO check this filtering
-                    return record.getTask().getProviderId().getId().equals(provider.getId());
+                    return record.getTask().getProviderId().getId().equals(provider.getKey().getId());
                 } )
                 .map( record -> convertToUIRuntime(record) )
                 .collect(Collectors.toList());
@@ -189,11 +190,11 @@ public class RuntimeServiceImpl
                                      "endpoint",
                                      "started at");
 
-        Pipeline pipeline = new Pipeline(record.getTask().getPipeline().getName(),
-                                         result);
+        Pipeline pipeline = new Pipeline(new PipelineKey(record.getTask().getPipeline().getName(),
+                                         result));
 
         record.getTask().getPipeline().getStages().stream()
-                .forEach(stage -> pipeline.addStep(new Step(pipeline,
+                .forEach(stage -> pipeline.addStep(new Step(pipeline.getKey(),
                                                             stage.getName(),
                                                             transformToStageStatus(record.getTask().getStageStatus(stage.getName())))));
 
@@ -202,31 +203,39 @@ public class RuntimeServiceImpl
         return result;
     }
 
-    private RuntimeStatus transformToRuntimeStatus( PipelineExecutionTask.Status status ) {
-        switch (status) {
-            case SCHEDULED:
-            case RUNNING:
-                return RuntimeStatus.LOADING;
-            case FINISHED:
-                return RuntimeStatus.STARTED;
-            case ERROR:
-                return RuntimeStatus.ERROR;
+    private RuntimeStatus transformToRuntimeStatus(PipelineExecutionTask.Status status) {
+        if (status == null) {
+            return null;
+        } else {
+            switch (status) {
+                case SCHEDULED:
+                case RUNNING:
+                    return RuntimeStatus.LOADING;
+                case FINISHED:
+                    return RuntimeStatus.STARTED;
+                case ERROR:
+                    return RuntimeStatus.ERROR;
+            }
+            return null;
         }
-        return null;
     }
 
-    private StageStatus transformToStageStatus(PipelineExecutionTask.Status status ) {
-        switch (status) {
-            case SCHEDULED:
-                return StageStatus.SCHEDULED;
-            case RUNNING:
-                return StageStatus.RUNNING;
-            case FINISHED:
-                return StageStatus.FINISHED;
-            case ERROR:
-                return StageStatus.ERROR;
+    private StageStatus transformToStageStatus(PipelineExecutionTask.Status status) {
+        if (status == null) {
+            return null;
+        } else {
+            switch (status) {
+                case SCHEDULED:
+                    return StageStatus.SCHEDULED;
+                case RUNNING:
+                    return StageStatus.RUNNING;
+                case FINISHED:
+                    return StageStatus.FINISHED;
+                case ERROR:
+                    return StageStatus.ERROR;
+            }
+            return null;
         }
-        return null;
     }
 
     private Runtime convertToUIRuntime(org.guvnor.ala.runtime.Runtime runtime,
@@ -238,11 +247,11 @@ public class RuntimeServiceImpl
                                      buildRuntimeEndpoint(runtime),
                                      runtime.getState() != null ? runtime.getState().getStartedAt() : "");
 
-        Pipeline pipeline = new Pipeline(PipelineConstants.WILDFLY_PROVISIONING_PIPELINE, result);
-        pipeline.addStep( new Step(pipeline, "Clone Repository", StageStatus.SCHEDULED));
-        pipeline.addStep( new Step(pipeline, "Prepare Project", StageStatus.SCHEDULED));
-        pipeline.addStep( new Step(pipeline, "Build Application", StageStatus.SCHEDULED));
-        pipeline.addStep( new Step(pipeline, "Deploy Application", StageStatus.SCHEDULED));
+        Pipeline pipeline = new Pipeline(new PipelineKey(PipelineConstants.WILDFLY_PROVISIONING_PIPELINE, result));
+        pipeline.addStep( new Step(pipeline.getKey(), "Clone Repository", StageStatus.SCHEDULED));
+        pipeline.addStep( new Step(pipeline.getKey(), "Prepare Project", StageStatus.SCHEDULED));
+        pipeline.addStep( new Step(pipeline.getKey(), "Build Application", StageStatus.SCHEDULED));
+        pipeline.addStep( new Step(pipeline.getKey(), "Deploy Application", StageStatus.SCHEDULED));
 
         result.setPipeline(pipeline);
         return result;
@@ -293,7 +302,7 @@ public class RuntimeServiceImpl
         }
 
         org.guvnor.ala.pipeline.Pipeline pipeline =
-                internalPipelines.getOrDefault( provider.getProviderTypeKey(), Collections.emptyList( ) )
+                internalPipelines.getOrDefault( provider.getKey().getProviderTypeKey(), Collections.emptyList( ) )
                         .stream( )
                         .filter( p -> p.getName( ).equals( pipelineName ) )
                         .findFirst( ).orElse( null );
@@ -318,7 +327,7 @@ public class RuntimeServiceImpl
                 return new org.guvnor.ala.runtime.providers.ProviderType() {
                     @Override
                     public String getProviderTypeName() {
-                        return provider.getProviderTypeKey().getId();
+                        return provider.getKey().getProviderTypeKey().getId();
                     }
 
                     @Override
@@ -347,7 +356,7 @@ public class RuntimeServiceImpl
         //TODO build the proper Input according with the provider and pipeline.
 
         Input input = new Input();
-        input.put(WF10ProviderConfigParams.PROVIDER_NAME, provider.getId() );
+        input.put(WF10ProviderConfigParams.PROVIDER_NAME, provider.getKey().getId() );
         input.put(WF10ProviderConfigParams.MANAGEMENT_REALM, "ManagementRealm");
         putAsStrings( input, provider.getValues() );
 

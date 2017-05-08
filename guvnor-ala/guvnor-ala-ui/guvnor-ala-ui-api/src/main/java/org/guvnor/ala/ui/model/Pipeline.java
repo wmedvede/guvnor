@@ -23,29 +23,31 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public class Pipeline
-        extends PipelineKey {
+public class Pipeline {
 
-    private List< Step > steps = new ArrayList<>( );
+    private PipelineKey key;
 
-    public Pipeline( @MapsTo( "id" ) String id,
-                     @MapsTo( "runtimeKey" ) RuntimeKey runtimeKey,
-                     @MapsTo( "steps" ) List< Step > steps ) {
-        super ( id, runtimeKey );
+    private List< Step > steps = new ArrayList<>();
+
+    public Pipeline(@MapsTo("key") final PipelineKey key,
+                    @MapsTo("steps") final List< Step > steps) {
+        this.key = key;
         this.steps = steps;
     }
 
-    public Pipeline( final String id,
-                     final RuntimeKey runtimeKey ) {
-        super( id, runtimeKey );
+    public Pipeline(final PipelineKey key) {
+        this.key = key;
     }
 
-    public List< Step > getSteps( ) {
+    public PipelineKey getKey() {
+        return key;
+    }
+
+    public List< Step > getSteps() {
         return steps;
     }
 
-    public void addStep( final Step step ) {
-        steps.add( step );
+    public void addStep(final Step step) {
+        steps.add(step);
     }
-
 }

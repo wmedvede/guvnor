@@ -110,7 +110,7 @@ public class ProviderPresenter {
     public void onRefreshRuntime( @Observes RefreshRuntime refreshRuntime ) {
         if ( refreshRuntime != null &&
                 refreshRuntime.getProviderKey() != null &&
-                refreshRuntime.getProviderKey().equals( provider ) ) {
+                refreshRuntime.getProviderKey().equals( provider.getKey() ) ) {
             load( refreshRuntime.getProviderKey() );
         }
     }
@@ -123,15 +123,15 @@ public class ProviderPresenter {
                 runtimeService.call( new RemoteCallback<Collection<Runtime>>() {
                     @Override
                     public void callback( final Collection<Runtime> response ) {
-                        view.setProviderName( _provider.getName() );
+                        view.setProviderName( _provider.getKey().getName() );
                         if ( response.isEmpty() ) {
-                            providerStatusEmptyPresenter.setup( _provider );
+                            providerStatusEmptyPresenter.setup( _provider.getKey() );
                             view.setStatus( providerStatusEmptyPresenter.getView() );
                         } else {
                             providerStatusPresenter.setup( response );
                             view.setStatus( providerStatusPresenter.getView() );
                         }
-                        final FormProvider formProvider = FormResolver.getFormProvider( _provider );
+                        final FormProvider formProvider = FormResolver.getFormProvider( _provider.getKey() );
                         formProvider.load( _provider );
                         formProvider.disable();
                         view.setConfig( formProvider.getView() );
@@ -142,19 +142,19 @@ public class ProviderPresenter {
     }
 
     public void refresh() {
-        load( provider );
+        load( provider.getKey() );
     }
 
     public void removeProvider() {
         view.confirmRemove( () -> providerService.call( response -> {
             notification.fire( new NotificationEvent( view.getRemoveProviderSuccessMessage(), NotificationEvent.NotificationType.SUCCESS ) );
 
-            providerTypeSelected.fire( new ProviderTypeSelected( provider.getProviderTypeKey() ) );
+            providerTypeSelected.fire( new ProviderTypeSelected( provider.getKey().getProviderTypeKey() ) );
         }, ( o, throwable ) -> {
             notification.fire( new NotificationEvent( view.getRemoveProviderErrorMessage(), NotificationEvent.NotificationType.ERROR ) );
-            providerTypeSelected.fire( new ProviderTypeSelected( provider.getProviderTypeKey() ) );
+            providerTypeSelected.fire( new ProviderTypeSelected( provider.getKey().getProviderTypeKey() ) );
             return false;
-        } ).deleteProvider( provider ) );
+        } ).deleteProvider( provider.getKey() ) );
     }
 
     public void deploy() {

@@ -40,6 +40,6 @@ public class WF10Pipeline
 
     @Override
     public void run( Pipeline pipe, Runtime runtime, Provider provider ) {
-        System.out.println( "RUN WF PIPELINE: " + pipe.getId() );
+        System.out.println( "RUN WF PIPELINE: " + pipe.getKey().getId() );
     }
 }
