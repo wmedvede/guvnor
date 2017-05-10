@@ -51,7 +51,7 @@ public class StepPresenter {
     }
 
     public void onStatusChange( @Observes RuntimeStatusChange statusChange ) {
-        if ( statusChange.getRuntime().equals( step.getPipelineKey().getRuntimeKey() ) ) {
+        if ( statusChange.getRuntime().getKey().equals( step.getPipelineKey().getRuntimeKey() ) ) {
             if ( !statusChange.getRuntime().getStatus().equals( RuntimeStatus.LOADING ) ) {
                 view.setDoneState();
             }

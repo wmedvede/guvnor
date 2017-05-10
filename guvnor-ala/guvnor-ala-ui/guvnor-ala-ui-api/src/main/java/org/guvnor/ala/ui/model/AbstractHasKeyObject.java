@@ -16,20 +16,18 @@
 
 package org.guvnor.ala.ui.model;
 
-import org.jboss.errai.common.client.api.annotations.MapsTo;
-import org.jboss.errai.common.client.api.annotations.Portable;
+public abstract class AbstractHasKeyObject<K>
+        implements HasKey<K> {
 
-@Portable
-public class ProviderTypeKey {
+    protected K key;
 
-    private String id;
-
-    public ProviderTypeKey(@MapsTo("id") final String id) {
-        this.id = id;
+    public AbstractHasKeyObject(K key) {
+        this.key = key;
     }
 
-    public String getId() {
-        return id;
+    @Override
+    public K getKey() {
+        return key;
     }
 
     @Override
@@ -37,26 +35,19 @@ public class ProviderTypeKey {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof AbstractHasKeyObject)) {
             return false;
         }
 
-        ProviderTypeKey that = (ProviderTypeKey) o;
+        AbstractHasKeyObject<?> that = (AbstractHasKeyObject<?>) o;
 
-        return id != null ? id.equals(that.id) : that.id == null;
+        return getKey() != null ? getKey().equals(that.getKey()) : that.getKey() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = getKey() != null ? getKey().hashCode() : 0;
         result = ~~result;
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "ProviderTypeKey{" +
-                "id='" + id + '\'' +
-                '}';
     }
 }

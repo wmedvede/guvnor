@@ -18,14 +18,13 @@ package org.guvnor.ala.ui.model;
 
 public interface IDataSourceInfo {
 
-    String getName( );
+    String getName();
 
-    String getKieUuid( );
+    String getKieUuid();
 
-    boolean isKieDataSource( );
+    boolean isKieDataSource();
 
-    String getDeploymentId( );
+    String getDeploymentId();
 
-    String getJndi( );
-
+    String getJndi();
 }

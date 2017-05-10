@@ -21,8 +21,8 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
-import org.jboss.errai.common.client.api.IsElement;
 import org.guvnor.ala.ui.model.ProviderType;
+import org.jboss.errai.common.client.api.IsElement;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;

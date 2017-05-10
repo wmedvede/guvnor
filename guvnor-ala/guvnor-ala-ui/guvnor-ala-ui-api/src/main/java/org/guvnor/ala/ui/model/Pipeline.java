@@ -23,31 +23,52 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public class Pipeline {
+public class Pipeline
+        extends AbstractHasKeyObject<PipelineKey> {
 
-    private PipelineKey key;
-
-    private List< Step > steps = new ArrayList<>();
+    private List<Step> steps = new ArrayList<>();
 
     public Pipeline(@MapsTo("key") final PipelineKey key,
-                    @MapsTo("steps") final List< Step > steps) {
-        this.key = key;
+                    @MapsTo("steps") final List<Step> steps) {
+        super(key);
         this.steps = steps;
     }
 
     public Pipeline(final PipelineKey key) {
-        this.key = key;
+        super(key);
     }
 
-    public PipelineKey getKey() {
-        return key;
-    }
-
-    public List< Step > getSteps() {
+    public List<Step> getSteps() {
         return steps;
     }
 
     public void addStep(final Step step) {
         steps.add(step);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        Pipeline pipeline = (Pipeline) o;
+
+        return steps != null ? steps.equals(pipeline.steps) : pipeline.steps == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = ~~result;
+        result = 31 * result + (steps != null ? steps.hashCode() : 0);
+        result = ~~result;
+        return result;
     }
 }

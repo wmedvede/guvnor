@@ -25,9 +25,9 @@ import org.guvnor.ala.ui.model.ProviderKey;
 public class FormResolver {
 
     public static FormProvider getFormProvider( ProviderKey providerKey ) {
-        if ( providerKey.getProviderTypeKey().getId().equals( ProviderType.OPEN_SHIFT_PROVIDER_TYPE ) ) {
+        if ( providerKey.getProviderTypeKey().getId().equals(ProviderType.OPEN_SHIFT_PROVIDER_TYPE ) ) {
             return IOC.getBeanManager().lookupBean( OSEProviderConfigPresenter.class ).getInstance();
-        } else if ( providerKey.getProviderTypeKey().getId().equals( ProviderType.WILDFY_PROVIDER_TYPE ) ) {
+        } else if ( providerKey.getProviderTypeKey().getId().equals(ProviderType.WILDFY_PROVIDER_TYPE ) ) {
             return IOC.getBeanManager().lookupBean( WF10ProviderConfigPresenter.class ).getInstance();
         }
         return null;

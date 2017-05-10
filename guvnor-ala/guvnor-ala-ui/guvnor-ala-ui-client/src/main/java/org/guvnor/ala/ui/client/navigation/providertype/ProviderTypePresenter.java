@@ -26,9 +26,9 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.events.AddNewProvider;
 import org.guvnor.ala.ui.client.events.ProviderSelected;
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefresh;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.Caller;
 import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.slf4j.Logger;
 import org.uberfire.client.mvp.UberElement;
@@ -72,7 +72,7 @@ public class ProviderTypePresenter {
                                   final Event<NotificationEvent> notification,
                                   final Event<AddNewProvider> addNewProviderEvent,
                                   final Event<ProviderTypeListRefresh> providerTypeListRefreshEvent,
-                                  Event<ProviderSelected> providerSelectedEvent ) {
+                                  final Event<ProviderSelected> providerSelectedEvent ) {
         this.logger = logger;
         this.view = view;
         this.providerTypeService = providerTypeService;
@@ -100,7 +100,7 @@ public class ProviderTypePresenter {
                        final ProviderKey firstProviderKey ) {
         view.clear();
         this.providerType = providerType;
-        view.setProviderType( providerType.getId(), providerType.getName() );
+        view.setProviderType( providerType.getKey().getId(), providerType.getName() );
 
         if ( firstProviderKey != null ) {
             addProvider( firstProviderKey );
@@ -122,7 +122,7 @@ public class ProviderTypePresenter {
                 providerSelected.getProviderKey() != null &&
                 providerSelected.getProviderKey().getId() != null &&
                 providerSelected.getProviderKey().getProviderTypeKey() != null &&
-                providerSelected.getProviderKey().getProviderTypeKey().equals( providerType ) ) {
+                providerSelected.getProviderKey().getProviderTypeKey().equals( providerType.getKey() ) ) {
             view.selectProvider( providerSelected.getProviderKey().getId() );
         } else {
             logger.warn( "Illegal event argument." );

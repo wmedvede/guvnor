@@ -16,21 +16,13 @@
 
 package org.guvnor.ala.ui.backend.service.pipeline;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 
 import org.guvnor.ala.ui.backend.service.ExecutablePipeline;
 import org.guvnor.ala.ui.backend.service.ProviderTypeServiceImpl;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.Pipeline;
 import org.guvnor.ala.ui.model.Provider;
-import org.guvnor.ala.ui.model.ProviderType;
-import org.guvnor.ala.ui.service.ProviderTypeService;
 
 @ApplicationScoped
 public class OSEPipeline implements ExecutablePipeline {

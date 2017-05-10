@@ -25,17 +25,17 @@ import org.guvnor.ala.ui.events.StageStatusChange;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.Runtime;
-import org.guvnor.ala.ui.events.NewPipelineStep;
 import org.guvnor.ala.ui.events.RuntimeStatusChange;
+import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.StageStatus;
 
 @ApplicationScoped
 public class PipelineExecutionTaskChangeHandler {
 
-    private Event<RuntimeStatusChange> runtimeStatusChangeEvent;
+    private Event< RuntimeStatusChange > runtimeStatusChangeEvent;
 
-    private Event<StageStatusChange> stageStatusChangeEvent;
+    private Event< StageStatusChange > stageStatusChangeEvent;
 
     public PipelineExecutionTaskChangeHandler() {
         //Empty constructor for Weld proxying
@@ -43,7 +43,7 @@ public class PipelineExecutionTaskChangeHandler {
 
     @Inject
     public PipelineExecutionTaskChangeHandler(Event< RuntimeStatusChange > runtimeStatusChangeEvent,
-                                              Event<StageStatusChange> stageStatusChangeEvent) {
+                                              Event< StageStatusChange > stageStatusChangeEvent) {
         this.runtimeStatusChangeEvent = runtimeStatusChangeEvent;
         this.stageStatusChangeEvent = stageStatusChangeEvent;
     }
@@ -72,7 +72,9 @@ public class PipelineExecutionTaskChangeHandler {
                             PipelineExecutionTask.Status.RUNNING);
 
         //TODO review this even rising
-        stageStatusChangeEvent.fire(new StageStatusChange(buildRuntime(task), stage.getName(), StageStatus.RUNNING));
+        stageStatusChangeEvent.fire(new StageStatusChange(buildRuntime(task),
+                                                          stage.getName(),
+                                                          StageStatus.RUNNING));
     }
 
     public void onStageError(PipelineExecutionTask task,
@@ -80,10 +82,13 @@ public class PipelineExecutionTaskChangeHandler {
                              Throwable error) {
         task.setStageStatus(stage,
                             PipelineExecutionTask.Status.ERROR);
-        task.setStageError(stage, error);
+        task.setStageError(stage,
+                           error);
 
         //TODO review this even rising
-        stageStatusChangeEvent.fire(new StageStatusChange(buildRuntime(task), stage.getName(), StageStatus.ERROR));
+        stageStatusChangeEvent.fire(new StageStatusChange(buildRuntime(task),
+                                                          stage.getName(),
+                                                          StageStatus.ERROR));
     }
 
     public void onStageFinished(PipelineExecutionTask task,
@@ -92,11 +97,13 @@ public class PipelineExecutionTaskChangeHandler {
                             PipelineExecutionTask.Status.FINISHED);
 
         //TODO review this even rising
-        stageStatusChangeEvent.fire(new StageStatusChange(buildRuntime(task), stage.getName(), StageStatus.FINISHED));
-
+        stageStatusChangeEvent.fire(new StageStatusChange(buildRuntime(task),
+                                                          stage.getName(),
+                                                          StageStatus.FINISHED));
     }
 
-    public void onTaskError(PipelineExecutionTask task, Throwable error) {
+    public void onTaskError(PipelineExecutionTask task,
+                            Throwable error) {
         task.setPipelineStatus(PipelineExecutionTask.Status.ERROR);
         task.setPipelineError(error);
 
@@ -107,9 +114,9 @@ public class PipelineExecutionTaskChangeHandler {
     }
 
     private Runtime buildRuntime(PipelineExecutionTask task) {
-        return new Runtime(new ProviderKey(new ProviderTypeKey(task.getProviderId().getProviderType().getProviderTypeName()),
-                                           task.getProviderId().getId(),
-                                           task.getProviderId().getId()),
-                           task.getRuntimeId().getId());
+        return new Runtime(new RuntimeKey(new ProviderKey(new ProviderTypeKey(task.getProviderId().getProviderType().getProviderTypeName()),
+                                                          task.getProviderId().getId(),
+                                                          task.getProviderId().getId()),
+                                          task.getRuntimeId().getId()));
     }
 }

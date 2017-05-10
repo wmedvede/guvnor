@@ -56,7 +56,7 @@ public class ProviderTypeNavigationPresenter {
     private final Event<ProviderTypeListRefresh > providerTypeListRefreshEvent;
     private final Event<ProviderTypeSelected > providerTypeSelectedEvent;
 
-    private Set<ProviderType> providerTypes = new HashSet<>();
+    private Set<ProviderType > providerTypes = new HashSet<>();
 
     @Inject
     public ProviderTypeNavigationPresenter( final Logger logger,
@@ -81,7 +81,7 @@ public class ProviderTypeNavigationPresenter {
     }
 
     public void setup( final ProviderType firstProvider,
-                       final Collection<ProviderType> providerTypes ) {
+                       final Collection<ProviderType > providerTypes ) {
         view.clean();
         this.providerTypes.clear();
         addProviderType( checkNotNull( "firstProvider", firstProvider ) );
@@ -95,7 +95,7 @@ public class ProviderTypeNavigationPresenter {
     private void addProviderType( final ProviderType providerType ) {
         checkNotNull( "providerType", providerType );
         providerTypes.add( providerType );
-        this.view.addProviderType( providerType.getId(), providerType.getName(), () -> select( providerType ) );
+        this.view.addProviderType( providerType.getKey().getId(), providerType.getName(), () -> select( providerType ) );
     }
 
     public void onSelect( @Observes final ProviderTypeSelected providerTypeSelected ) {
@@ -109,7 +109,7 @@ public class ProviderTypeNavigationPresenter {
     }
 
     public void select( final ProviderType providerType ) {
-        providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType ) );
+        providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType.getKey() ) );
     }
 
     public void clear() {

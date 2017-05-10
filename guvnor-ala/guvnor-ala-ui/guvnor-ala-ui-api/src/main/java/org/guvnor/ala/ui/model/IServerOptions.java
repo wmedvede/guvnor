@@ -18,16 +18,15 @@ package org.guvnor.ala.ui.model;
 
 public interface IServerOptions {
 
-    String getHost( );
+    String getHost();
 
-    int getPort( );
+    int getPort();
 
-    int getManagementPort( );
+    int getManagementPort();
 
-    String getUser( );
+    String getUser();
 
-    String getPassword( );
+    String getPassword();
 
-    String getRealm( );
-
+    String getRealm();
 }

@@ -76,4 +76,13 @@ public class ProviderKey {
         result = ~~result;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ProviderKey{" +
+                "providerTypeKey=" + providerTypeKey +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

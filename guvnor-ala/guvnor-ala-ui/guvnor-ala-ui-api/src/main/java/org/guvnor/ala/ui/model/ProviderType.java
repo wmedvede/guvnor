@@ -21,7 +21,7 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
 public class ProviderType
-        extends ProviderTypeKey {
+        extends AbstractHasKeyObject<ProviderTypeKey> {
 
     //TODO, check if we wants to keep and use this constants, ideally we shouldn't since the provider type
     //might be something that is dynamically returned from server. And different versions from the same
@@ -36,27 +36,58 @@ public class ProviderType
 
     private String imageURL;
 
-    public ProviderType( @MapsTo( "id" ) String id,
-                         @MapsTo( "name" ) String name,
-                         @MapsTo( "imageURL" ) String imageURL ) {
-        super( id );
+    public ProviderType(@MapsTo("key") ProviderTypeKey key,
+                        @MapsTo("name") String name,
+                        @MapsTo("imageURL") String imageURL) {
+        super(key);
         this.name = name;
         this.imageURL = imageURL;
     }
 
-    public String getName( ) {
+    public String getName() {
         return name;
     }
 
-    public void setName( String name ) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getImageURL( ) {
+    public String getImageURL() {
         return imageURL;
     }
 
-    public void setImageURL( String imageURL ) {
+    public void setImageURL(String imageURL) {
         this.imageURL = imageURL;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        ProviderType that = (ProviderType) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        return imageURL != null ? imageURL.equals(that.imageURL) : that.imageURL == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = ~~result;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (imageURL != null ? imageURL.hashCode() : 0);
+        result = ~~result;
+        return result;
     }
 }

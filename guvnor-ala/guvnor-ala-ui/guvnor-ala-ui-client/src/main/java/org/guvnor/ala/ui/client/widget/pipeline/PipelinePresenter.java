@@ -57,7 +57,7 @@ public class PipelinePresenter {
     }
 
     public void onNewStep( @Observes NewPipelineStep newStep ) {
-        if ( newStep.getStep().getPipelineKey().getRuntimeKey().equals( runtime ) ) {
+        if ( newStep.getStep().getPipelineKey().getRuntimeKey().equals( runtime.getKey() ) ) {
             addStage( IOC.getBeanManager().lookupBean( TransitionPresenter.class ).getInstance().getView() );
             final StepPresenter step = IOC.getBeanManager().lookupBean( StepPresenter.class ).getInstance();
             step.setup( newStep.getStep() );

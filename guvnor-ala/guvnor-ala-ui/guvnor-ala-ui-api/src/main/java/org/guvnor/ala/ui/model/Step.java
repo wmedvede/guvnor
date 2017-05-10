@@ -26,13 +26,9 @@ public class Step {
     private String message;
     private StageStatus status;
 
-    public Step() {
-
-    }
-
-    public Step( @MapsTo( "pipelineKey" ) final PipelineKey pipelineKey,
-                 @MapsTo( "message" ) final String message,
-                 @MapsTo("status") final StageStatus status ) {
+    public Step(@MapsTo("pipelineKey") final PipelineKey pipelineKey,
+                @MapsTo("message") final String message,
+                @MapsTo("status") final StageStatus status) {
         this.pipelineKey = pipelineKey;
         this.message = message;
         this.status = status;
@@ -80,5 +76,4 @@ public class Step {
         result = ~~result;
         return result;
     }
-
 }

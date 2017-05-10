@@ -25,47 +25,42 @@ public class RuntimeKey {
     private ProviderKey providerKey;
     private String id;
 
-    public RuntimeKey( ) {
-
-    }
-
-    public RuntimeKey( @MapsTo( "providerKey" ) final ProviderKey providerKey,
-                       @MapsTo( "id" ) final String id ) {
+    public RuntimeKey(@MapsTo("providerKey") final ProviderKey providerKey,
+                      @MapsTo("id") final String id) {
         this.providerKey = providerKey;
         this.id = id;
     }
 
-    public ProviderKey getProviderKey( ) {
+    public ProviderKey getProviderKey() {
         return providerKey;
     }
 
-    public String getId( ) {
+    public String getId() {
         return id;
     }
 
     @Override
-    public boolean equals( final Object o ) {
-        if ( this == o ) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if ( !( o instanceof RuntimeKey ) ) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
-        final RuntimeKey that = ( RuntimeKey ) o;
+        RuntimeKey that = (RuntimeKey) o;
 
-        if ( !providerKey.equals( that.providerKey ) ) {
+        if (providerKey != null ? !providerKey.equals(that.providerKey) : that.providerKey != null) {
             return false;
         }
-        return id.equals( that.id );
-
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
-    public int hashCode( ) {
-        int result = providerKey.hashCode( );
+    public int hashCode() {
+        int result = providerKey != null ? providerKey.hashCode() : 0;
         result = ~~result;
-        result = 31 * result + id.hashCode( );
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = ~~result;
         return result;
     }

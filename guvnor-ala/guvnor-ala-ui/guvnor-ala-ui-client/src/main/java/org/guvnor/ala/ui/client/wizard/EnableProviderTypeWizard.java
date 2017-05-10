@@ -24,9 +24,9 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefresh;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.Caller;
 import org.guvnor.ala.ui.client.wizard.providertype.EnableProviderTypePresenter;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.uberfire.workbench.events.NotificationEvent;
@@ -93,12 +93,12 @@ public class EnableProviderTypeWizard extends AbstractMultiPageWizard {
 
     @Override
     public void complete() {
-        final Collection<ProviderType> providerTypes = enableProviderTypePresenter.getSelectedProviderTypes();
+        final Collection<ProviderType > providerTypes = enableProviderTypePresenter.getSelectedProviderTypes();
 
         providerTypeService.call( o -> {
             notification.fire( new NotificationEvent( enableProviderTypePresenter.getEnableProviderTypeWizardSuccessMessage(), NotificationEvent.NotificationType.SUCCESS ) );
             EnableProviderTypeWizard.super.complete();
-            providerTypeListRefresh.fire( new ProviderTypeListRefresh( providerTypes.iterator().next() ) );
+            providerTypeListRefresh.fire( new ProviderTypeListRefresh( providerTypes.iterator().next().getKey() ) );
         }, ( o, throwable ) -> {
             notification.fire( new NotificationEvent( enableProviderTypePresenter.getEnableProviderTypeWizardErrorMessage(), NotificationEvent.NotificationType.ERROR ) );
             EnableProviderTypeWizard.this.pageSelected( 0 );

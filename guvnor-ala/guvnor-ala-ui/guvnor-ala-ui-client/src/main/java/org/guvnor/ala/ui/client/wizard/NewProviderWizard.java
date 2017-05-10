@@ -23,11 +23,11 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.events.ProviderTypeSelected;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.provider.FormProvider;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.guvnor.ala.ui.client.wizard.provider.NewProviderFormPresenter;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.uberfire.workbench.events.NotificationEvent;
 
@@ -116,7 +116,7 @@ public class NewProviderWizard extends AbstractMultiPageWizard {
             notification.fire( new NotificationEvent( newProviderFormPresenter.getNewProviderWizardSuccessMessage(), NotificationEvent.NotificationType.SUCCESS ) );
             clear();
             NewProviderWizard.super.complete();
-            providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType, providerConfiguration.getId() ) );
+            providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType.getKey(), providerConfiguration.getId() ) );
         }, ( o, throwable ) -> {
             notification.fire( new NotificationEvent( newProviderFormPresenter.getNewPoviderCreateErrorMessage(), NotificationEvent.NotificationType.ERROR ) );
             NewProviderWizard.this.pageSelected( 0 );

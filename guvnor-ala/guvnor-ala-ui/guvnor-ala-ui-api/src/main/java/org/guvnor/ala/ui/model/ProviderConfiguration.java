@@ -29,34 +29,33 @@ public class ProviderConfiguration {
 
     private String name;
 
-    private final Map values = new HashMap<>( );
+    private final Map values = new HashMap<>();
 
-    public ProviderConfiguration( @MapsTo( "id" ) String id,
-                                  @MapsTo( "name" ) String name,
-                                  @MapsTo( "values" ) Map values ) {
+    public ProviderConfiguration(@MapsTo("id") final String id,
+                                 @MapsTo("name") final String name,
+                                 @MapsTo("values") final Map values) {
         this.id = id;
         this.name = name;
-        this.values.putAll( values );
+        this.values.putAll(values);
     }
 
-    public String getId( ) {
+    public String getId() {
         return id;
     }
 
-    public void setId( String id ) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getName( ) {
+    public String getName() {
         return name;
     }
 
-    public void setName( String name ) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public Map< ?, ? > getValues( ) {
+    public Map<?, ?> getValues() {
         return values;
     }
-
 }

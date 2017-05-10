@@ -29,11 +29,11 @@ import javax.inject.Inject;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.docker.config.DockerProviderConfig;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.ProviderType;
-import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.wildfly.config.WildflyProviderConfig;
@@ -50,8 +50,6 @@ import static org.guvnor.ala.ui.backend.service.util.ServiceUtil.*;
 @ApplicationScoped
 public class ProviderServiceImpl
         implements ProviderService {
-
-    private Map< ProviderType, Set< Provider > > providers = new HashMap<>();
 
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
 
@@ -76,7 +74,7 @@ public class ProviderServiceImpl
 
         if (providers != null) {
             result = providers.stream()
-                    .filter(provider -> provider.getProviderType().getProviderTypeName().equals(providerType.getId()))
+                    .filter(provider -> provider.getProviderType().getProviderTypeName().equals(providerType.getKey().getId()))
                     .map(this::translateProvider)
                     .collect(toList());
         }
@@ -170,10 +168,10 @@ public class ProviderServiceImpl
 
         ProviderConfig result;
         Map values = providerConfiguration.getValues();
-        if (ProviderType.OPEN_SHIFT_PROVIDER_TYPE.equals(providerType.getId())) {
+        if (ProviderType.OPEN_SHIFT_PROVIDER_TYPE.equals(providerType.getKey().getId())) {
             //not yet implemented.
             throw new RuntimeException("Openshift provider is not yet implemented");
-        } else if (ProviderType.WILDFY_PROVIDER_TYPE.equals(providerType.getId())) {
+        } else if (ProviderType.WILDFY_PROVIDER_TYPE.equals(providerType.getKey().getId())) {
             result = new WildflyProviderConfigImpl(providerConfiguration.getName(),
                                                    getStringValue(values,
                                                                   WF10ProviderConfigParams.HOST),
@@ -185,7 +183,7 @@ public class ProviderServiceImpl
                                                                   WF10ProviderConfigParams.USER),
                                                    getStringValue(values,
                                                                   WF10ProviderConfigParams.PASSWORD));
-        } else if (ProviderType.DOCKER_PROVIDER_TYPE.equals(providerType.getId())) {
+        } else if (ProviderType.DOCKER_PROVIDER_TYPE.equals(providerType.getKey().getId())) {
             throw new RuntimeException("Docker not yet implemented at client side");
             /*
             result = new DockerProviderConfigImpl( providerConfiguration.getName(),

@@ -23,23 +23,44 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public class Provider {
-
-    private ProviderKey key;
+public class Provider
+        extends AbstractHasKeyObject<ProviderKey> {
 
     private Map values = new HashMap();
 
     public Provider(@MapsTo("key") final ProviderKey key,
                     @MapsTo("values") final Map values) {
-        this.key = key;
+        super(key);
         this.values = values;
-    }
-
-    public ProviderKey getKey() {
-        return key;
     }
 
     public Map getValues() {
         return values;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        Provider provider = (Provider) o;
+
+        return values != null ? values.equals(provider.values) : provider.values == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = ~~result;
+        result = 31 * result + (values != null ? values.hashCode() : 0);
+        result = ~~result;
+        return result;
     }
 }

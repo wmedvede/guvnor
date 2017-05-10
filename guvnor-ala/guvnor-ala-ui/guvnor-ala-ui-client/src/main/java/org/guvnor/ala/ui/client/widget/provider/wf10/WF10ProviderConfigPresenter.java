@@ -22,7 +22,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.Window;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.client.widget.provider.FormProvider;

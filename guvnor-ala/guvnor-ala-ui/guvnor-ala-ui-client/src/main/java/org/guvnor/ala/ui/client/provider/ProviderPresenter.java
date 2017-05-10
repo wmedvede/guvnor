@@ -136,7 +136,7 @@ public class ProviderPresenter {
                         formProvider.disable();
                         view.setConfig( formProvider.getView() );
                     }
-                } ).getRuntimes( _provider );
+                } ).getRuntimes( _provider.getKey() );
             }
         } ).getProvider( providerKey );
     }

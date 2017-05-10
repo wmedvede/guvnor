@@ -41,8 +41,8 @@ public class OSEProviderTypeEntryPoint {
     public void onNewProvider( @Observes final AddNewProvider addNewProvider ) {
         if ( addNewProvider != null &&
                 addNewProvider.getProviderType() != null &&
-                addNewProvider.getProviderType().getId() != null &&
-                addNewProvider.getProviderType().getId().equals( ProviderType.OPEN_SHIFT_PROVIDER_TYPE ) ) {
+                addNewProvider.getProviderType().getKey().getId() != null &&
+                addNewProvider.getProviderType().getKey().getId().equals(ProviderType.OPEN_SHIFT_PROVIDER_TYPE ) ) {
             newProviderWizard.clear();
             newProviderWizard.setup( addNewProvider.getProviderType(), providerConfigPresenter );
             newProviderWizard.start();

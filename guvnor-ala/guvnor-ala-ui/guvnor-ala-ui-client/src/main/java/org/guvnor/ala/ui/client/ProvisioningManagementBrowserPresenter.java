@@ -32,12 +32,12 @@ import org.guvnor.ala.ui.client.navigation.ProviderTypeNavigationPresenter;
 import org.guvnor.ala.ui.client.navigation.providertype.ProviderTypePresenter;
 import org.guvnor.ala.ui.client.provider.ProviderPresenter;
 import org.guvnor.ala.ui.client.provider.empty.ProviderEmptyPresenter;
+import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.ProviderType;
-import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.slf4j.Logger;
@@ -125,7 +125,7 @@ public class ProvisioningManagementBrowserPresenter {
     }
 
     private void refreshList( @Observes final ProviderTypeListRefresh refresh ) {
-        providerTypeService.call( (RemoteCallback<Collection<ProviderType>>) providerTypes ->
+        providerTypeService.call( (RemoteCallback<Collection<ProviderType >>) providerTypes ->
                 setup( providerTypes, refresh.getProviderTypeKey() )
         ).getEnabledProviderTypes();
     }
@@ -150,14 +150,14 @@ public class ProvisioningManagementBrowserPresenter {
 
     private void selectProviderType( final ProviderTypeKey providerTypeKey,
                                      final String providerId ) {
-        providerTypeService.call( (RemoteCallback<ProviderType>) providerType -> {
+        providerTypeService.call( (RemoteCallback<ProviderType >) providerType -> {
             providerService.call( (RemoteCallback<Collection<ProviderKey>>) providers ->
                     setup( providerType, providers, providerId )
             ).getProvidersKey( providerType );
         } ).getProviderType( providerTypeKey );
     }
 
-    public void setup( final Collection<ProviderType> providerTypes,
+    public void setup( final Collection<ProviderType > providerTypes,
                        final ProviderTypeKey selectProviderKey ) {
         if ( providerTypes.isEmpty() ) {
             isEmpty = true;
@@ -168,7 +168,7 @@ public class ProvisioningManagementBrowserPresenter {
             ProviderType providerType2BeSelected = null;
             if ( selectProviderKey != null ) {
                 for ( final ProviderType providerType : providerTypes ) {
-                    if ( providerType.equals( selectProviderKey ) ) {
+                    if ( providerType.getKey().equals( selectProviderKey ) ) {
                         providerType2BeSelected = providerType;
                         break;
                     }
@@ -178,7 +178,7 @@ public class ProvisioningManagementBrowserPresenter {
                 providerType2BeSelected = providerTypes.iterator().next();
             }
             providerTypeNavigationPresenter.setup( providerType2BeSelected, providerTypes );
-            providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType2BeSelected ) );
+            providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType2BeSelected.getKey() ) );
         }
     }
 

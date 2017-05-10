@@ -16,13 +16,7 @@
 
 package org.guvnor.ala.ui.model;
 
-public interface ITestConnectionResult {
+public interface HasKey<K> {
 
-    boolean getHttpConnectionError();
-
-    String getHttpConnectionMessage();
-
-    boolean getManagementConnectionError();
-
-    String getManagementConnectionMessage();
+    K getKey();
 }

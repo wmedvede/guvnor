@@ -94,7 +94,7 @@ public class RuntimePresenter {
     public void setup( final Runtime runtime ) {
         this.runtime = runtime;
 
-        view.setup(runtime.getId(),
+        view.setup(runtime.getKey().getId(),
                    runtime.createDate(),
                    runtime.getPipeline() != null ? runtime.getPipeline().getKey().getId() : PipelineConstants.WILDFLY_PROVISIONING_PIPELINE );
 
@@ -114,6 +114,8 @@ public class RuntimePresenter {
                     stepPresenter.setup(step);
                     stepPresenter.setState(calculateState(step.getStatus()));
                     pipelinePresenter.addStage(stepPresenter.getView());
+                    currentSteps.add(step);
+                    stepPresenters.put(step, stepPresenter);
                 }
             }
         }
@@ -154,7 +156,7 @@ public class RuntimePresenter {
     }
 
     public void onStatusChange( @Observes RuntimeStatusChange statusChange ) {
-        if ( statusChange.getRuntime().equals( runtime ) ) {
+        if ( statusChange.getRuntime().getKey().equals( runtime.getKey() ) ) {
             if ( statusChange.getRuntime().getStatus() == RuntimeStatus.STARTED ) {
                 view.setEndpoint( statusChange.getRuntime().getEndpoint() );
             }
@@ -163,7 +165,7 @@ public class RuntimePresenter {
     }
 
     public void onStageStatusChange(@Observes StageStatusChange statusChange) {
-        if ( statusChange.getRuntime().equals(runtime) ) {
+        if ( statusChange.getRuntime().getKey().equals(runtime.getKey()) ) {
 
             Step currentStep = currentSteps.stream().
                     filter(step -> statusChange.getStage().equals(step.getMessage()))
@@ -210,19 +212,19 @@ public class RuntimePresenter {
     }
 
     public void start() {
-        runtimeService.call().start( runtime );
+        runtimeService.call().start( runtime.getKey() );
     }
 
     public void stop() {
-        runtimeService.call().stop( runtime );
+        runtimeService.call().stop( runtime.getKey() );
     }
 
     public void rebuild() {
-        runtimeService.call().rebuild( runtime );
+        runtimeService.call().rebuild( runtime.getKey() );
     }
 
     public void delete() {
-        runtimeService.call().delete( runtime );
+        runtimeService.call().delete( runtime.getKey() );
     }
 
     public View getView() {

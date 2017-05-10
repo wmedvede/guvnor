@@ -16,8 +16,8 @@
 
 package org.guvnor.ala.ui.client.events;
 
-import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.model.Provider;
 
 /**
  * TODO: update me

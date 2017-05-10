@@ -20,9 +20,9 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.guvnor.ala.ui.backend.service.ExecutablePipeline;
 import org.guvnor.ala.ui.backend.service.ProviderTypeServiceImpl;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.Pipeline;
 import org.guvnor.ala.ui.model.Provider;
-import org.guvnor.ala.ui.model.ProviderType;
 
 @ApplicationScoped
 public class WF10Pipeline

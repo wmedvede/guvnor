@@ -24,11 +24,11 @@ import javax.inject.Inject;
 
 import com.google.gwt.user.client.ui.Widget;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.ui.ElementWrapperWidget;
 import org.jboss.errai.ioc.client.container.IOC;
 import org.guvnor.ala.ui.client.wizard.providertype.item.ProviderTypeItemPresenter;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
@@ -126,8 +126,8 @@ public class EnableProviderTypePresenter implements WizardPage {
         return view.getEnableProviderTypeWizardErrorMessage();
     }
 
-    public Collection<ProviderType> getSelectedProviderTypes() {
-        final Collection<ProviderType> result = new ArrayList<>();
+    public Collection<ProviderType > getSelectedProviderTypes() {
+        final Collection<ProviderType > result = new ArrayList<>();
         for ( ProviderTypeItemPresenter providerType : providerTypes ) {
             if ( providerType.isSelected() ) {
                 result.add( providerType.getProviderType() );

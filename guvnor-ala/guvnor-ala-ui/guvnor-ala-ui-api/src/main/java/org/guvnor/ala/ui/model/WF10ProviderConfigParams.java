@@ -31,7 +31,4 @@ public interface WF10ProviderConfigParams {
     String USER = "wildfly-user";
 
     String PASSWORD = "wildfly-password";
-
-
-
 }

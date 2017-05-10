@@ -18,28 +18,27 @@ package org.guvnor.ala.ui.service;
 
 import java.util.Collection;
 
+import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.bus.server.annotations.Remote;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.ProviderType;
 
 @Remote
 public interface ProviderService {
 
-    Collection< Provider > getProviders( final ProviderType providerType );
+    Collection< Provider > getProviders(final ProviderType providerType);
 
-    Collection< ProviderKey > getProvidersKey( final ProviderType providerType );
+    Collection< ProviderKey > getProvidersKey(final ProviderType providerType);
 
-    boolean isValidProvider( final ProviderType providerType,
-                             final String id,
-                             final String name );
+    boolean isValidProvider(final ProviderType providerType,
+                            final String id,
+                            final String name);
 
-    void createProvider( final ProviderType providerType,
-                         final ProviderConfiguration configuration );
+    void createProvider(final ProviderType providerType,
+                        final ProviderConfiguration configuration);
 
-    void deleteProvider( final ProviderKey providerKey );
+    void deleteProvider(final ProviderKey providerKey);
 
-    Provider getProvider( final ProviderKey providerKey );
-
+    Provider getProvider(final ProviderKey providerKey);
 }

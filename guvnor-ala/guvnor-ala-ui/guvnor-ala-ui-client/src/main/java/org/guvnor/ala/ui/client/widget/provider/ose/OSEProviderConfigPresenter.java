@@ -25,9 +25,9 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.client.widget.provider.FormProvider;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
 
@@ -36,50 +36,50 @@ import static org.uberfire.commons.validation.PortablePreconditions.*;
 @Dependent
 public class OSEProviderConfigPresenter implements FormProvider {
 
-    public interface View extends UberElement<OSEProviderConfigPresenter> {
+    public interface View extends UberElement< OSEProviderConfigPresenter > {
 
-        void setContent( final String name,
-                         final String masterURL,
-                         final String username,
-                         final String password );
+        void setContent(final String name,
+                        final String masterURL,
+                        final String username,
+                        final String password);
 
-        String getName( );
+        String getName();
 
-        String getMasterURL( );
+        String getMasterURL();
 
-        String getUsername( );
+        String getUsername();
 
-        String getPassword( );
+        String getPassword();
 
-        void disable( );
+        void disable();
 
-        void enable( );
+        void enable();
 
-        void setProviderNameStatus( final FormStatus formStatus );
+        void setProviderNameStatus(final FormStatus formStatus);
 
-        void setMasterURLStatus( FormStatus error );
+        void setMasterURLStatus(FormStatus error);
 
-        void setUsernameStatus( FormStatus error );
+        void setUsernameStatus(FormStatus error);
 
-        void setPasswordStatus( FormStatus error );
+        void setPasswordStatus(FormStatus error);
 
-        void clear( );
+        void clear();
 
-        void addContentChangeHandler( ContentChangeHandler contentChangeHandler );
+        void addContentChangeHandler(ContentChangeHandler contentChangeHandler);
 
-        String getWizardTitle( );
+        String getWizardTitle();
     }
 
     private final View view;
 
     @Inject
-    public OSEProviderConfigPresenter( final View view ) {
+    public OSEProviderConfigPresenter(final View view) {
         this.view = view;
     }
 
     @PostConstruct
     public void init() {
-        view.init( this );
+        view.init(this);
     }
 
     public View getView() {
@@ -87,17 +87,22 @@ public class OSEProviderConfigPresenter implements FormProvider {
     }
 
     @Override
-    public void addContentChangeHandler( final ContentChangeHandler contentChangeHandler ) {
-        view.addContentChangeHandler( contentChangeHandler );
+    public void addContentChangeHandler(final ContentChangeHandler contentChangeHandler) {
+        view.addContentChangeHandler(contentChangeHandler);
     }
 
     @Override
     public ProviderConfiguration buildProviderConfiguration() {
         final Map values = new HashMap<>();
-        values.put( "master-url", getMasterURL() );
-        values.put( "username", getUsername() );
-        values.put( "password", getPassword() );
-        return new ProviderConfiguration( getName(), getName(), values );
+        values.put("master-url",
+                   getMasterURL());
+        values.put("username",
+                   getUsername());
+        values.put("password",
+                   getPassword());
+        return new ProviderConfiguration(getName(),
+                                         getName(),
+                                         values);
     }
 
     @Override
@@ -105,21 +110,27 @@ public class OSEProviderConfigPresenter implements FormProvider {
         view.clear();
     }
 
-    public void setup( final String providerTypeId ) {
-        checkNotEmpty( "providerTypeId", providerTypeId );
-        checkCondition( "providerTypeId", providerTypeId.equals( ProviderType.OPEN_SHIFT_PROVIDER_TYPE ) );
+    public void setup(final String providerTypeId) {
+        checkNotEmpty("providerTypeId",
+                      providerTypeId);
+        checkCondition("providerTypeId",
+                       providerTypeId.equals(ProviderType.OPEN_SHIFT_PROVIDER_TYPE));
     }
 
-    public void setup( final String providerTypeId,
-                       final String name,
-                       final String masterURL,
-                       final String username,
-                       final String password ) {
-        setup( providerTypeId );
-        view.setContent( checkNotEmpty( "name", name ),
-                         checkNotEmpty( "masterURL", masterURL ),
-                         checkNotEmpty( "username", username ),
-                         checkNotEmpty( "password", password ) );
+    public void setup(final String providerTypeId,
+                      final String name,
+                      final String masterURL,
+                      final String username,
+                      final String password) {
+        setup(providerTypeId);
+        view.setContent(checkNotEmpty("name",
+                                      name),
+                        checkNotEmpty("masterURL",
+                                      masterURL),
+                        checkNotEmpty("username",
+                                      username),
+                        checkNotEmpty("password",
+                                      password));
     }
 
     public String getName() {
@@ -138,37 +149,37 @@ public class OSEProviderConfigPresenter implements FormProvider {
         return view.getPassword();
     }
 
-    public void isValid( final Callback<Boolean> callback ) {
+    public void isValid(final Callback< Boolean > callback) {
         boolean isValid = true;
-        if ( getName().trim().isEmpty() ) {
-            view.setProviderNameStatus( FormStatus.ERROR );
+        if (getName().trim().isEmpty()) {
+            view.setProviderNameStatus(FormStatus.ERROR);
             isValid = false;
         } else {
-            view.setProviderNameStatus( FormStatus.VALID );
+            view.setProviderNameStatus(FormStatus.VALID);
         }
 
-        if ( getMasterURL().trim().isEmpty() ) {
-            view.setMasterURLStatus( FormStatus.ERROR );
+        if (getMasterURL().trim().isEmpty()) {
+            view.setMasterURLStatus(FormStatus.ERROR);
             isValid = false;
         } else {
-            view.setMasterURLStatus( FormStatus.VALID );
+            view.setMasterURLStatus(FormStatus.VALID);
         }
 
-        if ( getUsername().trim().isEmpty() ) {
-            view.setUsernameStatus( FormStatus.ERROR );
+        if (getUsername().trim().isEmpty()) {
+            view.setUsernameStatus(FormStatus.ERROR);
             isValid = false;
         } else {
-            view.setUsernameStatus( FormStatus.VALID );
+            view.setUsernameStatus(FormStatus.VALID);
         }
 
-        if ( getPassword().trim().isEmpty() ) {
-            view.setPasswordStatus( FormStatus.ERROR );
+        if (getPassword().trim().isEmpty()) {
+            view.setPasswordStatus(FormStatus.ERROR);
             isValid = false;
         } else {
-            view.setPasswordStatus( FormStatus.VALID );
+            view.setPasswordStatus(FormStatus.VALID);
         }
 
-        callback.callback( isValid );
+        callback.callback(isValid);
     }
 
     @Override
@@ -182,10 +193,10 @@ public class OSEProviderConfigPresenter implements FormProvider {
     }
 
     @Override
-    public void load( final Provider provider ) {
-        view.setContent( provider.getKey().getName(),
-                         provider.getValues().get( "master-url" ).toString(),
-                         provider.getValues().get( "username" ).toString(),
-                         "***" );
+    public void load(final Provider provider) {
+        view.setContent(provider.getKey().getName(),
+                        provider.getValues().get("master-url").toString(),
+                        provider.getValues().get("username").toString(),
+                        "***");
     }
 }
