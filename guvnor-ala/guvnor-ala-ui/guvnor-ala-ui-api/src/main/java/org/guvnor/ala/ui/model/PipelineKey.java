@@ -24,20 +24,12 @@ public class PipelineKey {
 
     private String id;
 
-    private RuntimeKey runtimeKey;
-
-    public PipelineKey(@MapsTo("id") final String id,
-                       @MapsTo("runtimeKey") final RuntimeKey runtimeKey) {
+    public PipelineKey(@MapsTo("id") final String id) {
         this.id = id;
-        this.runtimeKey = runtimeKey;
     }
 
     public String getId() {
         return id;
-    }
-
-    public RuntimeKey getRuntimeKey() {
-        return runtimeKey;
     }
 
     @Override
@@ -51,17 +43,12 @@ public class PipelineKey {
 
         PipelineKey that = (PipelineKey) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        return runtimeKey != null ? runtimeKey.equals(that.runtimeKey) : that.runtimeKey == null;
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = ~~result;
-        result = 31 * result + (runtimeKey != null ? runtimeKey.hashCode() : 0);
         result = ~~result;
         return result;
     }

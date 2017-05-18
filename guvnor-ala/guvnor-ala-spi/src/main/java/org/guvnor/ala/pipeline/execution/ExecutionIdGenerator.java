@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright ${year} Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,15 @@ package org.guvnor.ala.pipeline.execution;
 
 import java.util.UUID;
 
+/**
+ * UUID generator for identifying a pipeline execution.
+ */
 public class ExecutionIdGenerator {
 
-    public static final String generateExecutionId() {
+    /**
+     * @return gets a random UUID for identifying a pipeline execution.
+     */
+    public static String generateExecutionId() {
         return UUID.randomUUID().toString();
     }
 }

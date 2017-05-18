@@ -32,6 +32,7 @@ import javax.ws.rs.QueryParam;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
 
+import org.guvnor.ala.services.api.itemlist.RuntimeQueryResultItemList;
 import org.guvnor.ala.services.exceptions.BusinessException;
 
 import static javax.ws.rs.core.MediaType.*;
@@ -156,4 +157,9 @@ public interface RuntimeProvisioningService {
     @Path( "runtimes/{id}/state" )
     void restartRuntime( @PathParam( value = "id" ) String runtimeId ) throws BusinessException;
 
+    @GET
+    @Produces(value = APPLICATION_JSON)
+    @Consumes(value = APPLICATION_JSON)
+    @Path("query")
+    RuntimeQueryResultItemList executeQuery(@NotNull RuntimeQuery query) throws BusinessException;
 }

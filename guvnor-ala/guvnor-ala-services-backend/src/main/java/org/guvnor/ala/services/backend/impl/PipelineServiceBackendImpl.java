@@ -20,7 +20,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.PipelineConfig;
-import org.guvnor.ala.pipeline.execution.ExecutionIdGenerator;
 import org.guvnor.ala.services.exceptions.BusinessException;
 import org.guvnor.ala.services.api.PipelineService;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
@@ -53,21 +52,8 @@ public class PipelineServiceBackendImpl implements PipelineServiceBackend {
     }
 
     @Override
-    public void runPipeline( String id, Input input ) throws BusinessException {
-        pipelineService.runPipeline( id, input );
+    public String runPipeline( String id, Input input ) throws BusinessException {
+        return pipelineService.runPipeline( id, input );
     }
 
-    @Override
-    public void runPipeline(String id,
-                            Input input,
-                            String executionId) throws BusinessException {
-        //TODO, check and propagate this to the pipelineService.
-        input.put("executionId", generateExecutionId());
-        pipelineService.runPipeline( id, input );
-    }
-
-    @Override
-    public String generateExecutionId() throws BusinessException {
-        return ExecutionIdGenerator.generateExecutionId();
-    }
 }

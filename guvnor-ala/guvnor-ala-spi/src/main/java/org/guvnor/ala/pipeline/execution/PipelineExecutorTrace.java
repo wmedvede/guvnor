@@ -14,35 +14,28 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.backend.service.pipeline;
+package org.guvnor.ala.pipeline.execution;
 
 /**
  * Represents a pipeline execution recording.
  */
-public class PipelineExecutionRecord {
+public interface PipelineExecutorTrace {
 
     /**
-     * The pipeline execution id.
+     * Shortcut to the task id related with this trace.
+     * @return returns the id of the internal task.
      */
-    private String executionId;
+    String getTaskId();
 
     /**
-     * The pipeline task that was executed in this pipeline run.
+     * Shortcut to the pipeline id related with this trace.
+     * @return returns the pipeline id of the pipeline related with this trace.
      */
-    private PipelineExecutionTask task;
+    String getPipelineId();
 
-    public PipelineExecutionRecord(String executionId,
-                                   PipelineExecutionTask task) {
-        this.executionId = executionId;
-        this.task = task;
-    }
-
-    public String getExecutionId() {
-        return executionId;
-    }
-
-    public PipelineExecutionTask getTask() {
-        return task;
-    }
-
+    /**
+     * Gets the task that was executed.
+     * @return returns the internal task.
+     */
+    PipelineExecutorTask getTask();
 }

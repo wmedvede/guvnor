@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.guvnor.ala.util.RuntimeConfigHelper.buildRuntimeName;
 
 public class WildflyRuntimeExecExecutor<T extends WildflyRuntimeConfiguration> implements RuntimeBuilder<T, WildflyRuntime>,
         RuntimeDestroyer,
@@ -80,7 +81,7 @@ public class WildflyRuntimeExecExecutor<T extends WildflyRuntimeConfiguration> i
         endpoint.setHost( wildfly.getWildflyClient( wildflyProvider ).getHost() );
         endpoint.setPort( wildfly.getWildflyClient( wildflyProvider ).getPort() );
         endpoint.setContext( appContext );
-        return Optional.of( new WildflyRuntime( id, runtimeConfig, wildflyProvider,
+        return Optional.of( new WildflyRuntime( id, buildRuntimeName(runtimeConfig, id), runtimeConfig, wildflyProvider,
                 endpoint, new WildflyRuntimeInfo(), new WildflyRuntimeState() ) );
     }
 

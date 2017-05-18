@@ -12,10 +12,12 @@ public interface WildflyProviderConfig extends ProviderConfig {
 
     /*
      * Get the Provider name
-     * @return String with the provider name. By default "local"
+     * @return String with the provider name. This configuration will use by default the Input value stored under the
+     * parameter name PROVIDER_NAME. If no provider is register with this provider name a new provider will be registered
+     * by using the remaining parameters.
      */
     default String getName() {
-        return "local";
+        return "${input."+ PROVIDER_NAME +"}";
     }
 
     /*

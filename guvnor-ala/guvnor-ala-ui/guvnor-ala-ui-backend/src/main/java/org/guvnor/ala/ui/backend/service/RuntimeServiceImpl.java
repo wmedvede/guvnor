@@ -29,18 +29,22 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.guvnor.ala.config.ProviderConfig;
+import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
+import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
+import org.guvnor.ala.registry.PipelineExecutorRegistry;
 import org.guvnor.ala.registry.PipelineRegistry;
-import org.guvnor.ala.runtime.RuntimeId;
-import org.guvnor.ala.runtime.providers.ProviderId;
+import org.guvnor.ala.services.api.RuntimeQuery;
+import org.guvnor.ala.services.api.RuntimeQueryResultItem;
+import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
-import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionRecord;
-import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionRegistry;
-import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionTask;
-import org.guvnor.ala.ui.backend.service.pipeline.PipelineExecutionTaskManager;
 import org.guvnor.ala.ui.model.IDataSourceInfo;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.Pipeline;
+import org.guvnor.ala.ui.model.PipelineExecutionTrace;
+import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
@@ -48,6 +52,7 @@ import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.Runtime;
 import org.guvnor.ala.ui.model.RuntimeKey;
+import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.model.StageStatus;
@@ -57,7 +62,10 @@ import org.guvnor.ala.ui.service.PipelineConstants;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.guvnor.ala.ui.service.RuntimeService;
+import org.guvnor.common.services.backend.exceptions.ExceptionUtilities;
 import org.jboss.errai.bus.server.annotations.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.stream.Collectors.toList;
 import static org.guvnor.ala.ui.backend.service.util.ServiceUtil.putAsStrings;
@@ -67,9 +75,13 @@ import static org.guvnor.ala.ui.backend.service.util.ServiceUtil.putAsStrings;
 public class RuntimeServiceImpl
         implements RuntimeService {
 
-    private Map< ProviderTypeKey, Collection< org.guvnor.ala.pipeline.Pipeline > > internalPipelines = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(RuntimeServiceImpl.class);
+
+    private Map<ProviderTypeKey, Collection<org.guvnor.ala.pipeline.Pipeline>> internalPipelines = new HashMap<>();
 
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
+
+    private PipelineServiceBackend pipelineServiceBackend;
 
     private ProviderTypeService providerTypeService;
 
@@ -77,9 +89,7 @@ public class RuntimeServiceImpl
 
     private PipelineRegistry pipelineRegistry;
 
-    private PipelineExecutionTaskManager pipelineExecutionTaskManager;
-
-    private PipelineExecutionRegistry pipelineExecutionRegistry;
+    private PipelineExecutorRegistry pipelineExecutorRegistry;
 
     public RuntimeServiceImpl() {
         //Empty constructor for Weld proxying
@@ -87,25 +97,25 @@ public class RuntimeServiceImpl
 
     @Inject
     public RuntimeServiceImpl(RuntimeProvisioningServiceBackend runtimeProvisioningService,
+                              PipelineServiceBackend pipelineServiceBackend,
                               PipelineRegistry pipelineRegistry,
                               ProviderTypeService providerTypeService,
                               ProviderService providerService,
-                              PipelineExecutionTaskManager pipelineExecutionTaskManager,
-                              PipelineExecutionRegistry pipelineExecutionRegistry) {
+                              PipelineExecutorRegistry pipelineExecutorRegistry) {
         this.runtimeProvisioningService = runtimeProvisioningService;
+        this.pipelineServiceBackend = pipelineServiceBackend;
         this.pipelineRegistry = pipelineRegistry;
         this.providerTypeService = providerTypeService;
         this.providerService = providerService;
-        this.pipelineExecutionTaskManager = pipelineExecutionTaskManager;
-        this.pipelineExecutionRegistry = pipelineExecutionRegistry;
+        this.pipelineExecutorRegistry = pipelineExecutorRegistry;
     }
 
     @PostConstruct
     public void init() {
-        List< org.guvnor.ala.pipeline.Pipeline > pipelines = pipelineRegistry.getPipelines(0,
-                                                                                           10,
-                                                                                           "name",
-                                                                                           true);
+        List<org.guvnor.ala.pipeline.Pipeline> pipelines = pipelineRegistry.getPipelines(0,
+                                                                                         10,
+                                                                                         "name",
+                                                                                         true);
         providerTypeService.getAvialableProviderTypes()
                 .forEach(providerType -> internalPipelines.putIfAbsent(providerType.getKey(),
                                                                        new HashSet<>()));
@@ -128,10 +138,10 @@ public class RuntimeServiceImpl
 
     @Override
     public Runtime getRuntime(final RuntimeKey runtimeKey) {
-        List< org.guvnor.ala.runtime.Runtime > runtimes = runtimeProvisioningService.getRuntimes(0,
-                                                                                                 10,
-                                                                                                 "id",
-                                                                                                 true);
+        List<org.guvnor.ala.runtime.Runtime> runtimes = runtimeProvisioningService.getRuntimes(0,
+                                                                                               10,
+                                                                                               "id",
+                                                                                               true);
         return runtimes.stream()
                 .filter(runtime -> {
                     //TODO check this filtering...
@@ -144,80 +154,149 @@ public class RuntimeServiceImpl
     }
 
     @Override
-    public Collection< Runtime > getRuntimes(final ProviderKey providerKey) {
+    public Collection<Runtime> getRuntimes(final ProviderKey providerKey) {
 
-        Collection< Runtime > result = pipelineExecutionRegistry.getExecutionRecords().stream()
+        /*
+        Collection<Runtime> result = pipelineExecutorRegistry.getExecutorTraces().stream()
                 .filter(record -> {
                     //TODO check this filtering
-                    return record.getTask().getProviderId().getId().equals(providerKey.getId());
+                    ProviderId providerId = record.getTask().getTaskDef().getProviderId();
+                    return providerId != null && providerId.getId().equals(providerKey.getId());
                 })
                 .map(record -> convertToUIRuntime(record))
                 .collect(Collectors.toList());
 
         return result;
-    }
-
-    private Runtime convertToUIRuntime(PipelineExecutionRecord record) {
-
-
-        Runtime result = new Runtime(new RuntimeKey(new ProviderKey(new ProviderTypeKey(record.getTask().getProviderId().getProviderType().getProviderTypeName()),
-                                                                    record.getTask().getProviderId().getId(),
-                                                                    record.getTask().getProviderId().getId()),
-                                                    record.getTask().getRuntimeId().getId()),
-                                     transformToRuntimeStatus(record.getTask().getPipelineStatus()),
-                                     "endpoint",
-                                     "started at");
-
-        Pipeline pipeline = new Pipeline(new PipelineKey(record.getTask().getPipeline().getName(),
-                                                         result.getKey()));
-
-        record.getTask().getPipeline().getStages()
-                .forEach(stage -> pipeline.addStep(new Step(pipeline.getKey(),
-                                                            stage.getName(),
-                                                            transformToStageStatus(record.getTask().getStageStatus(stage.getName())))));
-
-        result.setPipeline(pipeline);
-        return result;
-
-
-        /*
-        Runtime result = new Runtime(createRuntimeKey(record),
-                                     transformToRuntimeStatus(record.getTask().getPipelineStatus()),
-                                     "endpoint",
-                                     "started at");
-
-        Pipeline pipeline = new Pipeline(new PipelineKey(record.getTask().getPipeline().getName(),
-                                                         createRuntimeKey(record)));
-
-        record.getTask().getPipeline().getStages()
-                .forEach(stage -> pipeline.addStep(new Step(pipeline.getKey(),
-                                                            stage.getName(),
-                                                            transformToStageStatus(record.getTask().getStageStatus(stage.getName())))));
-
-        result.setPipeline(pipeline);
-        return result;
         */
 
+        RuntimeQuery query = new RuntimeQuery(providerKey.getId());
+
+        List<RuntimeQueryResultItem> resultItems = runtimeProvisioningService.executeQuery(query);
+        Collection<Runtime> result = resultItems.stream()
+                .map( item -> convertToUIRuntime(item) ).collect(Collectors.toList());
+        return result;
     }
 
-    private RuntimeKey createRuntimeKey(PipelineExecutionRecord record) {
-        return new RuntimeKey(new ProviderKey(new ProviderTypeKey(record.getTask().getProviderId().getProviderType().getProviderTypeName()),
-                                       record.getTask().getProviderId().getId(),
-                                       record.getTask().getProviderId().getId()),
-                       record.getTask().getRuntimeId().getId());
+    @Override
+    public Collection<RuntimeListItem> getRuntimesInfo(final ProviderKey providerKey) {
+        RuntimeQuery query = new RuntimeQuery(providerKey.getId());
+        List<RuntimeQueryResultItem> resultItems = runtimeProvisioningService.executeQuery(query);
+        Collection<RuntimeListItem> result = resultItems.stream()
+                .map( item -> convertToUIRuntimeListItem(item) ).collect(Collectors.toList());
+        return result;
     }
 
-    private ProviderKey createProviderKey(PipelineExecutionRecord record){
-        return new ProviderKey(new ProviderTypeKey(record.getTask().getProviderId().getProviderType().getProviderTypeName()),
-                        record.getTask().getProviderId().getId(),
-                        record.getTask().getProviderId().getId());
+    private RuntimeListItem convertToUIRuntimeListItem(RuntimeQueryResultItem item) {
+
+        RuntimeListItem result;
+        PipelineExecutionTrace pipelineTrace;
+        Runtime runtime;
+        String runtimeName;
+
+        if (item.getRuntimeName() != null) {
+            runtimeName = item.getRuntimeName();
+        } else {
+            runtimeName = item.getRuntimeId();
+        }
+
+        if (item.getPipelineExecutionId() != null) {
+            Pipeline pipeline = new Pipeline(new PipelineKey(item.getPipelineId()));
+            pipelineTrace = new PipelineExecutionTrace(new PipelineExecutionTraceKey(item.getPipelineExecutionId()));
+            item.getPipelineStageItems().getItems()
+                    .forEach(stage -> {
+                                 pipeline.addStep(new Step(pipeline.getKey(),
+                                                           stage.getName(),
+                                                           transformToStageStatus(stage.getStatus())));
+                                 pipelineTrace.setStageStatus(stage.getName(),
+                                                              transformToStageStatus(stage.getStatus()));
+                                 pipelineTrace.setStageError(stage.getName(),
+                                                             stage.getErrorMessage());
+                             }
+                    );
+            pipelineTrace.setPipeline(pipeline);
+        } else {
+            pipelineTrace = null;
+        }
+
+        if (item.getRuntimeId() != null) {
+            runtime = new Runtime(new RuntimeKey(new ProviderKey(new ProviderTypeKey(item.getProviderTypeName()),
+                                                                 item.getProviderId()),
+                                                 runtimeName),
+                                  transformToRuntimeStatus(item.getRuntimeStatus()),
+                                  item.getRuntimeEndpoint(),
+                                  "not yet implemented");
+            runtime.setPipelineTrace(pipelineTrace);
+            result = new RuntimeListItem(runtimeName,
+                                         runtime);
+        } else {
+            result = new RuntimeListItem(runtimeName,
+                                         pipelineTrace);
+        }
+        return result;
     }
 
-    private ProviderTypeKey createProviderTypeKey(PipelineExecutionRecord record){
-        return new ProviderTypeKey(record.getTask().getProviderId().getProviderType().getProviderTypeName());
+
+    private Runtime convertToUIRuntime(RuntimeQueryResultItem item) {
+
+        Runtime result;
+        String runtimeName = null;
+        if ( item.getRuntimeName() != null ) {
+            runtimeName = item.getRuntimeName();
+        } else {
+            runtimeName = item.getRuntimeId();
+        }
+
+        if (item.getPipelineExecutionId() != null) {
+            //we have a pipeline
+            result = new Runtime(new RuntimeKey(new ProviderKey(new ProviderTypeKey(item.getProviderTypeName()),
+                                                                        item.getProviderId()),
+                                                        runtimeName),
+                                         transformToRuntimeStatus(item.getRuntimeStatus()),
+                                         "endpoint",
+                                         "started at");
+
+            Pipeline pipeline = new Pipeline(new PipelineKey(item.getPipelineId()));
+            PipelineExecutionTrace pipelineTrace = new PipelineExecutionTrace(new PipelineExecutionTraceKey(item.getPipelineExecutionId()));
+            item.getPipelineStageItems().getItems()
+                    .forEach(stage -> {
+                                 pipeline.addStep(new Step(pipeline.getKey(),
+                                                           stage.getName(),
+                                                           transformToStageStatus(stage.getStatus())));
+                                 pipelineTrace.setStageStatus(stage.getName(),
+                                                              transformToStageStatus(stage.getStatus()));
+                             }
+                    );
+
+            pipelineTrace.setPipeline(pipeline);
+            result.setPipelineTrace(pipelineTrace);
+
+        } else {
+            result = new Runtime(new RuntimeKey(new ProviderKey(new ProviderTypeKey(item.getProviderTypeName()),
+                                                                                     item.getProviderId()),
+                                                                     runtimeName),
+                                                      transformToRuntimeStatus(item.getRuntimeStatus()),
+                                                      "endpoint",
+                                                      "started at");
+        }
+        return result;
     }
 
-    private RuntimeStatus transformToRuntimeStatus(PipelineExecutionTask.Status status) {
+    private RuntimeKey createRuntimeKey(PipelineExecutorTrace record) {
+        return new RuntimeKey(new ProviderKey(new ProviderTypeKey(record.getTask().getTaskDef().getProviderId().getProviderType().getProviderTypeName()),
+                                              record.getTask().getTaskDef().getProviderId().getId()),
+                              record.getTask().getTaskDef().getRuntimeId().getId());
+    }
+
+    private ProviderKey createProviderKey(PipelineExecutorTrace record) {
+        return new ProviderKey(new ProviderTypeKey(record.getTask().getTaskDef().getProviderId().getProviderType().getProviderTypeName()),
+                               record.getTask().getTaskDef().getProviderId().getId());
+    }
+
+    private ProviderTypeKey createProviderTypeKey(PipelineExecutorTrace record) {
+        return new ProviderTypeKey(record.getTask().getTaskDef().getProviderId().getProviderType().getProviderTypeName());
+    }
+
+    private RuntimeStatus transformToRuntimeStatus(PipelineExecutorTask.Status status) {
         if (status == null) {
             return null;
         } else {
@@ -234,7 +313,24 @@ public class RuntimeServiceImpl
         }
     }
 
-    private StageStatus transformToStageStatus(PipelineExecutionTask.Status status) {
+    private RuntimeStatus transformToRuntimeStatus(String status) {
+        if (status == null) {
+            return null;
+        } else {
+            switch (status) {
+                case "SCHEDULED":
+                case "RUNNING":
+                    return RuntimeStatus.LOADING;
+                case "FINISHED":
+                    return RuntimeStatus.STARTED;
+                case "ERROR":
+                    return RuntimeStatus.ERROR;
+            }
+            return null;
+        }
+    }
+
+    private StageStatus transformToStageStatus(PipelineExecutorTask.Status status) {
         if (status == null) {
             return null;
         } else {
@@ -252,42 +348,28 @@ public class RuntimeServiceImpl
         }
     }
 
-    private Runtime convertToUIRuntime(org.guvnor.ala.runtime.Runtime runtime,
-                                       ProviderKey providerKey) {
-        Runtime result = new Runtime(new RuntimeKey(providerKey,
-                                                    runtime.getId()),
-                                     convertToUIRuntimeStatus(runtime.getState().getState()),
-                                     buildRuntimeEndpoint(runtime),
-                                     runtime.getState() != null ? runtime.getState().getStartedAt() : "");
-
-        Pipeline pipeline = new Pipeline(new PipelineKey(PipelineConstants.WILDFLY_PROVISIONING_PIPELINE,
-                                                         result.getKey()));
-        pipeline.addStep(new Step(pipeline.getKey(),
-                                  "Clone Repository",
-                                  StageStatus.SCHEDULED));
-        pipeline.addStep(new Step(pipeline.getKey(),
-                                  "Prepare Project",
-                                  StageStatus.SCHEDULED));
-        pipeline.addStep(new Step(pipeline.getKey(),
-                                  "Build Application",
-                                  StageStatus.SCHEDULED));
-        pipeline.addStep(new Step(pipeline.getKey(),
-                                  "Deploy Application",
-                                  StageStatus.SCHEDULED));
-
-        result.setPipeline(pipeline);
-        return result;
+    private StageStatus transformToStageStatus(String status) {
+        if (status == null) {
+            return null;
+        } else {
+            switch (status) {
+                case "SCHEDULED":
+                    return StageStatus.SCHEDULED;
+                case "RUNNING":
+                    return StageStatus.RUNNING;
+                case "FINISHED":
+                    return StageStatus.FINISHED;
+                case "ERROR":
+                    return StageStatus.ERROR;
+            }
+            return null;
+        }
     }
 
-    private String buildRuntimeEndpoint(org.guvnor.ala.runtime.Runtime runtime) {
-        StringBuilder url = new StringBuilder();
-        if (runtime.getEndpoint() != null) {
-            return "http://" + runtime.getEndpoint().getHost() +
-                    ":" + runtime.getEndpoint().getPort() +
-                    "/" + runtime.getEndpoint().getContext();
-        } else {
-            return "";
-        }
+    private Runtime convertToUIRuntime(org.guvnor.ala.runtime.Runtime runtime,
+                                       ProviderKey providerKey) {
+
+        throw new RuntimeException("NOT YET IMPLEMENTED");
     }
 
     private RuntimeStatus convertToUIRuntimeStatus(String status) {
@@ -296,18 +378,18 @@ public class RuntimeServiceImpl
     }
 
     @Override
-    public Collection< String > getPipelines(final ProviderKey providerKey) {
+    public Collection<String> getPipelines(final ProviderKey providerKey) {
         return print("getPipelines",
                      getPipelines(providerKey.getProviderTypeKey()));
     }
 
     @Override
-    public Collection< String > getPipelines(final ProviderTypeKey providerTypeKey) {
+    public Collection<String> getPipelines(final ProviderTypeKey providerTypeKey) {
         return internalPipelines.getOrDefault(providerTypeKey,
                                               new ArrayList<>())
                 .stream()
                 .map(org.guvnor.ala.pipeline.Pipeline::getName)
-                .sorted(new Comparator< String >() {
+                .sorted(new Comparator<String>() {
                     @Override
                     public int compare(String o1,
                                        String o2) {
@@ -318,10 +400,45 @@ public class RuntimeServiceImpl
                 .collect(toList());
     }
 
-    public void createRuntime(ProviderKey providerKey,
+    @Override
+    public String createRuntime(ProviderKey providerKey,
                               String runtimeId,
                               Source source,
                               String pipelineName) {
+
+        Provider provider = providerService.getProvider(providerKey);
+        if (provider == null) {
+            throw new RuntimeException("No provider was found for providerKey: " + providerKey);
+        }
+
+        org.guvnor.ala.pipeline.Pipeline pipeline =
+                internalPipelines.getOrDefault(provider.getKey().getProviderTypeKey(),
+                                               Collections.emptyList())
+                        .stream()
+                        .filter(p -> p.getName().equals(pipelineName))
+                        .findFirst().orElse(null);
+        if (pipeline == null) {
+            throw new RuntimeException("No pipeline was found for provider: " + provider + "and pipelineName: " + pipelineName);
+        }
+
+        try {
+            Input input = buildPipelineInput(provider,
+                                             pipeline,
+                                             runtimeId,
+                                             source);
+            return pipelineServiceBackend.runPipeline(pipelineName, input);
+        } catch (Exception e) {
+            logger.error("Runtime creation failed.");
+            throw ExceptionUtilities.handleException(e);
+        }
+
+    }
+
+    /*
+    public void createRuntimeOLDPipelineRunner(ProviderKey providerKey,
+                                               String runtimeId,
+                                               Source source,
+                                               String pipelineName) {
         Provider provider = providerService.getProvider(providerKey);
         if (provider == null) {
             throw new RuntimeException("No provider was found for providerKey: " + providerKey);
@@ -370,16 +487,23 @@ public class RuntimeServiceImpl
             }
 
             @Override
+            public String getName() {
+                return runtimeId;
+            }
+
+            @Override
             public ProviderId getProviderId() {
                 return alaProviderId;
             }
         };
-        PipelineExecutionTask task = new PipelineExecutionTask(pipeline,
-                                                               input,
-                                                               alaProviderId,
-                                                               alaRuntimeId);
+        PipelineExecutionTaskDef task = new PipelineExecutionTaskDefImpl(pipeline,
+                                                                         input,
+                                                                         alaProviderId,
+                                                                         alaRuntimeId);
         pipelineExecutionTaskManager.execute(task);
     }
+
+    */
 
     private Input buildPipelineInput(Provider provider,
                                      org.guvnor.ala.pipeline.Pipeline pipeline,
@@ -388,7 +512,10 @@ public class RuntimeServiceImpl
         //TODO build the proper Input according with the provider and pipeline.
 
         Input input = new Input();
-        input.put(WF10ProviderConfigParams.PROVIDER_NAME,
+
+        input.put(RuntimeConfig.RUNTIME_NAME, runtimeId);
+
+        input.put(ProviderConfig.PROVIDER_NAME,
                   provider.getKey().getId());
         input.put(WF10ProviderConfigParams.MANAGEMENT_REALM,
                   "ManagementRealm");
@@ -471,8 +598,8 @@ public class RuntimeServiceImpl
 
     }
 
-    public < T > Collection< T > print(final String ref,
-                                       final Collection< T > input) {
+    public <T> Collection<T> print(final String ref,
+                                   final Collection<T> input) {
 
         System.out.println(ref + " [" + input.toString() + "]");
 

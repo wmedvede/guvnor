@@ -23,20 +23,23 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 public class Runtime
         extends AbstractHasKeyObject<RuntimeKey> {
 
-    private Pipeline pipeline;
+    private String name;
+    private PipelineExecutionTrace pipelineTrace;
     private Source source;
     private RuntimeStatus status;
     private String endpoint;
     private String createdDate;
 
     public Runtime(@MapsTo("key") final RuntimeKey key,
-                   @MapsTo("pipeline") final Pipeline pipeline,
+                   @MapsTo("name") final String name,
+                   @MapsTo("pipelineTrace") final PipelineExecutionTrace pipelineTrace,
                    @MapsTo("source") final Source source,
                    @MapsTo("status") final RuntimeStatus status,
                    @MapsTo("endpoint") final String endpoint,
                    @MapsTo("createdDate") final String createdDate) {
         super(key);
-        this.pipeline = pipeline;
+        this.name = name;
+        this.pipelineTrace = pipelineTrace;
         this.source = source;
         this.status = status;
         this.endpoint = endpoint;
@@ -57,16 +60,24 @@ public class Runtime
         this.createdDate = createdDate;
     }
 
-    public void setPipeline(final Pipeline pipeline) {
-        this.pipeline = pipeline;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPipelineTrace(final PipelineExecutionTrace pipelineTrace) {
+        this.pipelineTrace = pipelineTrace;
     }
 
     public RuntimeStatus getStatus() {
         return status;
     }
 
-    public Pipeline getPipeline() {
-        return pipeline;
+    public PipelineExecutionTrace getPipelineTrace() {
+        return pipelineTrace;
     }
 
     public String createDate() {
@@ -103,7 +114,10 @@ public class Runtime
 
         Runtime runtime = (Runtime) o;
 
-        if (pipeline != null ? !pipeline.equals(runtime.pipeline) : runtime.pipeline != null) {
+        if (name != null ? !name.equals(runtime.name) : runtime.name != null) {
+            return false;
+        }
+        if (pipelineTrace != null ? !pipelineTrace.equals(runtime.pipelineTrace) : runtime.pipelineTrace != null) {
             return false;
         }
         if (source != null ? !source.equals(runtime.source) : runtime.source != null) {
@@ -122,7 +136,9 @@ public class Runtime
     public int hashCode() {
         int result = super.hashCode();
         result = ~~result;
-        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (pipelineTrace != null ? pipelineTrace.hashCode() : 0);
         result = ~~result;
         result = 31 * result + (source != null ? source.hashCode() : 0);
         result = ~~result;

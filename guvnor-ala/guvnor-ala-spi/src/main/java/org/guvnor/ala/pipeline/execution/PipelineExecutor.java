@@ -45,6 +45,8 @@ import static org.guvnor.ala.util.VariableInterpolation.interpolate;
 */
 public class PipelineExecutor {
 
+    public static final String PIPELINE_EXECUTION_ID = "_pipelineExecutionId_";
+
     private final Map<Class, ConfigExecutor > configExecutors = new HashMap<>();
 
     public PipelineExecutor() {
@@ -64,7 +66,7 @@ public class PipelineExecutor {
                              final Pipeline pipeline,
                              final Consumer<T> callback,
                              final PipelineEventListener... eventListeners ) {
-        final PipelineContext context = new PipelineContext(pipeline );
+        final PipelineContext context = new PipelineContext(pipeline);
         context.start( input );
         context.pushCallback( callback );
         propagateEvent(new BeforePipelineExecutionEvent(context.getExecutionId(), pipeline ), eventListeners );

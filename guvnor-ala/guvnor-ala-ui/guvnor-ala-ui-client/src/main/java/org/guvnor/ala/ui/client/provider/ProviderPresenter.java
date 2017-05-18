@@ -31,21 +31,19 @@ import org.guvnor.ala.ui.client.provider.status.ProviderStatusPresenter;
 import org.guvnor.ala.ui.client.provider.status.empty.ProviderStatusEmptyPresenter;
 import org.guvnor.ala.ui.client.widget.provider.FormProvider;
 import org.guvnor.ala.ui.client.widget.provider.FormResolver;
+import org.guvnor.ala.ui.model.Provider;
+import org.guvnor.ala.ui.model.ProviderKey;
+import org.guvnor.ala.ui.model.RuntimeListItem;
+import org.guvnor.ala.ui.service.ProviderService;
+import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.api.RemoteCallback;
-import org.guvnor.ala.ui.model.Provider;
-import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.Runtime;
-import org.guvnor.ala.ui.service.ProviderService;
-import org.guvnor.ala.ui.service.RuntimeService;
 import org.uberfire.client.mvp.UberElement;
+import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.mvp.Command;
 import org.uberfire.workbench.events.NotificationEvent;
 
-/**
- * TODO: update me
- */
 @ApplicationScoped
 public class ProviderPresenter {
 
@@ -115,30 +113,30 @@ public class ProviderPresenter {
         }
     }
 
-    private void load( final ProviderKey providerKey ) {
-        providerService.call( new RemoteCallback<Provider>() {
-            @Override
-            public void callback( final Provider _provider ) {
-                provider = _provider;
-                runtimeService.call( new RemoteCallback<Collection<Runtime>>() {
-                    @Override
-                    public void callback( final Collection<Runtime> response ) {
-                        view.setProviderName( _provider.getKey().getName() );
-                        if ( response.isEmpty() ) {
-                            providerStatusEmptyPresenter.setup( _provider.getKey() );
-                            view.setStatus( providerStatusEmptyPresenter.getView() );
-                        } else {
-                            providerStatusPresenter.setup( response );
-                            view.setStatus( providerStatusPresenter.getView() );
-                        }
-                        final FormProvider formProvider = FormResolver.getFormProvider( _provider.getKey() );
-                        formProvider.load( _provider );
-                        formProvider.disable();
-                        view.setConfig( formProvider.getView() );
-                    }
-                } ).getRuntimes( _provider.getKey() );
-            }
-        } ).getProvider( providerKey );
+    private void load(final ProviderKey providerKey) {
+        providerService.call((RemoteCallback<Provider>) provider -> {
+                                 this.provider = provider;
+                                 runtimeService.call(getLoadItemsSuccessCallback(),
+                                                     new DefaultErrorCallback()).getRuntimesInfo(providerKey);
+                             },
+                             new DefaultErrorCallback()).getProvider(providerKey);
+    }
+
+    private RemoteCallback<Collection<RuntimeListItem>> getLoadItemsSuccessCallback() {
+        return items -> {
+                view.setProviderName( provider.getKey().getId() );
+                if ( items.isEmpty() ) {
+                    providerStatusEmptyPresenter.setup( provider.getKey() );
+                    view.setStatus( providerStatusEmptyPresenter.getView() );
+                } else {
+                    providerStatusPresenter.setupItems( items );
+                    view.setStatus( providerStatusPresenter.getView() );
+                }
+                final FormProvider formProvider = FormResolver.getFormProvider( provider.getKey() );
+                formProvider.load( provider );
+                formProvider.disable();
+                view.setConfig( formProvider.getView() );
+        };
     }
 
     public void refresh() {

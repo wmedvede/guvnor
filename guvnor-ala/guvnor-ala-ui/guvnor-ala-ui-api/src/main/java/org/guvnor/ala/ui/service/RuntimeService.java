@@ -18,12 +18,13 @@ package org.guvnor.ala.ui.service;
 
 import java.util.Collection;
 
-import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.RuntimeKey;
-import org.jboss.errai.bus.server.annotations.Remote;
-import org.guvnor.ala.ui.model.Source;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.Runtime;
+import org.guvnor.ala.ui.model.RuntimeKey;
+import org.guvnor.ala.ui.model.RuntimeListItem;
+import org.guvnor.ala.ui.model.Source;
+import org.jboss.errai.bus.server.annotations.Remote;
 
 @Remote
 public interface RuntimeService {
@@ -32,14 +33,16 @@ public interface RuntimeService {
 
     Collection< Runtime > getRuntimes(final ProviderKey provider);
 
+    Collection<RuntimeListItem> getRuntimesInfo(final ProviderKey providerKey);
+
     Collection< String > getPipelines(final ProviderKey providerKey);
 
     Collection< String > getPipelines(final ProviderTypeKey providerTypeKey);
 
-    void createRuntime(final ProviderKey provider,
+    String createRuntime(final ProviderKey providerKey,
                        final String runtimeId,
                        final Source source,
-                       final String pipeline);
+                       final String pipelineName);
 
     void start(RuntimeKey runtimeKey);
 

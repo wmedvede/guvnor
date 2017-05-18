@@ -101,10 +101,6 @@ public class UIAppSetup {
 
         final Stage< BinaryConfig, ProviderConfig > providerConfig = config( "Wildfly Provider Config", wildflyProviderConfig ->
                 new WildflyProviderConfig( ) {
-                    @Override
-                    public String getName( ) {
-                        return "${input.provider-name}";
-                    }
                 } );
 
         final Stage<ProviderConfig, RuntimeConfig> runtimeExec = config( "Wildfly Runtime Exec", wildflyRuntimeExecConfig ->

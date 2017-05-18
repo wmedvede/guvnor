@@ -194,7 +194,7 @@ public class OSEProviderConfigPresenter implements FormProvider {
 
     @Override
     public void load(final Provider provider) {
-        view.setContent(provider.getKey().getName(),
+        view.setContent(provider.getKey().getId(),
                         provider.getValues().get("master-url").toString(),
                         provider.getValues().get("username").toString(),
                         "***");

@@ -28,6 +28,8 @@ import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.Stage;
 
+import static org.guvnor.ala.pipeline.execution.PipelineExecutor.PIPELINE_EXECUTION_ID;
+
 /*
  * Represent the contextual information used by the Pipeline Executor. 
  * it host all the variables that are going to be used to execute the different stages in the
@@ -77,8 +79,7 @@ public class PipelineContext {
 
         this.values.put( "input", initialInput );
         if ( initialInput instanceof Input) {
-            executionId = ((Input) initialInput).computeIfAbsent("executionId", generator -> ExecutionIdGenerator.generateExecutionId());
-
+            executionId = ((Input) initialInput).computeIfAbsent(PIPELINE_EXECUTION_ID, generator -> ExecutionIdGenerator.generateExecutionId());
         } else {
             executionId = ExecutionIdGenerator.generateExecutionId();
         }

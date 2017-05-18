@@ -35,8 +35,7 @@
   <inherits name="org.uberfire.UberfireClientAPI"/>
   <inherits name="org.uberfire.commons.UberfireCommons"/>
 
-  <inherits name="org.uberfire.ext.widgets.core.UberfireWidgetsCore" />
-
+  <inherits name="org.uberfire.ext.widgets.common.UberfireWidgetsCommons"/>
 
   <inherits name="org.guvnor.ala.ui.GuvnorAlaUIAPI" />
 

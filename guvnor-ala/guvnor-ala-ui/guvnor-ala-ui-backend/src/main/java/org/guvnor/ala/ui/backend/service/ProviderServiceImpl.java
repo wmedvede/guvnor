@@ -86,8 +86,7 @@ public class ProviderServiceImpl
         return print("getProvidersKey",
                      getProviders(providerType).stream()
                              .map(p -> new ProviderKey(p.getKey().getProviderTypeKey(),
-                                                       p.getKey().getId(),
-                                                       p.getKey().getName()))
+                                                       p.getKey().getId()))
                              .collect(toCollection(ArrayList::new)));
     }
 
@@ -103,8 +102,7 @@ public class ProviderServiceImpl
                       name);
 
         for (final Provider provider : getProviders(providerType)) {
-            if (name.equals(provider.getKey().getName()) ||
-                    id.equals(provider.getKey().getId())) {
+            if (name.equals(id.equals(provider.getKey().getId()))) {
                 return false;
             }
         }
@@ -123,7 +121,6 @@ public class ProviderServiceImpl
             //the server side Provider does not have a name, but only id. Likely we should make it have a name too. The name can be passed in the ProviderConfig when
             //created but If we add a name in the Provider interface then we'll be able to manage all provider sin a seamless way.
             result = new Provider(new ProviderKey(new ProviderTypeKey(provider.getProviderType().getProviderTypeName() /*use the name by now*/),
-                                                  provider.getId(),
                                                   provider.getId()), /*use the id as the name by now*/
                                   translateProviderConfig(provider.getConfig()));
         }

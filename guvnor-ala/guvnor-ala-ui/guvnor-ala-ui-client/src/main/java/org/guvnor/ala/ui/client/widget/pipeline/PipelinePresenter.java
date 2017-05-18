@@ -57,12 +57,15 @@ public class PipelinePresenter {
     }
 
     public void onNewStep( @Observes NewPipelineStep newStep ) {
+        //TODO after the portables refactoring Portables refactoring
+        /*
         if ( newStep.getStep().getPipelineKey().getRuntimeKey().equals( runtime.getKey() ) ) {
             addStage( IOC.getBeanManager().lookupBean( TransitionPresenter.class ).getInstance().getView() );
             final StepPresenter step = IOC.getBeanManager().lookupBean( StepPresenter.class ).getInstance();
             step.setup( newStep.getStep() );
             addStage( step.getView() );
         }
+        */
     }
 
 }

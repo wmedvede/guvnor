@@ -19,27 +19,42 @@ package org.guvnor.ala.wildfly.config;
 import org.guvnor.ala.config.ProvisioningConfig;
 import org.guvnor.ala.config.RuntimeConfig;
 
-
 /*
  * This interface represents the basic information that we need for configuring a
- * WildflyRutime. This is an application running inside a Wildfly instance.
+ * WildflyRuntime. This is an application running inside a Wildfly instance.
  * @see ProvisioningConfig
  * @see RuntimeConfig
  */
 public interface WildflyRuntimeConfiguration extends ProvisioningConfig,
-                                                    RuntimeConfig {
-    /*
+                                                     RuntimeConfig {
+
+    /**
+     * Attribute name for setting the war file path parameter. Pipeline inputs that wants to set this value should
+     * ideally use this constant.
+     */
+    String WAR_PATH = "war-path";
+
+    /**
+     * Attribute name for setting the redeploy strategy parameter. Pipeline inputs that wants to set this value should
+     * ideally use this constant.
+     */
+    String REDEPLOY_STRATEGY = "redeploy";
+
+    /**
      * Get the War / App path
      * @return String with the path where the WAR (Web Archive) is located.
-    */
-    default String getWarPath() { return "${input.war-path}"; }
-    
-    /*
+     */
+    default String getWarPath() {
+        return "${input." + WAR_PATH + "}";
+    }
+
+    /**
      * Get the Redeploy Strategy for apps in wildfly
      *  - auto: will automatically redeploy the app if it already exist
      *  - none: will fail if you try to redeploy an app that already exist
      * @return String with the strategy
-    */
-    default String getRedeployStrategy() { return "${input.redeploy}"; }
-
+     */
+    default String getRedeployStrategy() {
+        return "${input." + REDEPLOY_STRATEGY + "}";
+    }
 }

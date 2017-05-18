@@ -21,6 +21,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenter;
+import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.ioc.client.container.IOC;
 import org.guvnor.ala.ui.model.Runtime;
@@ -42,6 +43,7 @@ public class ProviderStatusPresenter {
         this.view = view;
     }
 
+    /*
     public void setup( final Collection<Runtime> response ) {
         view.clear();
         for ( final Runtime runtime : response ) {
@@ -50,9 +52,22 @@ public class ProviderStatusPresenter {
             view.addListItem( runtimePresenter.getView() );
         }
     }
+    */
+
+    public void setupItems(final Collection<RuntimeListItem> response) {
+        view.clear();
+        for (final RuntimeListItem item : response) {
+            final RuntimePresenter runtimePresenter = newRuntimePresenter();
+            runtimePresenter.setup(item);
+            view.addListItem(runtimePresenter.getView());
+        }
+    }
 
     public View getView() {
         return view;
     }
 
+    private RuntimePresenter newRuntimePresenter() {
+        return IOC.getBeanManager().lookupBean(RuntimePresenter.class).getInstance();
+    }
 }

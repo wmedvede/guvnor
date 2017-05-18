@@ -33,6 +33,7 @@ public class ContextAwareWildflyRuntimeExecConfig implements
 
     @JsonIgnore
     private Map<String, ?> context;
+    private String runtimeName;
     private ProviderId providerId;
     private String warPath;
     private String redeployStrategy;
@@ -40,25 +41,28 @@ public class ContextAwareWildflyRuntimeExecConfig implements
     public ContextAwareWildflyRuntimeExecConfig() {
         this.warPath = WildflyRuntimeExecConfig.super.getWarPath();
         this.redeployStrategy = WildflyRuntimeExecConfig.super.getRedeployStrategy();
+        this.runtimeName = WildflyRuntimeExecConfig.super.getRuntimeName();
     }
 
-    public ContextAwareWildflyRuntimeExecConfig( final ProviderId providerId,
-                                                 final String warPath,
-                                                 final String redeployStrategy) {
+    public ContextAwareWildflyRuntimeExecConfig(final String runtimeName,
+                                                final ProviderId providerId,
+                                                final String warPath,
+                                                final String redeployStrategy) {
+        this.runtimeName = runtimeName;
         this.providerId = providerId;
         this.warPath = warPath;
         this.redeployStrategy = redeployStrategy;
     }
 
     @Override
-    public void setContext( final Map<String, ?> context ) {
+    public void setContext(final Map<String, ?> context) {
         this.context = context;
-        MavenBinary binary = (MavenBinary) context.get( "binary" );
+        MavenBinary binary = (MavenBinary) context.get("binary");
         if (binary != null) {
             this.warPath = binary.getPath().toString();
         }
 
-        WildflyProvider provider = (WildflyProvider) context.get( "wildfly-provider" );
+        WildflyProvider provider = (WildflyProvider) context.get("wildfly-provider");
         this.providerId = provider;
     }
 
@@ -78,8 +82,14 @@ public class ContextAwareWildflyRuntimeExecConfig implements
     }
 
     @Override
-    public WildflyRuntimeExecConfig asNewClone( final WildflyRuntimeExecConfig origin ) {
+    public String getRuntimeName() {
+        return runtimeName;
+    }
+
+    @Override
+    public WildflyRuntimeExecConfig asNewClone(final WildflyRuntimeExecConfig origin) {
         return new ContextAwareWildflyRuntimeExecConfig(
+                origin.getRuntimeName(),
                 origin.getProviderId(),
                 origin.getWarPath(),
                 origin.getRedeployStrategy()

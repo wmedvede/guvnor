@@ -263,7 +263,7 @@ public class WF10ProviderConfigPresenter
 
     @Override
     public void load(final Provider provider) {
-        view.setContent(provider.getKey().getName(),
+        view.setContent(provider.getKey().getId(),
                         getStringValue(provider.getValues(),
                                        HOST),
                         getStringValue(provider.getValues(),

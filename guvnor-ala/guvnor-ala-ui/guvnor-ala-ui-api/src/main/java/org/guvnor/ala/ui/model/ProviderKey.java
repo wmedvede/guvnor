@@ -24,14 +24,11 @@ public class ProviderKey {
 
     private ProviderTypeKey providerTypeKey;
     private String id;
-    private String name;
 
     public ProviderKey(@MapsTo("providerTypeKey") final ProviderTypeKey providerTypeKey,
-                       @MapsTo("id") final String id,
-                       @MapsTo("name") final String name) {
+                       @MapsTo("id") final String id) {
         this.providerTypeKey = providerTypeKey;
         this.id = id;
-        this.name = name;
     }
 
     public ProviderTypeKey getProviderTypeKey() {
@@ -40,10 +37,6 @@ public class ProviderKey {
 
     public String getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -60,10 +53,7 @@ public class ProviderKey {
         if (providerTypeKey != null ? !providerTypeKey.equals(that.providerTypeKey) : that.providerTypeKey != null) {
             return false;
         }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-        return name != null ? name.equals(that.name) : that.name == null;
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
@@ -71,8 +61,6 @@ public class ProviderKey {
         int result = providerTypeKey != null ? providerTypeKey.hashCode() : 0;
         result = ~~result;
         result = 31 * result + (id != null ? id.hashCode() : 0);
-        result = ~~result;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = ~~result;
         return result;
     }
@@ -82,7 +70,6 @@ public class ProviderKey {
         return "ProviderKey{" +
                 "providerTypeKey=" + providerTypeKey +
                 ", id='" + id + '\'' +
-                ", name='" + name + '\'' +
                 '}';
     }
 }

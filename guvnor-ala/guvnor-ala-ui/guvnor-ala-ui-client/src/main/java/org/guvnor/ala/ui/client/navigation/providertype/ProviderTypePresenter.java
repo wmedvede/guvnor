@@ -114,7 +114,7 @@ public class ProviderTypePresenter {
     }
 
     private void addProvider( final ProviderKey provider ) {
-        view.addProvider( provider.getId(), provider.getName(), () -> providerSelectedEvent.fire( new ProviderSelected( provider ) ) );
+        view.addProvider( provider.getId(), provider.getId(), () -> providerSelectedEvent.fire( new ProviderSelected( provider ) ) );
     }
 
     public void onProviderSelect( @Observes final ProviderSelected providerSelected ) {

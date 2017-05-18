@@ -16,7 +16,7 @@
 
 package org.guvnor.ala.ui.events;
 
-import org.guvnor.ala.ui.model.Runtime;
+import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.StageStatus;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
@@ -24,25 +24,22 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 @Portable
 public class StageStatusChange {
 
-    private Runtime runtime;
+    private PipelineExecutionTraceKey pipelineExecutionTraceKey;
 
     private String stage;
 
     private StageStatus status;
 
-    public StageStatusChange() {
-    }
-
-    public StageStatusChange(@MapsTo("runtime") final Runtime runtime,
-                             @MapsTo("state") final String stage,
-                             @MapsTo("status") StageStatus status) {
-        this.runtime = runtime;
+    public StageStatusChange(@MapsTo("pipelineExecutionTraceKey") final PipelineExecutionTraceKey pipelineExecutionTraceKey,
+                             @MapsTo("stage") final String stage,
+                             @MapsTo("status") final StageStatus status) {
+        this.pipelineExecutionTraceKey = pipelineExecutionTraceKey;
         this.stage = stage;
         this.status = status;
     }
 
-    public Runtime getRuntime() {
-        return runtime;
+    public PipelineExecutionTraceKey getPipelineExecutionTraceKey() {
+        return pipelineExecutionTraceKey;
     }
 
     public String getStage() {
