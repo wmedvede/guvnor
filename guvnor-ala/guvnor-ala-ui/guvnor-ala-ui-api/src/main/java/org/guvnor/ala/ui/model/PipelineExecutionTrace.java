@@ -30,6 +30,8 @@ public class PipelineExecutionTrace
 
     private StageStatus pipelineStatus;
 
+    private String pipelineError;
+
     private Map<String, StageStatus> stageStatusMap = new HashMap<>();
 
     private Map<String, String> stageErrorMap = new HashMap<>();
@@ -37,11 +39,13 @@ public class PipelineExecutionTrace
     public PipelineExecutionTrace(@MapsTo("key") final PipelineExecutionTraceKey key,
                                   @MapsTo("pipeline") final Pipeline pipeline,
                                   @MapsTo("pipelineStatus") final StageStatus pipelineStatus,
+                                  @MapsTo("pipelineError") final String pipelineError,
                                   @MapsTo("stageStatusMap") final Map<String, StageStatus> stageStatusMap,
                                   @MapsTo("stageErrorMap") final Map<String, String> stageErrorMap) {
         super(key);
         this.pipeline = pipeline;
         this.pipelineStatus = pipelineStatus;
+        this.pipelineError = pipelineError;
         this.stageStatusMap = stageStatusMap;
         this.stageErrorMap = stageErrorMap;
     }
@@ -64,6 +68,14 @@ public class PipelineExecutionTrace
 
     public void setPipelineStatus(StageStatus pipelineStatus) {
         this.pipelineStatus = pipelineStatus;
+    }
+
+    public String getPipelineError() {
+        return pipelineError;
+    }
+
+    public void setPipelineError(String pipelineError) {
+        this.pipelineError = pipelineError;
     }
 
     public StageStatus getStageStatus(String stage) {

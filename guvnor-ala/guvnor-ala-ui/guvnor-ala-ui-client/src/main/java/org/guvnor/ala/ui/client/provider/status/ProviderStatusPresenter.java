@@ -16,49 +16,46 @@
 
 package org.guvnor.ala.ui.client.provider.status;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenter;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.jboss.errai.common.client.api.IsElement;
-import org.jboss.errai.ioc.client.container.IOC;
-import org.guvnor.ala.ui.model.Runtime;
+import org.jboss.errai.ioc.client.api.ManagedInstance;
 
 @Dependent
 public class ProviderStatusPresenter {
 
     public interface View extends IsElement {
 
-        void addListItem( final IsElement listItem );
+        void addListItem(final IsElement listItem);
 
-        void clear( );
+        void clear();
     }
 
     private final View view;
 
-    @Inject
-    public ProviderStatusPresenter( final View view ) {
-        this.view = view;
-    }
+    private final ManagedInstance<RuntimePresenter> runtimePresenterInstance;
 
-    /*
-    public void setup( final Collection<Runtime> response ) {
-        view.clear();
-        for ( final Runtime runtime : response ) {
-            final RuntimePresenter runtimePresenter = IOC.getBeanManager().lookupBean( RuntimePresenter.class ).getInstance();
-            runtimePresenter.setup( runtime );
-            view.addListItem( runtimePresenter.getView() );
-        }
+    private final List<RuntimePresenter> currentItems = new ArrayList<>();
+
+    @Inject
+    public ProviderStatusPresenter(final View view,
+                                   final ManagedInstance<RuntimePresenter> runtimePresenterInstance) {
+        this.view = view;
+        this.runtimePresenterInstance = runtimePresenterInstance;
     }
-    */
 
     public void setupItems(final Collection<RuntimeListItem> response) {
         view.clear();
         for (final RuntimeListItem item : response) {
             final RuntimePresenter runtimePresenter = newRuntimePresenter();
             runtimePresenter.setup(item);
+            currentItems.add(runtimePresenter);
             view.addListItem(runtimePresenter.getView());
         }
     }
@@ -68,6 +65,10 @@ public class ProviderStatusPresenter {
     }
 
     private RuntimePresenter newRuntimePresenter() {
-        return IOC.getBeanManager().lookupBean(RuntimePresenter.class).getInstance();
+        return runtimePresenterInstance.get();
+    }
+
+    private void clearItems() {
+        currentItems.forEach(runtimePresenterInstance::destroy);
     }
 }

@@ -17,30 +17,25 @@
 package org.guvnor.ala.ui.client.widget.pipeline;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.widget.pipeline.step.StepPresenter;
-import org.guvnor.ala.ui.client.widget.pipeline.transition.TransitionPresenter;
 import org.jboss.errai.common.client.api.IsElement;
-import org.jboss.errai.ioc.client.container.IOC;
-import org.guvnor.ala.ui.events.NewPipelineStep;
-import org.guvnor.ala.ui.model.Runtime;
 import org.uberfire.client.mvp.UberElement;
 
 @Dependent
 public class PipelinePresenter {
 
-    private final View view;
-    private Runtime runtime;
-
     public interface View extends UberElement<PipelinePresenter> {
 
-        void addStage( final IsElement element );
+        void addStage(final IsElement element);
+
+        void clearStages();
     }
 
+    private final View view;
+
     @Inject
-    public PipelinePresenter( final View view ) {
+    public PipelinePresenter(final View view) {
         this.view = view;
     }
 
@@ -48,24 +43,11 @@ public class PipelinePresenter {
         return view;
     }
 
-    public void addStage( final IsElement stage ) {
-        view.addStage( stage );
+    public void addStage(final IsElement stage) {
+        view.addStage(stage);
     }
 
-    public void setup( final Runtime runtime ) {
-        this.runtime = runtime;
+    public void clearStages() {
+        view.clearStages();
     }
-
-    public void onNewStep( @Observes NewPipelineStep newStep ) {
-        //TODO after the portables refactoring Portables refactoring
-        /*
-        if ( newStep.getStep().getPipelineKey().getRuntimeKey().equals( runtime.getKey() ) ) {
-            addStage( IOC.getBeanManager().lookupBean( TransitionPresenter.class ).getInstance().getView() );
-            final StepPresenter step = IOC.getBeanManager().lookupBean( StepPresenter.class ).getInstance();
-            step.setup( newStep.getStep() );
-            addStage( step.getView() );
-        }
-        */
-    }
-
 }

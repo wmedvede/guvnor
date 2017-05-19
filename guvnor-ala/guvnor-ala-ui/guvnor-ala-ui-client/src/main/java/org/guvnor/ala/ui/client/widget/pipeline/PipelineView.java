@@ -20,28 +20,35 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.jboss.errai.common.client.api.IsElement;
+import org.jboss.errai.common.client.dom.DOMUtil;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
 @Templated
-public class PipelineView implements org.jboss.errai.ui.client.local.api.IsElement,
-                                     PipelinePresenter.View {
+public class PipelineView implements
+                          org.jboss.errai.ui.client.local.api.IsElement,
+                          PipelinePresenter.View {
 
     @Inject
     @DataField("pipeline-container")
-    Div container;
+    private Div container;
 
     private PipelinePresenter presenter;
 
     @Override
-    public void init( final PipelinePresenter presenter ) {
+    public void init(final PipelinePresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
-    public void addStage( final IsElement element ) {
-        container.appendChild( element.getElement() );
+    public void addStage(final IsElement element) {
+        container.appendChild(element.getElement());
+    }
+
+    @Override
+    public void clearStages() {
+        DOMUtil.removeAllChildren(container);
     }
 }

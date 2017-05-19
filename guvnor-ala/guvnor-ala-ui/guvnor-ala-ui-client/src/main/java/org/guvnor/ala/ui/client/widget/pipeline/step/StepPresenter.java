@@ -17,12 +17,8 @@
 package org.guvnor.ala.ui.client.widget.pipeline.step;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.events.NewPipelineStep;
-import org.guvnor.ala.ui.events.RuntimeStatusChange;
-import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Step;
 import org.uberfire.client.mvp.UberElement;
 
@@ -48,26 +44,6 @@ public class StepPresenter {
 
     public View getView() {
         return view;
-    }
-
-    public void onStatusChange( @Observes RuntimeStatusChange statusChange ) {
-        //TODO after the portables refactoring Portables refactoring
-/*
-        if ( statusChange.getRuntime().getKey().equals( step.getPipelineKey().getRuntimeKey() ) ) {
-            if ( !statusChange.getRuntime().getStatus().equals( RuntimeStatus.LOADING ) ) {
-                view.setDoneState();
-            }
-        }
-        */
-    }
-
-    public void onNewStep( @Observes NewPipelineStep newStep ) {
-        /*
-        if ( newStep.getStep().getPipelineKey().getRuntimeKey().equals( step.getPipelineKey().getRuntimeKey() )  &&
-                !newStep.getStep().equals( step )) {
-            view.setDoneState();
-        }
-        */
     }
 
     public void setup( final Step step ) {
