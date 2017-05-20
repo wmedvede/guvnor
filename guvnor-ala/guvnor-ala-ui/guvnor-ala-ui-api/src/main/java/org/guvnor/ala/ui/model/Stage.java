@@ -20,17 +20,17 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public class Step {
+public class Stage {
 
     private PipelineKey pipelineKey;
-    private String message;
-    private StageStatus status;
+    private String name;
+    private PipelineStatus status;
 
-    public Step(@MapsTo("pipelineKey") final PipelineKey pipelineKey,
-                @MapsTo("message") final String message,
-                @MapsTo("status") final StageStatus status) {
+    public Stage(@MapsTo("pipelineKey") final PipelineKey pipelineKey,
+                 @MapsTo("name") final String name,
+                 @MapsTo("status") final PipelineStatus status) {
         this.pipelineKey = pipelineKey;
-        this.message = message;
+        this.name = name;
         this.status = status;
     }
 
@@ -38,11 +38,11 @@ public class Step {
         return pipelineKey;
     }
 
-    public String getMessage() {
-        return message;
+    public String getName() {
+        return name;
     }
 
-    public StageStatus getStatus() {
+    public PipelineStatus getStatus() {
         return status;
     }
 
@@ -55,22 +55,22 @@ public class Step {
             return false;
         }
 
-        Step step = (Step) o;
+        Stage stage = (Stage) o;
 
-        if (pipelineKey != null ? !pipelineKey.equals(step.pipelineKey) : step.pipelineKey != null) {
+        if (pipelineKey != null ? !pipelineKey.equals(stage.pipelineKey) : stage.pipelineKey != null) {
             return false;
         }
-        if (message != null ? !message.equals(step.message) : step.message != null) {
+        if (name != null ? !name.equals(stage.name) : stage.name != null) {
             return false;
         }
-        return status == step.status;
+        return status == stage.status;
     }
 
     @Override
     public int hashCode() {
         int result = pipelineKey != null ? pipelineKey.hashCode() : 0;
         result = ~~result;
-        result = 31 * result + (message != null ? message.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = ~~result;
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = ~~result;

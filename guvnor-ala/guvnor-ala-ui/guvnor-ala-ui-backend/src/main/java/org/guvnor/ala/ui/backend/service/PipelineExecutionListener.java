@@ -33,7 +33,7 @@ import org.guvnor.ala.registry.PipelineExecutorRegistry;
 import org.guvnor.ala.ui.events.PipelineStatusChange;
 import org.guvnor.ala.ui.events.StageStatusChange;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
-import org.guvnor.ala.ui.model.StageStatus;
+import org.guvnor.ala.ui.model.PipelineStatus;
 
 /**
  * Monitors the events produced by pipelines launched by the PipelineExecutorTaskManager and raises the required
@@ -62,7 +62,7 @@ public class PipelineExecutionListener
         PipelineExecutorTask task = getTask(bpee);
         if (task != null) {
             pipelineStatusChangeEvent.fire(new PipelineStatusChange(new PipelineExecutionTraceKey(bpee.getExecutionId()),
-                                                                    StageStatus.RUNNING));
+                                                                    PipelineStatus.RUNNING));
         }
     }
 
@@ -71,7 +71,7 @@ public class PipelineExecutionListener
         PipelineExecutorTask task = getTask(apee);
         if (task != null) {
             pipelineStatusChangeEvent.fire(new PipelineStatusChange(new PipelineExecutionTraceKey(apee.getExecutionId()),
-                                                                    StageStatus.FINISHED));
+                                                                    PipelineStatus.FINISHED));
         }
     }
 
@@ -81,7 +81,7 @@ public class PipelineExecutionListener
         if (task != null) {
             stageStatusChangeEvent.fire(new StageStatusChange(new PipelineExecutionTraceKey(task.getId()),
                                                               bsee.getStage().getName(),
-                                                              StageStatus.RUNNING));
+                                                              PipelineStatus.RUNNING));
         }
     }
 
@@ -91,7 +91,7 @@ public class PipelineExecutionListener
         if (task != null) {
             stageStatusChangeEvent.fire(new StageStatusChange(new PipelineExecutionTraceKey(task.getId()),
                                                               oesee.getStage().getName(),
-                                                              StageStatus.ERROR));
+                                                              PipelineStatus.ERROR));
         }
     }
 
@@ -101,7 +101,7 @@ public class PipelineExecutionListener
         if (task != null) {
             stageStatusChangeEvent.fire(new StageStatusChange(new PipelineExecutionTraceKey(task.getId()),
                                                               asee.getStage().getName(),
-                                                              StageStatus.FINISHED));
+                                                              PipelineStatus.FINISHED));
         }
     }
 
@@ -110,7 +110,7 @@ public class PipelineExecutionListener
         PipelineExecutorTask task = getTask(oepee);
         if (task != null) {
             pipelineStatusChangeEvent.fire(new PipelineStatusChange(new PipelineExecutionTraceKey(oepee.getExecutionId()),
-                                                                    StageStatus.ERROR));
+                                                                    PipelineStatus.ERROR));
         }
     }
 

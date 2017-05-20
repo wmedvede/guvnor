@@ -17,7 +17,7 @@
 package org.guvnor.ala.ui.events;
 
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
-import org.guvnor.ala.ui.model.StageStatus;
+import org.guvnor.ala.ui.model.PipelineStatus;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
@@ -28,11 +28,11 @@ public class StageStatusChange {
 
     private String stage;
 
-    private StageStatus status;
+    private PipelineStatus status;
 
     public StageStatusChange(@MapsTo("pipelineExecutionTraceKey") final PipelineExecutionTraceKey pipelineExecutionTraceKey,
                              @MapsTo("stage") final String stage,
-                             @MapsTo("status") final StageStatus status) {
+                             @MapsTo("status") final PipelineStatus status) {
         this.pipelineExecutionTraceKey = pipelineExecutionTraceKey;
         this.stage = stage;
         this.status = status;
@@ -46,7 +46,7 @@ public class StageStatusChange {
         return stage;
     }
 
-    public StageStatus getStatus() {
+    public PipelineStatus getStatus() {
         return status;
     }
 }

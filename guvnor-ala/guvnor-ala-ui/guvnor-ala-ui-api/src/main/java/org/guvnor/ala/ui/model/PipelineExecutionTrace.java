@@ -28,19 +28,19 @@ public class PipelineExecutionTrace
 
     private Pipeline pipeline;
 
-    private StageStatus pipelineStatus;
+    private PipelineStatus pipelineStatus;
 
     private String pipelineError;
 
-    private Map<String, StageStatus> stageStatusMap = new HashMap<>();
+    private Map<String, PipelineStatus> stageStatusMap = new HashMap<>();
 
     private Map<String, String> stageErrorMap = new HashMap<>();
 
     public PipelineExecutionTrace(@MapsTo("key") final PipelineExecutionTraceKey key,
                                   @MapsTo("pipeline") final Pipeline pipeline,
-                                  @MapsTo("pipelineStatus") final StageStatus pipelineStatus,
+                                  @MapsTo("pipelineStatus") final PipelineStatus pipelineStatus,
                                   @MapsTo("pipelineError") final String pipelineError,
-                                  @MapsTo("stageStatusMap") final Map<String, StageStatus> stageStatusMap,
+                                  @MapsTo("stageStatusMap") final Map<String, PipelineStatus> stageStatusMap,
                                   @MapsTo("stageErrorMap") final Map<String, String> stageErrorMap) {
         super(key);
         this.pipeline = pipeline;
@@ -62,11 +62,11 @@ public class PipelineExecutionTrace
         this.pipeline = pipeline;
     }
 
-    public StageStatus getPipelineStatus() {
+    public PipelineStatus getPipelineStatus() {
         return pipelineStatus;
     }
 
-    public void setPipelineStatus(StageStatus pipelineStatus) {
+    public void setPipelineStatus(PipelineStatus pipelineStatus) {
         this.pipelineStatus = pipelineStatus;
     }
 
@@ -78,12 +78,12 @@ public class PipelineExecutionTrace
         this.pipelineError = pipelineError;
     }
 
-    public StageStatus getStageStatus(String stage) {
+    public PipelineStatus getStageStatus(String stage) {
         return stageStatusMap.get(stage);
     }
 
     public void setStageStatus(String stage,
-                               StageStatus stageStatus) {
+                               PipelineStatus stageStatus) {
         stageStatusMap.put(stage,
                            stageStatus);
     }

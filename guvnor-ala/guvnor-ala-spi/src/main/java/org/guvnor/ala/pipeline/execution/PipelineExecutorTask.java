@@ -33,7 +33,8 @@ public interface PipelineExecutorTask {
         SCHEDULED,
         RUNNING,
         FINISHED,
-        ERROR
+        ERROR,
+        STOPPED
     }
 
     /**

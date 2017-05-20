@@ -19,7 +19,7 @@ package org.guvnor.ala.ui.client.widget.pipeline.step;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.model.Step;
+import org.guvnor.ala.ui.model.Stage;
 import org.uberfire.client.mvp.UberElement;
 
 @Dependent
@@ -35,7 +35,7 @@ public class StepPresenter {
     }
 
     private final View view;
-    private Step step;
+    private Stage stage;
 
     @Inject
     public StepPresenter( final View view ) {
@@ -46,9 +46,9 @@ public class StepPresenter {
         return view;
     }
 
-    public void setup( final Step step ) {
-        this.step = step;
-        setMessage( step.getMessage() );
+    public void setup( final Stage stage) {
+        this.stage = stage;
+        setMessage(stage.getName() );
         setState( State.EXECUTING );
     }
 

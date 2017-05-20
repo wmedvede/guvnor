@@ -19,9 +19,10 @@ package org.guvnor.ala.ui.model;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public enum StageStatus {
+public enum PipelineStatus {
     SCHEDULED,
     RUNNING,
     FINISHED,
     ERROR,
+    STOPPED
 }

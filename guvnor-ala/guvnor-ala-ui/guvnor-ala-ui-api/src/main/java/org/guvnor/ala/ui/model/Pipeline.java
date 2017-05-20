@@ -26,24 +26,24 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 public class Pipeline
         extends AbstractHasKeyObject<PipelineKey> {
 
-    private List<Step> steps = new ArrayList<>();
+    private List<Stage> stages = new ArrayList<>();
 
     public Pipeline(@MapsTo("key") final PipelineKey key,
-                    @MapsTo("steps") final List<Step> steps) {
+                    @MapsTo("stages") final List<Stage> stages) {
         super(key);
-        this.steps = steps;
+        this.stages = stages;
     }
 
     public Pipeline(final PipelineKey key) {
         super(key);
     }
 
-    public List<Step> getSteps() {
-        return steps;
+    public List<Stage> getStages() {
+        return stages;
     }
 
-    public void addStep(final Step step) {
-        steps.add(step);
+    public void addStep(final Stage stage) {
+        stages.add(stage);
     }
 
     @Override
@@ -60,14 +60,14 @@ public class Pipeline
 
         Pipeline pipeline = (Pipeline) o;
 
-        return steps != null ? steps.equals(pipeline.steps) : pipeline.steps == null;
+        return stages != null ? stages.equals(pipeline.stages) : pipeline.stages == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = ~~result;
-        result = 31 * result + (steps != null ? steps.hashCode() : 0);
+        result = 31 * result + (stages != null ? stages.hashCode() : 0);
         result = ~~result;
         return result;
     }

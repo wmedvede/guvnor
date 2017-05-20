@@ -55,8 +55,8 @@ import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Source;
-import org.guvnor.ala.ui.model.StageStatus;
-import org.guvnor.ala.ui.model.Step;
+import org.guvnor.ala.ui.model.PipelineStatus;
+import org.guvnor.ala.ui.model.Stage;
 import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
 import org.guvnor.ala.ui.service.PipelineConstants;
 import org.guvnor.ala.ui.service.ProviderService;
@@ -181,9 +181,9 @@ public class RuntimeServiceImpl
             pipelineTrace.setPipelineError(item.getPipelineError());
             item.getPipelineStageItems().getItems()
                     .forEach(stage -> {
-                                 pipeline.addStep(new Step(pipeline.getKey(),
-                                                           stage.getName(),
-                                                           transformToStageStatus(stage.getStatus())));
+                                 pipeline.addStep(new Stage(pipeline.getKey(),
+                                                            stage.getName(),
+                                                            transformToStageStatus(stage.getStatus())));
                                  pipelineTrace.setStageStatus(stage.getName(),
                                                               transformToStageStatus(stage.getStatus()));
                                  pipelineTrace.setStageError(stage.getName(),
@@ -235,9 +235,9 @@ public class RuntimeServiceImpl
             PipelineExecutionTrace pipelineTrace = new PipelineExecutionTrace(new PipelineExecutionTraceKey(item.getPipelineExecutionId()));
             item.getPipelineStageItems().getItems()
                     .forEach(stage -> {
-                                 pipeline.addStep(new Step(pipeline.getKey(),
-                                                           stage.getName(),
-                                                           transformToStageStatus(stage.getStatus())));
+                                 pipeline.addStep(new Stage(pipeline.getKey(),
+                                                            stage.getName(),
+                                                            transformToStageStatus(stage.getStatus())));
                                  pipelineTrace.setStageStatus(stage.getName(),
                                                               transformToStageStatus(stage.getStatus()));
                              }
@@ -305,37 +305,41 @@ public class RuntimeServiceImpl
         }
     }
 
-    private StageStatus transformToStageStatus(PipelineExecutorTask.Status status) {
+    private PipelineStatus transformToStageStatus(PipelineExecutorTask.Status status) {
         if (status == null) {
             return null;
         } else {
             switch (status) {
                 case SCHEDULED:
-                    return StageStatus.SCHEDULED;
+                    return PipelineStatus.SCHEDULED;
                 case RUNNING:
-                    return StageStatus.RUNNING;
+                    return PipelineStatus.RUNNING;
                 case FINISHED:
-                    return StageStatus.FINISHED;
+                    return PipelineStatus.FINISHED;
                 case ERROR:
-                    return StageStatus.ERROR;
+                    return PipelineStatus.ERROR;
+                case STOPPED:
+                    return PipelineStatus.STOPPED;
             }
             return null;
         }
     }
 
-    private StageStatus transformToStageStatus(String status) {
+    private PipelineStatus transformToStageStatus(String status) {
         if (status == null) {
             return null;
         } else {
             switch (status) {
                 case "SCHEDULED":
-                    return StageStatus.SCHEDULED;
+                    return PipelineStatus.SCHEDULED;
                 case "RUNNING":
-                    return StageStatus.RUNNING;
+                    return PipelineStatus.RUNNING;
                 case "FINISHED":
-                    return StageStatus.FINISHED;
+                    return PipelineStatus.FINISHED;
                 case "ERROR":
-                    return StageStatus.ERROR;
+                    return PipelineStatus.ERROR;
+                case "STOPPED":
+                    return PipelineStatus.STOPPED;
             }
             return null;
         }
