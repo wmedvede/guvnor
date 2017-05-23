@@ -25,14 +25,13 @@ import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
 
-/**
- * TODO: update me
- */
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
+
 public class ProviderEmptyPresenter {
 
     public interface View extends UberElement<ProviderEmptyPresenter> {
 
-        void setProviderTypeName( String providerTypeName );
+        void setProviderTypeName(String providerTypeName);
     }
 
     private final View view;
@@ -40,20 +39,21 @@ public class ProviderEmptyPresenter {
     private ProviderType providerType;
 
     @Inject
-    public ProviderEmptyPresenter( final View view,
-                                   final Event<AddNewProvider> addNewProviderEvent ) {
+    public ProviderEmptyPresenter(final View view,
+                                  final Event<AddNewProvider> addNewProviderEvent) {
         this.view = view;
         this.addNewProviderEvent = addNewProviderEvent;
     }
 
     @PostConstruct
     public void init() {
-        this.view.init( this );
+        this.view.init(this);
     }
 
-    public void setProviderType( final ProviderType providerType ) {
-        this.providerType = providerType;
-        this.view.setProviderTypeName( providerType.getName() );
+    public void setProviderType(final ProviderType providerType) {
+        this.providerType = checkNotNull("providerType",
+                                         providerType);
+        this.view.setProviderTypeName(providerType.getName());
     }
 
     public IsElement getView() {
@@ -61,7 +61,6 @@ public class ProviderEmptyPresenter {
     }
 
     public void addProvider() {
-        addNewProviderEvent.fire( new AddNewProvider( providerType ) );
+        addNewProviderEvent.fire(new AddNewProvider(providerType));
     }
-
 }

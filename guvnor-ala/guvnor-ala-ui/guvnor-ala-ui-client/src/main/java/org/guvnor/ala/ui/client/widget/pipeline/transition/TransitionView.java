@@ -22,7 +22,8 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
 @Templated
-public class TransitionView implements org.jboss.errai.ui.client.local.api.IsElement,
-                                       TransitionPresenter.View {
+public class TransitionView
+        implements org.jboss.errai.ui.client.local.api.IsElement,
+                   TransitionPresenter.View {
 
 }

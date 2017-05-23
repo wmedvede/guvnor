@@ -31,7 +31,7 @@ public class TransitionPresenter {
     }
 
     @Inject
-    public TransitionPresenter( final View view ) {
+    public TransitionPresenter(final View view) {
         this.view = view;
     }
 

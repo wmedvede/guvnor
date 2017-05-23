@@ -24,8 +24,8 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.AddNewProvider;
-import org.guvnor.ala.ui.client.events.ProviderSelected;
-import org.guvnor.ala.ui.client.events.ProviderTypeListRefresh;
+import org.guvnor.ala.ui.client.events.ProviderSelectedEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.Caller;
 import org.guvnor.ala.ui.model.ProviderKey;
@@ -60,8 +60,8 @@ public class ProviderTypePresenter {
 
     private final Event<NotificationEvent> notification;
     private final Event<AddNewProvider > addNewProviderEvent;
-    private final Event<ProviderTypeListRefresh > providerTypeListRefreshEvent;
-    private final Event<ProviderSelected > providerSelectedEvent;
+    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
+    private final Event<ProviderSelectedEvent> providerSelectedEvent;
 
     private ProviderType providerType;
 
@@ -71,8 +71,8 @@ public class ProviderTypePresenter {
                                   final Caller<ProviderTypeService> providerTypeService,
                                   final Event<NotificationEvent> notification,
                                   final Event<AddNewProvider> addNewProviderEvent,
-                                  final Event<ProviderTypeListRefresh> providerTypeListRefreshEvent,
-                                  final Event<ProviderSelected> providerSelectedEvent ) {
+                                  final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
+                                  final Event<ProviderSelectedEvent> providerSelectedEvent ) {
         this.logger = logger;
         this.view = view;
         this.providerTypeService = providerTypeService;
@@ -109,21 +109,21 @@ public class ProviderTypePresenter {
                     addProvider( provider );
                 }
             }
-            providerSelectedEvent.fire( new ProviderSelected( firstProviderKey ) );
+            providerSelectedEvent.fire( new ProviderSelectedEvent(firstProviderKey ) );
         }
     }
 
     private void addProvider( final ProviderKey provider ) {
-        view.addProvider( provider.getId(), provider.getId(), () -> providerSelectedEvent.fire( new ProviderSelected( provider ) ) );
+        view.addProvider( provider.getId(), provider.getId(), () -> providerSelectedEvent.fire( new ProviderSelectedEvent(provider ) ) );
     }
 
-    public void onProviderSelect( @Observes final ProviderSelected providerSelected ) {
-        if ( providerSelected != null &&
-                providerSelected.getProviderKey() != null &&
-                providerSelected.getProviderKey().getId() != null &&
-                providerSelected.getProviderKey().getProviderTypeKey() != null &&
-                providerSelected.getProviderKey().getProviderTypeKey().equals( providerType.getKey() ) ) {
-            view.selectProvider( providerSelected.getProviderKey().getId() );
+    public void onProviderSelect( @Observes final ProviderSelectedEvent providerSelectedEvent) {
+        if ( providerSelectedEvent != null &&
+                providerSelectedEvent.getProviderKey() != null &&
+                providerSelectedEvent.getProviderKey().getId() != null &&
+                providerSelectedEvent.getProviderKey().getProviderTypeKey() != null &&
+                providerSelectedEvent.getProviderKey().getProviderTypeKey().equals(providerType.getKey() ) ) {
+            view.selectProvider(providerSelectedEvent.getProviderKey().getId() );
         } else {
             logger.warn( "Illegal event argument." );
         }
@@ -136,7 +136,7 @@ public class ProviderTypePresenter {
     public void removeProviderType() {
         view.confirmRemove(
                 () -> providerTypeService.call(
-                        none -> providerTypeListRefreshEvent.fire( new ProviderTypeListRefresh() ) )
+                        none -> providerTypeListRefreshEvent.fire( new ProviderTypeListRefreshEvent() ) )
                         .disableProvider( providerType )
         );
     }

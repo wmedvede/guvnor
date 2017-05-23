@@ -30,8 +30,8 @@ import javax.inject.Inject;
 
 import com.google.gwt.user.client.Window;
 import org.guvnor.ala.ui.client.widget.pipeline.PipelinePresenter;
-import org.guvnor.ala.ui.client.widget.pipeline.step.State;
-import org.guvnor.ala.ui.client.widget.pipeline.step.StepPresenter;
+import org.guvnor.ala.ui.client.widget.pipeline.stage.State;
+import org.guvnor.ala.ui.client.widget.pipeline.stage.StagePresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.transition.TransitionPresenter;
 import org.guvnor.ala.ui.events.PipelineStatusChange;
 import org.guvnor.ala.ui.events.StageStatusChange;
@@ -77,11 +77,11 @@ public class RuntimePresenter {
 
     private final View view;
     private final PipelinePresenter pipelinePresenter;
-    private final ManagedInstance<StepPresenter> stepPresenterInstance;
+    private final ManagedInstance<StagePresenter> stepPresenterInstance;
     private final ManagedInstance<TransitionPresenter> transitionPresenterInstance;
     private final Caller<RuntimeService> runtimeService;
     private final List<Stage> currentStages = new ArrayList<>();
-    private final Map<Stage, StepPresenter> stagePresenters = new HashMap<>();
+    private final Map<Stage, StagePresenter> stagePresenters = new HashMap<>();
     private final List<TransitionPresenter> currentTransitions = new ArrayList<>();
 
     private RuntimeListItemHandler itemHandler;
@@ -89,7 +89,7 @@ public class RuntimePresenter {
     @Inject
     public RuntimePresenter(final View view,
                             final PipelinePresenter pipelinePresenter,
-                            final ManagedInstance<StepPresenter> stepPresenterInstance,
+                            final ManagedInstance<StagePresenter> stepPresenterInstance,
                             final ManagedInstance<TransitionPresenter> transitionPresenterInstance,
                             final Caller<RuntimeService> runtimeService) {
         this.view = view;
@@ -170,13 +170,13 @@ public class RuntimePresenter {
                     currentTransitions.add(transitionPresenter);
                     pipelinePresenter.addStage(transitionPresenter.getView());
                 }
-                final StepPresenter stepPresenter = newStepPresenter();
-                stepPresenter.setup(stage);
-                stepPresenter.setState(calculateState(stage.getStatus()));
-                pipelinePresenter.addStage(stepPresenter.getView());
+                final StagePresenter stagePresenter = newStepPresenter();
+                stagePresenter.setup(stage);
+                stagePresenter.setState(calculateState(stage.getStatus()));
+                pipelinePresenter.addStage(stagePresenter.getView());
                 currentStages.add(stage);
                 stagePresenters.put(stage,
-                                    stepPresenter);
+                                    stagePresenter);
             }
         }
     }
@@ -190,6 +190,8 @@ public class RuntimePresenter {
     private State calculateState(PipelineStatus stageStatus) {
         if (stageStatus == PipelineStatus.RUNNING) {
             return State.EXECUTING;
+        } else if (stageStatus == PipelineStatus.ERROR) {
+            return State.ERROR;
         } else {
             return State.DONE;
         }
@@ -230,25 +232,25 @@ public class RuntimePresenter {
                     .orElse(null);
 
             if (currentStage != null) {
-                StepPresenter stepPresenter = stagePresenters.get(currentStage);
-                stepPresenter.setState(calculateState(statusChange.getStatus()));
+                StagePresenter stagePresenter = stagePresenters.get(currentStage);
+                stagePresenter.setState(calculateState(statusChange.getStatus()));
             } else {
                 Stage stage = new Stage(itemHandler.getPipelineTrace().getPipeline().getKey(),
                                         statusChange.getStage(),
                                         statusChange.getStatus());
-                StepPresenter stepPresenter = newStepPresenter();
-                stepPresenter.setup(stage);
-                stepPresenter.setState(calculateState(stage.getStatus()));
+                StagePresenter stagePresenter = newStepPresenter();
+                stagePresenter.setup(stage);
+                stagePresenter.setState(calculateState(stage.getStatus()));
                 if (!currentStages.isEmpty()) {
                     TransitionPresenter transitionPresenter = newTransitionPresenter();
                     currentTransitions.add(transitionPresenter);
                     pipelinePresenter.addStage(transitionPresenter.getView());
                 }
-                pipelinePresenter.addStage(stepPresenter.getView());
+                pipelinePresenter.addStage(stagePresenter.getView());
 
                 currentStages.add(stage);
                 stagePresenters.put(stage,
-                                    stepPresenter);
+                                    stagePresenter);
             }
         }
     }
@@ -372,7 +374,7 @@ public class RuntimePresenter {
         currentTransitions.clear();
     }
 
-    private StepPresenter newStepPresenter() {
+    private StagePresenter newStepPresenter() {
         return stepPresenterInstance.get();
     }
 

@@ -24,8 +24,6 @@ public class ProviderType
         extends AbstractHasKeyObject<ProviderTypeKey> {
 
     //TODO, check if we wants to keep and use this constants, ideally we shouldn't since the provider type
-    //might be something that is dynamically returned from server. And different versions from the same
-    //provider ming required different parameters etc, but for now that we'll only have two providers it's fine.
     public static final String OPEN_SHIFT_PROVIDER_TYPE = "openshift";
 
     public static final String WILDFY_PROVIDER_TYPE = "wildfly";

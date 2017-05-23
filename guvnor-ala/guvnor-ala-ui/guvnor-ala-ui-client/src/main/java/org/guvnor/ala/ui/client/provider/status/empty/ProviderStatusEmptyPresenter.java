@@ -36,32 +36,32 @@ public class ProviderStatusEmptyPresenter {
 
     private final View view;
 
-    private final Event<RefreshRuntime > refreshRuntimeEvent;
+    private final Event<RefreshRuntime> refreshRuntimeEvent;
 
     private ProviderKey providerKey;
 
     @Inject
-    public ProviderStatusEmptyPresenter( final View view,
-                                         final Event<RefreshRuntime> refreshRuntimeEvent ) {
+    public ProviderStatusEmptyPresenter(final View view,
+                                        final Event<RefreshRuntime> refreshRuntimeEvent) {
         this.view = view;
         this.refreshRuntimeEvent = refreshRuntimeEvent;
     }
 
     @PostConstruct
     public void init() {
-        view.init( this );
+        view.init(this);
     }
 
     public View getView() {
         return view;
     }
 
-    public void setup( final ProviderKey providerKey ) {
-        this.providerKey = checkNotNull( "providerKey", providerKey );
+    public void setup(final ProviderKey providerKey) {
+        this.providerKey = checkNotNull("providerKey",
+                                        providerKey);
     }
 
     public void refresh() {
-        refreshRuntimeEvent.fire( new RefreshRuntime( providerKey ) );
+        refreshRuntimeEvent.fire(new RefreshRuntime(providerKey));
     }
-
 }

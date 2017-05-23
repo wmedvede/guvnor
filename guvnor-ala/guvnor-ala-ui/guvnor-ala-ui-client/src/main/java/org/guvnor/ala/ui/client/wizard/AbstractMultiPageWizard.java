@@ -19,15 +19,33 @@ package org.guvnor.ala.ui.client.wizard;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.enterprise.event.Event;
+
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.ext.widgets.core.client.wizards.AbstractWizard;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
+import org.uberfire.workbench.events.NotificationEvent;
 
 public abstract class AbstractMultiPageWizard extends AbstractWizard {
 
-    protected final ArrayList<WizardPage> pages = new ArrayList<WizardPage>();
+    protected final ArrayList<WizardPage> pages = new ArrayList<>();
+
     private int selectedPage = 0;
+
+    protected TranslationService translationService;
+
+    protected Event<NotificationEvent> notification;
+
+    protected AbstractMultiPageWizard() {
+    }
+
+    protected AbstractMultiPageWizard(TranslationService translationService,
+                                      Event<NotificationEvent> notification) {
+        this.translationService = translationService;
+        this.notification = notification;
+    }
 
     @Override
     public void isComplete( final Callback<Boolean> callback ) {

@@ -1,5 +1,5 @@
 /*
- * Copyright ${year} Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package org.guvnor.ala.ui.client;
 import org.jboss.errai.ioc.client.api.EntryPoint;
 import org.jboss.errai.ui.shared.api.annotations.Bundle;
 
-@Bundle( "resources/i18n/GuvnorAlaUIConstants.properties" )
+@Bundle("resources/i18n/GuvnorAlaUIConstants.properties")
 @EntryPoint
 public class ProvisioningManagementEntryPoint {
 

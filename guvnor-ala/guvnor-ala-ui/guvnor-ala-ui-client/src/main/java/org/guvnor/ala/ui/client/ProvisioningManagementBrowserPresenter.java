@@ -1,5 +1,5 @@
 /*
- * Copyright ${year} Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,77 +24,80 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.empty.ProviderTypeEmptyPresenter;
-import org.guvnor.ala.ui.client.events.ProviderSelected;
-import org.guvnor.ala.ui.client.events.ProviderTypeDeleted;
-import org.guvnor.ala.ui.client.events.ProviderTypeListRefresh;
-import org.guvnor.ala.ui.client.events.ProviderTypeSelected;
+import org.guvnor.ala.ui.client.events.ProviderSelectedEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeDeletedEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
 import org.guvnor.ala.ui.client.navigation.ProviderTypeNavigationPresenter;
 import org.guvnor.ala.ui.client.navigation.providertype.ProviderTypePresenter;
 import org.guvnor.ala.ui.client.provider.ProviderPresenter;
 import org.guvnor.ala.ui.client.provider.empty.ProviderEmptyPresenter;
+import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
-import org.jboss.errai.common.client.api.Caller;
-import org.jboss.errai.common.client.api.IsElement;
-import org.jboss.errai.common.client.api.RemoteCallback;
-import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.ProviderTypeService;
-import org.slf4j.Logger;
+import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
 import org.uberfire.client.annotations.WorkbenchScreen;
+import org.uberfire.client.mvp.UberElement;
+import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.lifecycle.OnOpen;
 
+import static org.guvnor.ala.ui.client.ProvisioningManagementBrowserPresenter.IDENTIFIER;
+
 @ApplicationScoped
-@WorkbenchScreen(identifier = "ProvisioningManagementBrowser")
+@WorkbenchScreen(identifier = IDENTIFIER)
 public class ProvisioningManagementBrowserPresenter {
 
-    public interface View extends IsElement {
+    public static final String IDENTIFIER = "ProvisioningManagementBrowser";
 
-        void setNavigation( final ProviderTypeNavigationPresenter.View view );
+    public interface View extends UberElement<ProvisioningManagementBrowserPresenter> {
 
-        void setProviderType( final ProviderTypePresenter.View view );
+        String getTitle();
 
-        void setEmptyView( final ProviderTypeEmptyPresenter.View view );
+        void setProviderTypesNavigation(final ProviderTypeNavigationPresenter.View view);
 
-        void setContent( final IsElement view );
+        void setProviderType(final ProviderTypePresenter.View view);
+
+        void setEmptyView(final ProviderTypeEmptyPresenter.View view);
+
+        void setContent(final IsElement view);
     }
 
-    private final Logger logger;
+    private View view;
 
-    private final ProvisioningManagementBrowserPresenter.View view;
+    private ProviderTypeNavigationPresenter providerTypeNavigationPresenter;
 
-    private final ProviderTypeNavigationPresenter providerTypeNavigationPresenter;
+    private ProviderTypePresenter providerTypePresenter;
 
-    private final ProviderTypePresenter providerTypePresenter;
+    private ProviderTypeEmptyPresenter providerTypeEmptyPresenter;
 
-    private final ProviderTypeEmptyPresenter providerTypeEmptyPresenter;
+    private ProviderEmptyPresenter providerEmptyPresenter;
 
-    private final ProviderEmptyPresenter providerEmptyPresenter;
+    private ProviderPresenter providerPresenter;
 
-    private final ProviderPresenter providerPresenter;
+    private Caller<ProviderTypeService> providerTypeService;
 
-    private final Caller<ProviderTypeService> providerTypeService;
+    private Caller<ProviderService> providerService;
 
-    private final Caller<ProviderService> providerService;
+    private Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
-    private final Event<ProviderTypeSelected > providerTypeSelectedEvent;
-
-    private boolean isEmpty = true;
+    public ProvisioningManagementBrowserPresenter() {
+    }
 
     @Inject
-    public ProvisioningManagementBrowserPresenter( final Logger logger,
-                                                   final ProvisioningManagementBrowserPresenter.View view,
-                                                   final ProviderTypeNavigationPresenter providerTypeNavigationPresenter,
-                                                   final ProviderTypePresenter providerTypePresenter,
-                                                   final ProviderTypeEmptyPresenter providerTypeEmptyPresenter,
-                                                   final ProviderEmptyPresenter providerEmptyPresenter,
-                                                   final ProviderPresenter providerPresenter,
-                                                   final Caller<ProviderTypeService> providerTypeService,
-                                                   final Caller<ProviderService> providerService,
-                                                   final Event<ProviderTypeSelected> providerTypeSelectedEvent ) {
-        this.logger = logger;
+    public ProvisioningManagementBrowserPresenter(final ProvisioningManagementBrowserPresenter.View view,
+                                                  final ProviderTypeNavigationPresenter providerTypeNavigationPresenter,
+                                                  final ProviderTypePresenter providerTypePresenter,
+                                                  final ProviderTypeEmptyPresenter providerTypeEmptyPresenter,
+                                                  final ProviderEmptyPresenter providerEmptyPresenter,
+                                                  final ProviderPresenter providerPresenter,
+                                                  final Caller<ProviderTypeService> providerTypeService,
+                                                  final Caller<ProviderService> providerService,
+                                                  final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent) {
         this.view = view;
         this.providerTypeNavigationPresenter = providerTypeNavigationPresenter;
         this.providerTypePresenter = providerTypePresenter;
@@ -104,112 +107,22 @@ public class ProvisioningManagementBrowserPresenter {
         this.providerTypeService = providerTypeService;
         this.providerService = providerService;
         this.providerTypeSelectedEvent = providerTypeSelectedEvent;
+        view.init(this);
     }
 
     @PostConstruct
     public void init() {
-        this.view.setNavigation( providerTypeNavigationPresenter.getView() );
+        this.view.setProviderTypesNavigation(providerTypeNavigationPresenter.getView());
     }
 
     @OnOpen
     public void onOpen() {
-        refreshList( new ProviderTypeListRefresh() );
-    }
-
-    public void onProviderTypeDeleted( @Observes final ProviderTypeDeleted providerTypeDeleted ) {
-        if ( providerTypeDeleted != null ) {
-            refreshList( new ProviderTypeListRefresh() );
-        } else {
-            logger.warn( "Illegal event argument." );
-        }
-    }
-
-    private void refreshList( @Observes final ProviderTypeListRefresh refresh ) {
-        providerTypeService.call( (RemoteCallback<Collection<ProviderType >>) providerTypes ->
-                setup( providerTypes, refresh.getProviderTypeKey() )
-        ).getEnabledProviderTypes();
-    }
-
-    public void onSelected( @Observes final ProviderTypeSelected providerTypeSelected ) {
-        if ( providerTypeSelected != null &&
-                providerTypeSelected.getProviderTypeKey() != null ) {
-            selectProviderType( providerTypeSelected.getProviderTypeKey(), providerTypeSelected.getProviderId() );
-        } else {
-            logger.warn( "Illegal event argument." );
-        }
-    }
-
-    public void onSelected( @Observes final ProviderSelected providerSelected ) {
-        if ( providerSelected != null &&
-                providerSelected.getProviderKey() != null ) {
-            this.view.setContent( providerPresenter.getView() );
-        } else {
-            logger.warn( "Illegal event argument." );
-        }
-    }
-
-    private void selectProviderType( final ProviderTypeKey providerTypeKey,
-                                     final String providerId ) {
-        providerTypeService.call( (RemoteCallback<ProviderType >) providerType -> {
-            providerService.call( (RemoteCallback<Collection<ProviderKey>>) providers ->
-                    setup( providerType, providers, providerId )
-            ).getProvidersKey( providerType );
-        } ).getProviderType( providerTypeKey );
-    }
-
-    public void setup( final Collection<ProviderType > providerTypes,
-                       final ProviderTypeKey selectProviderKey ) {
-        if ( providerTypes.isEmpty() ) {
-            isEmpty = true;
-            this.view.setEmptyView( providerTypeEmptyPresenter.getView() );
-            providerTypeNavigationPresenter.clear();
-        } else {
-            isEmpty = false;
-            ProviderType providerType2BeSelected = null;
-            if ( selectProviderKey != null ) {
-                for ( final ProviderType providerType : providerTypes ) {
-                    if ( providerType.getKey().equals( selectProviderKey ) ) {
-                        providerType2BeSelected = providerType;
-                        break;
-                    }
-                }
-            }
-            if ( providerType2BeSelected == null ) {
-                providerType2BeSelected = providerTypes.iterator().next();
-            }
-            providerTypeNavigationPresenter.setup( providerType2BeSelected, providerTypes );
-            providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType2BeSelected.getKey() ) );
-        }
-    }
-
-    private void setup( final ProviderType providerType,
-                        final Collection<ProviderKey> providers,
-                        final String selectProviderId ) {
-        ProviderKey provider2BeSelected = null;
-        this.view.setProviderType( providerTypePresenter.getView() );
-        if ( providers.isEmpty() ) {
-            providerEmptyPresenter.setProviderType( providerType );
-            this.view.setContent( providerEmptyPresenter.getView() );
-        } else {
-            if ( selectProviderId != null ) {
-                for ( ProviderKey provider : providers ) {
-                    if ( provider.getId().equals( selectProviderId ) ) {
-                        provider2BeSelected = provider;
-                        break;
-                    }
-                }
-            }
-            if ( provider2BeSelected == null ) {
-                provider2BeSelected = providers.iterator().next();
-            }
-
-        }
-        providerTypePresenter.setup( providerType, providers, provider2BeSelected );
+        refreshProviderTypes();
     }
 
     @WorkbenchPartTitle
     public String getTitle() {
-        return "Server Management Browser";
+        return view.getTitle();
     }
 
     @WorkbenchPartView
@@ -217,4 +130,97 @@ public class ProvisioningManagementBrowserPresenter {
         return view;
     }
 
+    protected void onRefreshProviderTypes(@Observes final ProviderTypeListRefreshEvent event) {
+        refreshProviderTypes(event.getProviderTypeKey());
+    }
+
+    protected void onProviderTypeSelected(@Observes final ProviderTypeSelectedEvent event) {
+        if (event.getProviderTypeKey() != null) {
+            selectProviderType(event.getProviderTypeKey(),
+                               event.getProviderId());
+        }
+    }
+
+    protected void onProviderTypeDeleted(@Observes final ProviderTypeDeletedEvent event) {
+        refreshProviderTypes();
+    }
+
+    protected void onProviderSelected(@Observes final ProviderSelectedEvent event) {
+        if (event.getProviderKey() != null) {
+            this.view.setContent(providerPresenter.getView());
+        }
+    }
+
+    private void refreshProviderTypes() {
+        refreshProviderTypes(null);
+    }
+
+    private void refreshProviderTypes(ProviderTypeKey selectProviderTypeKey) {
+        providerTypeService.call((Collection<ProviderType> providerTypes) ->
+                                         setupProviderTypes(providerTypes,
+                                                            selectProviderTypeKey),
+                                 new DefaultErrorCallback()).getEnabledProviderTypes();
+    }
+
+    private void selectProviderType(final ProviderTypeKey providerTypeKey,
+                                    final String selectedProviderId) {
+        providerTypeService.call((ProviderType providerType) -> {
+            providerService.call((Collection<ProviderKey> providers) ->
+                                         setupProviderType(providerType,
+                                                           providers,
+                                                           selectedProviderId),
+                                 new DefaultErrorCallback()
+            ).getProvidersKey(providerType);
+        }).getProviderType(providerTypeKey);
+    }
+
+    public void setupProviderTypes(final Collection<ProviderType> providerTypes,
+                                   final ProviderTypeKey selectProviderTypeKey) {
+        if (providerTypes.isEmpty()) {
+            this.view.setEmptyView(providerTypeEmptyPresenter.getView());
+            providerTypeNavigationPresenter.clear();
+        } else {
+            ProviderType providerType2BeSelected = null;
+            if (selectProviderTypeKey != null) {
+                for (final ProviderType providerType : providerTypes) {
+                    if (providerType.getKey().equals(selectProviderTypeKey)) {
+                        providerType2BeSelected = providerType;
+                        break;
+                    }
+                }
+            }
+            if (providerType2BeSelected == null) {
+                providerType2BeSelected = providerTypes.iterator().next();
+            }
+            providerTypeNavigationPresenter.setup(providerType2BeSelected,
+                                                  providerTypes);
+            providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(providerType2BeSelected.getKey()));
+        }
+    }
+
+    private void setupProviderType(final ProviderType providerType,
+                                   final Collection<ProviderKey> providerKeys,
+                                   final String selectProviderId) {
+        ProviderKey provider2BeSelected = null;
+        this.view.setProviderType(providerTypePresenter.getView());
+        if (providerKeys.isEmpty()) {
+            providerEmptyPresenter.setProviderType(providerType);
+            this.view.setContent(providerEmptyPresenter.getView());
+        } else {
+            if (selectProviderId != null) {
+                for (ProviderKey provider : providerKeys) {
+                    if (provider.getId().equals(selectProviderId)) {
+                        provider2BeSelected = provider;
+                        break;
+                    }
+                }
+            }
+            if (provider2BeSelected == null) {
+                provider2BeSelected = providerKeys.iterator().next();
+            }
+        }
+        providerTypePresenter.setup(providerType,
+                                    providerKeys,
+                                    provider2BeSelected);
+    }
 }

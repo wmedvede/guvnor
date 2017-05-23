@@ -21,7 +21,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.AddNewProviderType;
+import org.guvnor.ala.ui.client.events.AddNewProviderTypeEvent;
 import org.uberfire.client.mvp.UberElement;
 
 @ApplicationScoped
@@ -33,11 +33,11 @@ public class ProviderTypeEmptyPresenter {
 
     private final View view;
 
-    private final Event<AddNewProviderType > addNewProviderTypeEvent;
+    private final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
 
     @Inject
     public ProviderTypeEmptyPresenter( final View view,
-                                       final Event<AddNewProviderType> addNewProviderTypeEvent ) {
+                                       final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent ) {
         this.view = view;
         this.addNewProviderTypeEvent = addNewProviderTypeEvent;
     }
@@ -52,7 +52,7 @@ public class ProviderTypeEmptyPresenter {
     }
 
     public void addProviderType() {
-        addNewProviderTypeEvent.fire( new AddNewProviderType() );
+        addNewProviderTypeEvent.fire( new AddNewProviderTypeEvent() );
     }
 
 }

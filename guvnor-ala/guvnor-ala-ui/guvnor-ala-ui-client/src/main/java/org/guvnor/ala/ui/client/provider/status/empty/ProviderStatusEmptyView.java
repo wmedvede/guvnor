@@ -18,10 +18,10 @@ package org.guvnor.ala.ui.client.provider.status.empty;
 
 import javax.enterprise.context.Dependent;
 
-import com.google.gwt.user.client.Event;
+import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
-import org.jboss.errai.ui.shared.api.annotations.SinkNative;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
@@ -32,14 +32,12 @@ public class ProviderStatusEmptyView implements IsElement,
     private ProviderStatusEmptyPresenter presenter;
 
     @Override
-    public void init( final ProviderStatusEmptyPresenter presenter ) {
+    public void init(final ProviderStatusEmptyPresenter presenter) {
         this.presenter = presenter;
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("refresh-runtime-providers")
-    public void onRefresh( final Event event ) {
+    public void onRefresh(@ForEvent("click") final Event event) {
         presenter.refresh();
     }
-
 }

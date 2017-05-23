@@ -27,9 +27,9 @@ import org.guvnor.ala.ui.model.ProviderKey;
 @Remote
 public interface ProviderService {
 
-    Collection< Provider > getProviders(final ProviderType providerType);
+    Collection<Provider> getProviders(final ProviderType providerType);
 
-    Collection< ProviderKey > getProvidersKey(final ProviderType providerType);
+    Collection<ProviderKey> getProvidersKey(final ProviderType providerType);
 
     boolean isValidProvider(final ProviderType providerType,
                             final String id,

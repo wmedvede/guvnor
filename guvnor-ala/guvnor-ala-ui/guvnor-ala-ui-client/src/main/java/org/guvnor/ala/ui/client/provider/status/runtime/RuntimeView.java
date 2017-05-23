@@ -20,18 +20,17 @@ import java.util.Collection;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import com.google.gwt.user.client.Event;
-import org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenter;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.dom.Anchor;
 import org.jboss.errai.common.client.dom.Div;
+import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.ListItem;
 import org.jboss.errai.common.client.dom.Span;
 import org.jboss.errai.common.client.dom.Window;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
-import org.jboss.errai.ui.shared.api.annotations.SinkNative;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
@@ -41,154 +40,149 @@ public class RuntimeView implements org.jboss.errai.ui.client.local.api.IsElemen
 
     @Inject
     @DataField("start-item")
-    ListItem startItem;
+    private ListItem startItem;
 
     @Inject
     @DataField
-    Anchor start;
+    private Anchor start;
 
     @Inject
     @DataField("stop-item")
-    ListItem stopItem;
+    private ListItem stopItem;
 
     @Inject
     @DataField
-    Anchor stop;
+    private Anchor stop;
 
     @Inject
     @DataField
-    Anchor rebuild;
+    private Anchor rebuild;
 
     @Inject
     @DataField("runtime-status")
-    Span status;
+    private Span status;
 
     @Inject
     @DataField("runtime-name")
-    Div name;
+    private Div name;
 
     @Inject
     @DataField
-    Span date;
+    private Span date;
 
     @DataField
-    HTMLElement pipeline = Window.getDocument().createElement( "strong" );
+    private HTMLElement pipeline = Window.getDocument().createElement("strong");
 
     @Inject
     @DataField("runtime-endpoint")
-    Anchor endpoint;
+    private Anchor endpoint;
 
     @Inject
     @DataField("expansion-area")
-    Div expansionArea;
+    private Div expansionArea;
 
     @Inject
     @DataField("expansion-content")
-    Div expansionContent;
+    private Div expansionContent;
 
     @Inject
     @DataField("expand-chevron")
-    Span chevron;
+    private Span chevron;
 
     private RuntimePresenter presenter;
 
     @Override
-    public void init( final RuntimePresenter presenter ) {
+    public void init(final RuntimePresenter presenter) {
         this.presenter = presenter;
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("start")
-    public void onStart( final Event event ) {
+    public void onStart(@ForEvent("click") final Event event) {
         presenter.start();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("stop")
-    public void onStop( final Event event ) {
+    public void onStop(@ForEvent("click") final Event event) {
         presenter.stop();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("rebuild")
-    public void onRebuild( final Event event ) {
+    public void onRebuild(@ForEvent("click") final Event event) {
         presenter.rebuild();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("delete")
-    public void onDelete( final Event event ) {
+    public void onDelete(@ForEvent("click") final Event event) {
         presenter.delete();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("expand-chevron")
-    public void onOpenCloseExpand( final Event event ) {
+    public void onOpenCloseExpand(@ForEvent("click") final Event event) {
         openCloseExpand();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("close-expansion")
-    public void onCloseExpansion( final Event event ) {
+    public void onCloseExpansion(@ForEvent("click") final Event event) {
         openCloseExpand();
     }
 
     private void openCloseExpand() {
-        chevron.getClassList().toggle( "fa-chevron-down" );
-        if ( !chevron.getClassList().contains( "fa-chevron-down" ) ) {
-            expansionArea.getStyle().setProperty( "display", "none" );
-            chevron.getClassList().add( "fa-chevron-right" );
+        chevron.getClassList().toggle("fa-chevron-down");
+        if (!chevron.getClassList().contains("fa-chevron-down")) {
+            expansionArea.getStyle().setProperty("display",
+                                                 "none");
+            chevron.getClassList().add("fa-chevron-right");
         } else {
-            chevron.getClassList().remove( "fa-chevron-right" );
-            expansionArea.getStyle().removeProperty( "display" );
+            chevron.getClassList().remove("fa-chevron-right");
+            expansionArea.getStyle().removeProperty("display");
         }
     }
 
     @Override
-    public void setup( final String name,
-                       final String date,
-                       final String pipeline ) {
-        this.name.setTextContent( name );
-        this.date.setTextContent( date );
-        this.pipeline.setTextContent( pipeline );
+    public void setup(final String name,
+                      final String date,
+                      final String pipeline) {
+        this.name.setTextContent(name);
+        this.date.setTextContent(date);
+        this.pipeline.setTextContent(pipeline);
     }
 
     @Override
-    public void setEndpoint( final String endpoint ) {
-        this.endpoint.setHref( endpoint );
-        this.endpoint.setTextContent( endpoint );
+    public void setEndpoint(final String endpoint) {
+        this.endpoint.setHref(endpoint);
+        this.endpoint.setTextContent(endpoint);
     }
 
     @Override
     public void disableStart() {
-        this.startItem.getClassList().add( "disabled" );
+        this.startItem.getClassList().add("disabled");
     }
 
     @Override
     public void enableStart() {
-        this.startItem.getClassList().remove( "disabled" );
+        this.startItem.getClassList().remove("disabled");
     }
 
     @Override
     public void disableStop() {
-        this.stopItem.getClassList().add( "disabled" );
+        this.stopItem.getClassList().add("disabled");
     }
 
     @Override
     public void enableStop() {
-        this.stopItem.getClassList().remove( "disabled" );
+        this.stopItem.getClassList().remove("disabled");
     }
 
     @Override
-    public void setStatus( final Collection<String> styles ) {
-        this.status.removeAttribute( "class" );
-        for ( String style : styles ) {
-            this.status.getClassList().add( style );
+    public void setStatus(final Collection<String> styles) {
+        this.status.removeAttribute("class");
+        for (String style : styles) {
+            this.status.getClassList().add(style);
         }
     }
 
     @Override
-    public void addExpandedContent( final IsElement element ) {
-        expansionContent.appendChild( element.getElement() );
+    public void addExpandedContent(final IsElement element) {
+        expansionContent.appendChild(element.getElement());
     }
 }

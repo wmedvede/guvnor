@@ -20,13 +20,12 @@ import java.util.ArrayList;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.user.client.Event;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.gwtbootstrap3.client.ui.constants.ValidationState;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Document;
+import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.Option;
 import org.jboss.errai.common.client.dom.Select;
@@ -36,72 +35,71 @@ import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
-import org.jboss.errai.ui.shared.api.annotations.SinkNative;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.uberfire.commons.data.Pair;
 
-import static org.guvnor.ala.ui.client.widget.StyleHelper.*;
-import static org.uberfire.commons.validation.PortablePreconditions.*;
+import static org.guvnor.ala.ui.client.widget.StyleHelper.addUniqueEnumStyleName;
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 @Dependent
 @Templated
-public class SourceFormView implements IsElement,
-                                       SourceFormPresenter.View {
+public class SourceFormView
+        implements IsElement,
+                   SourceFormPresenter.View {
 
     private SourceFormPresenter presenter;
 
     @Inject
     @DataField("runtime-form")
-    Div runtimeForm;
+    private Div runtimeForm;
 
     @Inject
     @DataField("runtime-name")
-    TextInput runtimeName;
+    private TextInput runtimeName;
 
     @Inject
     @DataField("ou-form")
-    Div ouForm;
+    private Div ouForm;
 
     @Inject
     @DataField
-    Select ous;
+    private Select ous;
 
     @Inject
     @DataField("repo-form")
-    Div repoForm;
+    private Div repoForm;
 
     @Inject
     @DataField
-    Select repos;
+    private Select repos;
 
     @Inject
     @DataField("branch-form")
-    Div branchForm;
+    private Div branchForm;
 
     @Inject
     @DataField
-    Select branches;
+    private Select branches;
 
     @Inject
     @DataField("project-form")
-    Div projectForm;
+    private Div projectForm;
 
     @Inject
     @DataField
-    Select projects;
+    private Select projects;
 
     @Inject
     @DataField("data-source-form")
-    Div dataSourceForm;
+    private Div dataSourceForm;
 
     @Inject
     @DataField
-    Select datasources;
+    private Select datasources;
 
     @Inject
     private Document doc;
 
-    private final ArrayList< ContentChangeHandler > changeHandlers = new ArrayList< ContentChangeHandler >();
+    private final ArrayList<ContentChangeHandler> changeHandlers = new ArrayList<ContentChangeHandler>();
 
     @Override
     public void init(final SourceFormPresenter presenter) {
@@ -175,9 +173,8 @@ public class SourceFormView implements IsElement,
         }
     }
 
-    @SinkNative(Event.ONCHANGE)
     @EventHandler("runtime-name")
-    public void onNameChange(final Event event) {
+    public void onNameChange(@ForEvent("change") final Event event) {
         if (!runtimeName.getValue().trim().isEmpty()) {
             addUniqueEnumStyleName(runtimeForm,
                                    ValidationState.class,
@@ -307,7 +304,7 @@ public class SourceFormView implements IsElement,
     }
 
     @EventHandler("ous")
-    private void onOrganizationalUnitChange(final ChangeEvent event) {
+    private void onOrganizationalUnitChange(@ForEvent("change") final Event event) {
         if (!ous.getValue().trim().isEmpty()) {
             addUniqueEnumStyleName(ouForm,
                                    ValidationState.class,
@@ -345,7 +342,7 @@ public class SourceFormView implements IsElement,
     }
 
     @EventHandler("repos")
-    private void onRepositoryChange(final ChangeEvent event) {
+    private void onRepositoryChange(@ForEvent("change") final Event event) {
         if (!repos.getValue().trim().isEmpty()) {
             addUniqueEnumStyleName(repoForm,
                                    ValidationState.class,
@@ -382,7 +379,7 @@ public class SourceFormView implements IsElement,
     }
 
     @EventHandler("branches")
-    private void onBranchChange(final ChangeEvent event) {
+    private void onBranchChange(@ForEvent("change") final Event event) {
         if (!branches.getValue().trim().isEmpty()) {
             addUniqueEnumStyleName(branchForm,
                                    ValidationState.class,
@@ -425,16 +422,18 @@ public class SourceFormView implements IsElement,
         }
         datasources.setInnerHTML("");
         datasources.add(defaultOption(),
-                  null);
+                        null);
     }
 
     @Override
-    public void addDataSource(String dataSourceName, String value) {
-        datasources.appendChild( newOption( dataSourceName, value));
+    public void addDataSource(String dataSourceName,
+                              String value) {
+        datasources.appendChild(newOption(dataSourceName,
+                                          value));
     }
 
     @EventHandler("projects")
-    private void onProjectChange(final ChangeEvent event) {
+    private void onProjectChange(@ForEvent("change") final Event event) {
         if (!projects.getValue().trim().isEmpty()) {
             addUniqueEnumStyleName(projectForm,
                                    ValidationState.class,
@@ -447,8 +446,8 @@ public class SourceFormView implements IsElement,
         fireChangeHandlers();
     }
 
-    @EventHandler( "datasources" )
-    private void onDataSourceChange( @ForEvent( "change" ) org.jboss.errai.common.client.dom.Event event ) {
+    @EventHandler("datasources")
+    private void onDataSourceChange(@ForEvent("change") Event event) {
         //do nothing by now com.google.gwt.user.client.Window.alert("datasource change:" + getDataSource());
     }
 
@@ -488,10 +487,11 @@ public class SourceFormView implements IsElement,
         }
     }
 
-    private Option newOption(final String text, final String value ) {
-        final Option option = ( Option ) doc.createElement( "option" );
-        option.setTextContent( text );
-        option.setValue( value );
+    private Option newOption(final String text,
+                             final String value) {
+        final Option option = (Option) doc.createElement("option");
+        option.setTextContent(text);
+        option.setValue(value);
         return option;
     }
 }

@@ -30,17 +30,17 @@ import org.guvnor.ala.ui.model.ProviderTypeStatus;
 @Remote
 public interface ProviderTypeService {
 
-    Collection< ProviderType > getEnabledProviderTypes();
+    Collection<ProviderType> getEnabledProviderTypes();
 
-    Collection< ProviderType > getAvialableProviderTypes();
+    Collection<ProviderType> getAvialableProviderTypes();
 
     void enableProviderType(final ProviderType providerType);
 
-    void enableProviderTypes(final Collection< ProviderType > providerTypes);
+    void enableProviderTypes(final Collection<ProviderType> providerTypes);
 
     void disableProvider(final ProviderType providerType);
 
-    Map< ProviderType, ProviderTypeStatus > getProviderTypesStatus();
+    Map<ProviderType, ProviderTypeStatus> getProviderTypesStatus();
 
     ProviderType getProviderType(final ProviderTypeKey providerTypeKey);
 }

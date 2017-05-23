@@ -18,34 +18,32 @@ package org.guvnor.ala.ui.client.empty;
 
 import javax.enterprise.context.Dependent;
 
-import com.google.gwt.user.client.Event;
+import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
-import org.jboss.errai.ui.shared.api.annotations.SinkNative;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
 @Templated
-public class ProviderTypeEmptyView implements IsElement,
-                                              ProviderTypeEmptyPresenter.View {
+public class ProviderTypeEmptyView
+        implements IsElement,
+                   ProviderTypeEmptyPresenter.View {
 
     private ProviderTypeEmptyPresenter presenter;
 
     @Override
-    public void init( final ProviderTypeEmptyPresenter presenter ) {
+    public void init(final ProviderTypeEmptyPresenter presenter) {
         this.presenter = presenter;
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("empty-add-provider-type")
-    public void addProviderType( final Event event ) {
+    public void onAddProviderType(@ForEvent("click") final Event event) {
         presenter.addProviderType();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("new-provider-type-anchor")
-    public void addProviderTypeAnchor( final Event event ) {
+    public void onAddProviderTypeAnchor(@ForEvent("click") final Event event) {
         presenter.addProviderType();
     }
-
 }

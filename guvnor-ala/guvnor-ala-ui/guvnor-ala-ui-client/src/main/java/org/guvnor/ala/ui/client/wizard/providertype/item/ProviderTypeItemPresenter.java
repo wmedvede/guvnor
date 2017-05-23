@@ -17,60 +17,54 @@
 package org.guvnor.ala.ui.client.wizard.providertype.item;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
+import org.guvnor.ala.ui.client.util.HasContentChangeHandlers;
 import org.guvnor.ala.ui.model.ProviderType;
-import org.jboss.errai.common.client.api.IsElement;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
+import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
-
-import static org.uberfire.commons.validation.PortablePreconditions.*;
 
 @Dependent
-public class ProviderTypeItemPresenter {
+public class ProviderTypeItemPresenter
+        extends AbstractHasContentChangeHandlers {
 
-    public interface View extends UberElement<ProviderTypeItemPresenter> {
+    public interface View
+            extends UberElement<ProviderTypeItemPresenter>,
+                    HasContentChangeHandlers {
 
-        void disable( );
+        void disable();
 
-        boolean isSelected( );
+        boolean isSelected();
 
-        void addContentChangeHandler( final ContentChangeHandler contentChangeHandler );
+        void setProviderTypeName(String name);
 
-        void setProviderTypeName( String name );
-
-        void setImage( String imageURL );
+        void setImage(String imageURL);
     }
 
     private final View view;
-    private final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-    private ContentChangeHandler changeHandler;
-
     private ProviderType type;
 
     @Inject
-    public ProviderTypeItemPresenter( final View view,
-                                      final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent ) {
+    public ProviderTypeItemPresenter(final View view) {
         this.view = view;
-        this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
+        this.view.init(this);
     }
 
-    public void addContentChangeHandler( final ContentChangeHandler contentChangeHandler ) {
-        this.changeHandler = checkNotNull( "contentChangeHandler", contentChangeHandler );
-        if ( view != null ) {
-            view.addContentChangeHandler( changeHandler );
-        }
+    @Override
+    public void addContentChangeHandler(final ContentChangeHandler changeHandler) {
+        super.addContentChangeHandler(changeHandler);
+        view.addContentChangeHandler(changeHandler);
     }
 
-    public void setup( final ProviderType type,
-                       final ProviderTypeStatus status ) {
+    public void setup(final ProviderType type,
+                      final ProviderTypeStatus status) {
         this.type = type;
-        view.setProviderTypeName( type.getName() );
-        view.setImage( type.getImageURL() );
-        if ( status.equals( ProviderTypeStatus.ENABLED ) ) {
+        view.setProviderTypeName(type.getName());
+        view.setImage(type.getImageURL());
+        if (status.equals(ProviderTypeStatus.ENABLED)) {
             view.disable();
         }
     }

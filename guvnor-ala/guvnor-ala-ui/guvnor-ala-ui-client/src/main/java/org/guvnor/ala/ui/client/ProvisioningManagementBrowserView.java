@@ -1,5 +1,5 @@
 /*
- * Copyright ${year} Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,88 +25,109 @@ import org.guvnor.ala.ui.client.navigation.ProviderTypeNavigationPresenter;
 import org.guvnor.ala.ui.client.navigation.providertype.ProviderTypePresenter;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.dom.Div;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProvisioningManagementBrowserView_title;
 import static org.jboss.errai.common.client.dom.DOMUtil.*;
 
 @Dependent
 @Templated
-public class ProvisioningManagementBrowserView implements org.jboss.errai.ui.client.local.api.IsElement,
-                                                          ProvisioningManagementBrowserPresenter.View {
+public class ProvisioningManagementBrowserView
+        implements org.jboss.errai.ui.client.local.api.IsElement,
+                   ProvisioningManagementBrowserPresenter.View {
 
     @Inject
     @DataField
-    Div container;
+    private Div container;
 
     @Inject
     @DataField("first-nav")
-    Div firstLevelNavigation;
+    private Div firstLevelNavigation;
 
     @Inject
     @DataField("second-nav")
-    Div secondLevalNavigation;
+    private Div secondLevalNavigation;
 
     @Inject
     @DataField
-    Div content;
+    private Div content;
+
+    private ProvisioningManagementBrowserPresenter presenter;
+
+    @Inject
+    private TranslationService translationService;
+
+    public ProvisioningManagementBrowserView() {
+    }
 
     @PostConstruct
     public void init() {
-        removeAllChildren( container );
+        removeAllChildren(container);
     }
 
     @Override
-    public void setNavigation( final ProviderTypeNavigationPresenter.View view ) {
-        container.appendChild( firstLevelNavigation );
-        removeAllChildren( firstLevelNavigation );
-        firstLevelNavigation.appendChild( view.getElement() );
+    public void init(ProvisioningManagementBrowserPresenter presenter) {
+        this.presenter = presenter;
     }
 
     @Override
-    public void setProviderType( final ProviderTypePresenter.View view ) {
-        content.getClassList().remove( "col-md-10" );
-        content.getClassList().remove( "col-sm-9" );
-        content.getClassList().add( "col-md-8" );
-        content.getClassList().add( "col-sm-6" );
+    public String getTitle() {
+        return translationService.getTranslation(ProvisioningManagementBrowserView_title);
+    }
 
-        if ( secondLevalNavigation.getParentElement() == null ) {
-            if ( container.getChildNodes().getLength() == 2 ) { //was empty
-                container.removeChild( container.getLastChild() );
+    @Override
+    public void setProviderTypesNavigation(final ProviderTypeNavigationPresenter.View view) {
+        container.appendChild(firstLevelNavigation);
+        removeAllChildren(firstLevelNavigation);
+        firstLevelNavigation.appendChild(view.getElement());
+    }
+
+    @Override
+    public void setProviderType(final ProviderTypePresenter.View view) {
+        content.getClassList().remove("col-md-10");
+        content.getClassList().remove("col-sm-9");
+        content.getClassList().add("col-md-8");
+        content.getClassList().add("col-sm-6");
+
+        if (secondLevalNavigation.getParentElement() == null) {
+            if (container.getChildNodes().getLength() == 2) { //was empty
+                container.removeChild(container.getLastChild());
             }
-            container.appendChild( secondLevalNavigation );
-            container.appendChild( content );
+            container.appendChild(secondLevalNavigation);
+            container.appendChild(content);
         }
-        removeAllChildren( secondLevalNavigation );
-        secondLevalNavigation.appendChild( view.getElement() );
+        removeAllChildren(secondLevalNavigation);
+        secondLevalNavigation.appendChild(view.getElement());
     }
 
     @Override
-    public void setEmptyView( final ProviderTypeEmptyPresenter.View view ) {
-        content.getClassList().remove( "col-md-8" );
-        content.getClassList().remove( "col-sm-6" );
-        content.getClassList().add( "col-md-10" );
-        content.getClassList().add( "col-sm-9" );
+    public void setEmptyView(final ProviderTypeEmptyPresenter.View view) {
+        content.getClassList().remove("col-md-8");
+        content.getClassList().remove("col-sm-6");
+        content.getClassList().add("col-md-10");
+        content.getClassList().add("col-sm-9");
 
         try {
-            container.removeChild( secondLevalNavigation );
-        } catch ( final Exception ignore ) {
+            container.removeChild(secondLevalNavigation);
+        } catch (final Exception ignore) {
         }
 
-        removeAllChildren( content );
-        content.appendChild( view.getElement() );
+        removeAllChildren(content);
+        content.appendChild(view.getElement());
 
-        if ( content.getParentNode() == null ) {
-            container.appendChild( content );
+        if (content.getParentNode() == null) {
+            container.appendChild(content);
         }
     }
 
     @Override
-    public void setContent( final IsElement view ) {
-        removeAllChildren( content );
-        content.appendChild( view.getElement() );
-        if ( content.getParentElement() == null ) {
-            container.appendChild( content );
+    public void setContent(final IsElement view) {
+        removeAllChildren(content);
+        content.appendChild(view.getElement());
+        if (content.getParentElement() == null) {
+            container.appendChild(content);
         }
     }
 }

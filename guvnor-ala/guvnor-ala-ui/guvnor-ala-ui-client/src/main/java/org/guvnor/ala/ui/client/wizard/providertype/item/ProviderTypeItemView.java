@@ -16,79 +16,72 @@
 
 package org.guvnor.ala.ui.client.wizard.providertype.item;
 
-import java.util.ArrayList;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.google.gwt.user.client.Event;
-import org.guvnor.ala.ui.client.util.ContentChangeHandler;
+import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.jboss.errai.common.client.dom.Div;
+import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.common.client.dom.Heading;
 import org.jboss.errai.common.client.dom.Image;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
-import org.jboss.errai.ui.shared.api.annotations.SinkNative;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
 @Templated
-public class ProviderTypeItemView implements IsElement,
-                                             ProviderTypeItemPresenter.View {
+public class ProviderTypeItemView
+        extends AbstractHasContentChangeHandlers
+        implements IsElement,
+                   ProviderTypeItemPresenter.View {
 
     private ProviderTypeItemPresenter presenter;
 
     @Inject
     @DataField("accented-area")
-    Div accentedArea;
+    private Div accentedArea;
 
     @Inject
     @Named("h2")
     @DataField("type-name")
-    Heading typeName;
+    private Heading typeName;
 
     @Inject
     @DataField
-    Div body;
+    private Div body;
 
     @Inject
     @DataField
-    Image image;
-
-    private final ArrayList<ContentChangeHandler > changeHandlers = new ArrayList<ContentChangeHandler>();
+    private Image image;
 
     @Override
-    public void init( final ProviderTypeItemPresenter presenter ) {
+    public void init(final ProviderTypeItemPresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
-    public void addContentChangeHandler( final ContentChangeHandler contentChangeHandler ) {
-        changeHandlers.add( contentChangeHandler );
+    public void setProviderTypeName(final String name) {
+        this.typeName.setTextContent(name);
     }
 
     @Override
-    public void setProviderTypeName( final String name ) {
-        this.typeName.setTextContent( name );
-    }
-
-    @Override
-    public void setImage( final String imageURL ) {
-        this.image.setSrc( imageURL );
+    public void setImage(final String imageURL) {
+        this.image.setSrc(imageURL);
     }
 
     @Override
     public void disable() {
-        accentedArea.getClassList().add( "remove-option" );
+        accentedArea.getClassList().add("remove-option");
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("image")
-    public void onClick( final Event event ) {
-        if ( !accentedArea.getClassList().contains( "remove-option" ) ) {
-            accentedArea.getClassList().toggle( "card-pf-accented" );
-            if ( accentedArea.getClassList().contains( "card-pf-accented" ) ) {
+    public void onClick(@ForEvent("click") final Event event) {
+        if (!accentedArea.getClassList().contains("remove-option")) {
+            accentedArea.getClassList().toggle("card-pf-accented");
+            if (accentedArea.getClassList().contains("card-pf-accented")) {
                 removeOpacity();
             } else {
                 addOpacity();
@@ -99,21 +92,15 @@ public class ProviderTypeItemView implements IsElement,
 
     @Override
     public boolean isSelected() {
-        return accentedArea.getClassList().contains( "card-pf-accented" );
+        return accentedArea.getClassList().contains("card-pf-accented");
     }
 
     private void addOpacity() {
-        body.getStyle().setProperty( "opacity", "0.3" );
+        body.getStyle().setProperty("opacity",
+                                    "0.3");
     }
 
     private void removeOpacity() {
-        body.getStyle().removeProperty( "opacity" );
+        body.getStyle().removeProperty("opacity");
     }
-
-    private void fireChangeHandlers() {
-        for ( final ContentChangeHandler changeHandler : changeHandlers ) {
-            changeHandler.onContentChange();
-        }
-    }
-
 }

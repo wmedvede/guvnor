@@ -1,5 +1,5 @@
 /*
- * Copyright ${year} Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,85 +19,85 @@ package org.guvnor.ala.ui.client;
 import java.util.Collection;
 import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.AddNewProviderType;
-import org.guvnor.ala.ui.client.events.AddNewRuntime;
-import org.guvnor.ala.ui.client.events.ProviderTypeListRefresh;
-import org.guvnor.ala.ui.client.wizard.EnableProviderTypeWizard;
+import org.guvnor.ala.ui.client.events.AddNewProvider;
+import org.guvnor.ala.ui.client.events.AddNewProviderTypeEvent;
+import org.guvnor.ala.ui.client.events.AddNewRuntimeEvent;
+import org.guvnor.ala.ui.client.wizard.provider.NewProviderWizard;
+import org.guvnor.ala.ui.client.wizard.providertype.EnableProviderTypeWizard;
 import org.guvnor.ala.ui.client.wizard.NewDeployWizard;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
-import org.jboss.errai.common.client.api.RemoteCallback;
-import org.slf4j.Logger;
 import org.uberfire.client.annotations.Perspective;
 import org.uberfire.client.annotations.WorkbenchPerspective;
 import org.uberfire.client.workbench.panels.impl.StaticWorkbenchPanelPresenter;
+import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.workbench.model.PerspectiveDefinition;
 import org.uberfire.workbench.model.impl.PartDefinitionImpl;
 import org.uberfire.workbench.model.impl.PerspectiveDefinitionImpl;
 
+import static org.guvnor.ala.ui.client.ProvisioningManagementPerspective.IDENTIFIER;
+
 @ApplicationScoped
-@WorkbenchPerspective(identifier = "ProvisioningManagementPerspective")
+@WorkbenchPerspective(identifier = IDENTIFIER)
 public class ProvisioningManagementPerspective {
 
-    private final Logger logger;
+    public static final String IDENTIFIER = "ProvisioningManagementPerspective";
+
     private final Caller<ProviderTypeService> providerTypeService;
     private final Caller<RuntimeService> runtimeService;
-    private final Event<ProviderTypeListRefresh > providerTypeListRefreshEvent;
     private final EnableProviderTypeWizard enableProviderTypeWizard;
+    private final NewProviderWizard newProviderWizard;
     private final NewDeployWizard newDeployWizard;
 
     @Inject
-    public ProvisioningManagementPerspective( final Logger logger,
-                                              final Caller<ProviderTypeService> providerTypeService,
-                                              final Caller<RuntimeService> runtimeService,
-                                              final Event<ProviderTypeListRefresh> providerTypeListRefreshEvent,
-                                              final EnableProviderTypeWizard enableProviderTypeWizard,
-                                              final NewDeployWizard newDeployWizard ) {
-        this.logger = logger;
+    public ProvisioningManagementPerspective(final Caller<ProviderTypeService> providerTypeService,
+                                             final Caller<RuntimeService> runtimeService,
+                                             final EnableProviderTypeWizard enableProviderTypeWizard,
+                                             final NewProviderWizard newProviderWizard,
+                                             final NewDeployWizard newDeployWizard) {
         this.providerTypeService = providerTypeService;
         this.runtimeService = runtimeService;
-        this.providerTypeListRefreshEvent = providerTypeListRefreshEvent;
         this.enableProviderTypeWizard = enableProviderTypeWizard;
+        this.newProviderWizard = newProviderWizard;
         this.newDeployWizard = newDeployWizard;
     }
 
     @Perspective
     public PerspectiveDefinition buildPerspective() {
-        final PerspectiveDefinition perspective = new PerspectiveDefinitionImpl( StaticWorkbenchPanelPresenter.class.getName() );
-        perspective.setName( "ProvisioningManagementPerspective" );
-
-        perspective.getRoot().addPart( new PartDefinitionImpl( new DefaultPlaceRequest( "ProvisioningManagementBrowser" ) ) );
-
+        final PerspectiveDefinition perspective = new PerspectiveDefinitionImpl(StaticWorkbenchPanelPresenter.class.getName());
+        perspective.setName(IDENTIFIER);
+        perspective.getRoot().addPart(new PartDefinitionImpl(new DefaultPlaceRequest(ProvisioningManagementBrowserPresenter.IDENTIFIER)));
         return perspective;
     }
 
-    public void onAddNewProviderType( @Observes final AddNewProviderType addNewProviderTypeEvent ) {
-        providerTypeService.call( new RemoteCallback<Map<ProviderType, ProviderTypeStatus>>() {
-            @Override
-            public void callback( final Map<ProviderType, ProviderTypeStatus> result ) {
-                enableProviderTypeWizard.setup( result );
-                enableProviderTypeWizard.start();
-            }
-        } ).getProviderTypesStatus();
+    protected void onAddNewProviderType(@Observes final AddNewProviderTypeEvent event) {
+        providerTypeService.call((Map<ProviderType, ProviderTypeStatus> result) -> {
+                                     enableProviderTypeWizard.setup(result);
+                                     enableProviderTypeWizard.start();
+                                 },
+                                 new DefaultErrorCallback()).getProviderTypesStatus();
     }
 
-    public void onAddNewRuntime( @Observes final AddNewRuntime addNewRuntime ) {
-
-        runtimeService.call( new RemoteCallback<Collection<String>>() {
-            @Override
-            public void callback( final Collection<String> result ) {
-                newDeployWizard.setup( addNewRuntime.getProvider(), result );
-                newDeployWizard.start();
-            }
-        } ).getPipelines( addNewRuntime.getProvider().getKey() );
+    public void onNewProvider(@Observes final AddNewProvider addNewProvider) {
+        if (addNewProvider.getProviderType() != null && addNewProvider.getProviderType().getKey() != null) {
+            newProviderWizard.setup(addNewProvider.getProviderType());
+            newProviderWizard.start();
+        }
     }
 
+    protected void onAddNewRuntime(@Observes final AddNewRuntimeEvent event) {
+        runtimeService.call((Collection<String> result) -> {
+                                newDeployWizard.setup(event.getProvider(),
+                                                      result);
+                                newDeployWizard.start();
+                            },
+                            new DefaultErrorCallback()).getPipelines(event.getProvider().getKey());
+    }
 }

@@ -29,21 +29,22 @@ import static org.uberfire.commons.validation.PortablePreconditions.*;
 
 @Dependent
 @Templated
-public class ProviderStatusView implements org.jboss.errai.ui.client.local.api.IsElement,
-                                           ProviderStatusPresenter.View {
+public class ProviderStatusView
+        implements org.jboss.errai.ui.client.local.api.IsElement,
+                   ProviderStatusPresenter.View {
 
     @Inject
     @DataField("container")
-    Div container;
+    private Div container;
 
     @Override
-    public void addListItem( final IsElement listItem ) {
-        container.appendChild( checkNotNull( "listItem", listItem ).getElement() );
+    public void addListItem(final IsElement listItem) {
+        container.appendChild(checkNotNull("listItem",
+                                           listItem).getElement());
     }
 
     @Override
     public void clear() {
-        removeAllChildren( container );
+        removeAllChildren(container);
     }
-
 }

@@ -16,23 +16,30 @@
 
 package org.guvnor.ala.ui.client.provider;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.AddNewRuntime;
-import org.guvnor.ala.ui.client.events.ProviderSelected;
-import org.guvnor.ala.ui.client.events.ProviderTypeSelected;
+import org.guvnor.ala.ui.client.events.AddNewRuntimeEvent;
+import org.guvnor.ala.ui.client.events.ProviderSelectedEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
 import org.guvnor.ala.ui.client.events.RefreshRuntime;
+import org.guvnor.ala.ui.client.handler.FormResolver;
+import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
 import org.guvnor.ala.ui.client.provider.status.ProviderStatusPresenter;
 import org.guvnor.ala.ui.client.provider.status.empty.ProviderStatusEmptyPresenter;
-import org.guvnor.ala.ui.client.widget.provider.FormProvider;
-import org.guvnor.ala.ui.client.widget.provider.FormResolver;
+import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
+import org.guvnor.ala.ui.client.wizard.provider.empty.ProviderConfigEmptyPresenter;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
@@ -49,17 +56,17 @@ public class ProviderPresenter {
 
     public interface View extends UberElement<ProviderPresenter> {
 
-        void confirmRemove( final Command command );
+        void confirmRemove(final Command command);
 
-        void setProviderName( String name );
+        void setProviderName(String name);
 
-        void setStatus( IsElement view );
+        void setStatus(IsElement view);
 
-        void setConfig( IsElement view );
+        void setConfig(IsElement view);
 
-        String getRemoveProviderSuccessMessage( );
+        String getRemoveProviderSuccessMessage();
 
-        String getRemoveProviderErrorMessage( );
+        String getRemoveProviderErrorMessage();
     }
 
     private final View view;
@@ -67,27 +74,35 @@ public class ProviderPresenter {
     private final Caller<RuntimeService> runtimeService;
     private final ProviderStatusEmptyPresenter providerStatusEmptyPresenter;
     private final ProviderStatusPresenter providerStatusPresenter;
+    private final ProviderConfigEmptyPresenter providerConfigEmptyPresenter;
+    private final ClientProviderHandlerRegistry providerHandlerRegistry;
 
     private final Event<NotificationEvent> notification;
-    private final Event<ProviderTypeSelected > providerTypeSelected;
-    private final Event<AddNewRuntime > addNewRuntimeEvent;
+    private final Event<ProviderTypeSelectedEvent> providerTypeSelected;
+    private final Event<AddNewRuntimeEvent> addNewRuntimeEvent;
 
-    public Provider provider;
+    private Provider provider;
+    private List<ProviderConfigurationForm> providerConfigurationForms = new ArrayList<>();
+    private Map<ProviderConfigurationForm, FormResolver> formFormResolverMap = new HashMap<>();
 
     @Inject
-    public ProviderPresenter( final View view,
-                              final Caller<ProviderService> providerService,
-                              final Caller<RuntimeService> runtimeService,
-                              final ProviderStatusEmptyPresenter providerStatusEmptyPresenter,
-                              final ProviderStatusPresenter providerStatusPresenter,
-                              final Event<ProviderTypeSelected> providerTypeSelected,
-                              final Event<NotificationEvent> notification,
-                              final Event<AddNewRuntime> addNewRuntimeEvent ) {
+    public ProviderPresenter(final View view,
+                             final Caller<ProviderService> providerService,
+                             final Caller<RuntimeService> runtimeService,
+                             final ProviderStatusEmptyPresenter providerStatusEmptyPresenter,
+                             final ProviderStatusPresenter providerStatusPresenter,
+                             final ProviderConfigEmptyPresenter providerConfigEmptyPresenter,
+                             final ClientProviderHandlerRegistry providerHandlerRegistry,
+                             final Event<ProviderTypeSelectedEvent> providerTypeSelected,
+                             final Event<NotificationEvent> notification,
+                             final Event<AddNewRuntimeEvent> addNewRuntimeEvent) {
         this.view = view;
         this.providerService = providerService;
         this.runtimeService = runtimeService;
         this.providerStatusEmptyPresenter = providerStatusEmptyPresenter;
         this.providerStatusPresenter = providerStatusPresenter;
+        this.providerConfigEmptyPresenter = providerConfigEmptyPresenter;
+        this.providerHandlerRegistry = providerHandlerRegistry;
         this.notification = notification;
         this.providerTypeSelected = providerTypeSelected;
         this.addNewRuntimeEvent = addNewRuntimeEvent;
@@ -95,21 +110,21 @@ public class ProviderPresenter {
 
     @PostConstruct
     public void init() {
-        this.view.init( this );
+        this.view.init(this);
     }
 
-    public void onProviderSelected( @Observes final ProviderSelected providerSelected ) {
-        if ( providerSelected != null &&
-                providerSelected.getProviderKey() != null ) {
-            load( providerSelected.getProviderKey() );
+    public void onProviderSelected(@Observes final ProviderSelectedEvent providerSelectedEvent) {
+        if (providerSelectedEvent != null &&
+                providerSelectedEvent.getProviderKey() != null) {
+            load(providerSelectedEvent.getProviderKey());
         }
     }
 
-    public void onRefreshRuntime( @Observes RefreshRuntime refreshRuntime ) {
-        if ( refreshRuntime != null &&
+    public void onRefreshRuntime(@Observes RefreshRuntime refreshRuntime) {
+        if (refreshRuntime != null &&
                 refreshRuntime.getProviderKey() != null &&
-                refreshRuntime.getProviderKey().equals( provider.getKey() ) ) {
-            load( refreshRuntime.getProviderKey() );
+                refreshRuntime.getProviderKey().equals(provider.getKey())) {
+            load(refreshRuntime.getProviderKey());
         }
     }
 
@@ -124,43 +139,69 @@ public class ProviderPresenter {
 
     private RemoteCallback<Collection<RuntimeListItem>> getLoadItemsSuccessCallback() {
         return items -> {
-                view.setProviderName( provider.getKey().getId() );
-                if ( items.isEmpty() ) {
-                    providerStatusEmptyPresenter.setup( provider.getKey() );
-                    view.setStatus( providerStatusEmptyPresenter.getView() );
-                } else {
-                    providerStatusPresenter.setupItems( items );
-                    view.setStatus( providerStatusPresenter.getView() );
-                }
-                final FormProvider formProvider = FormResolver.getFormProvider( provider.getKey() );
-                formProvider.load( provider );
-                formProvider.disable();
-                view.setConfig( formProvider.getView() );
+            clearProviderConfigurationForm();
+            view.setProviderName(provider.getKey().getId());
+            if (items.isEmpty()) {
+                providerStatusEmptyPresenter.setup(provider.getKey());
+                view.setStatus(providerStatusEmptyPresenter.getView());
+            } else {
+                providerStatusPresenter.setupItems(items);
+                view.setStatus(providerStatusPresenter.getView());
+            }
+            final ProviderConfigurationForm providerConfigurationForm = newProviderConfigurationForm(provider.getKey().getProviderTypeKey());
+            providerConfigurationForm.load(provider);
+            providerConfigurationForm.disable();
+            view.setConfig(providerConfigurationForm.getView());
         };
     }
 
     public void refresh() {
-        load( provider.getKey() );
+        load(provider.getKey());
     }
 
     public void removeProvider() {
-        view.confirmRemove( () -> providerService.call( response -> {
-            notification.fire( new NotificationEvent( view.getRemoveProviderSuccessMessage(), NotificationEvent.NotificationType.SUCCESS ) );
+        view.confirmRemove(() -> providerService.call(response -> {
+                                                          notification.fire(new NotificationEvent(view.getRemoveProviderSuccessMessage(),
+                                                                                                  NotificationEvent.NotificationType.SUCCESS));
 
-            providerTypeSelected.fire( new ProviderTypeSelected( provider.getKey().getProviderTypeKey() ) );
-        }, ( o, throwable ) -> {
-            notification.fire( new NotificationEvent( view.getRemoveProviderErrorMessage(), NotificationEvent.NotificationType.ERROR ) );
-            providerTypeSelected.fire( new ProviderTypeSelected( provider.getKey().getProviderTypeKey() ) );
-            return false;
-        } ).deleteProvider( provider.getKey() ) );
+                                                          providerTypeSelected.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
+                                                      },
+                                                      (o, throwable) -> {
+                                                          notification.fire(new NotificationEvent(view.getRemoveProviderErrorMessage(),
+                                                                                                  NotificationEvent.NotificationType.ERROR));
+                                                          providerTypeSelected.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
+                                                          return false;
+                                                      }).deleteProvider(provider.getKey()));
     }
 
     public void deploy() {
-        addNewRuntimeEvent.fire( new AddNewRuntime( provider ) );
+        addNewRuntimeEvent.fire(new AddNewRuntimeEvent(provider));
     }
 
     public IsElement getView() {
         return view;
     }
 
+    private ProviderConfigurationForm newProviderConfigurationForm(ProviderTypeKey providerTypeKey) {
+        if (providerHandlerRegistry.isProviderEnabled(providerTypeKey)) {
+            final FormResolver formResolver = providerHandlerRegistry.getProviderHandler(providerTypeKey).getFormResolver();
+            final ProviderConfigurationForm providerConfigurationForm = formResolver.newProviderConfigurationForm();
+            providerConfigurationForms.add(providerConfigurationForm);
+            formFormResolverMap.put(providerConfigurationForm,
+                                    formResolver);
+            return providerConfigurationForm;
+        } else {
+            return providerConfigEmptyPresenter;
+        }
+    }
+
+    private void clearProviderConfigurationForm() {
+        providerConfigurationForms.forEach(form -> {
+            if (formFormResolverMap.containsKey(form)) {
+                formFormResolverMap.get(form).destroyForm(form);
+            }
+        });
+        providerConfigurationForms.clear();
+        formFormResolverMap.clear();
+    }
 }

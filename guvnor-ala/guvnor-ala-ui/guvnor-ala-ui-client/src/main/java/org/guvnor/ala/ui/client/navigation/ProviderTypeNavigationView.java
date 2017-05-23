@@ -24,20 +24,20 @@ import javax.inject.Inject;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
 import org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants;
+import org.guvnor.ala.ui.client.widget.CustomGroupItem;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.jboss.errai.common.client.dom.Div;
+import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
-import org.jboss.errai.ui.shared.api.annotations.SinkNative;
+import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.guvnor.ala.ui.client.widget.CustomGroupItem;
 import org.uberfire.mvp.Command;
 
-import static org.jboss.errai.common.client.dom.DOMUtil.*;
+import static org.jboss.errai.common.client.dom.DOMUtil.removeAllChildren;
 
 @Dependent
 @Templated
@@ -49,7 +49,7 @@ public class ProviderTypeNavigationView implements IsElement,
     private TranslationService translationService;
 
     @DataField
-    private Element title = DOM.createElement( "strong" );
+    private Element title = DOM.createElement("strong");
 
     @Inject
     @DataField("provider-type-list-group")
@@ -60,64 +60,63 @@ public class ProviderTypeNavigationView implements IsElement,
     private CustomGroupItem selected = null;
 
     @Inject
-    public ProviderTypeNavigationView( final TranslationService translationService ) {
+    public ProviderTypeNavigationView(final TranslationService translationService) {
         super();
         this.translationService = translationService;
     }
 
     @Override
-    public void init( final ProviderTypeNavigationPresenter presenter ) {
+    public void init(final ProviderTypeNavigationPresenter presenter) {
         this.presenter = presenter;
     }
 
     @PostConstruct
     public void init() {
-        title.setInnerText( getTitleText() );
+        title.setInnerText(getTitleText());
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("enable-provider-type-button")
-    public void addProviderType( final Event event ) {
+    public void onAddProviderType(@ForEvent("click") final Event event) {
         presenter.newProviderType();
     }
 
-    @SinkNative(Event.ONCLICK)
     @EventHandler("refresh-provider-type-list-icon")
-    public void refresh( final Event event ) {
+    public void onRefresh(@ForEvent("click") final Event event) {
         presenter.refresh();
     }
 
     @Override
-    public void addProviderType( final String id,
-                                 final String name,
-                                 final Command select ) {
-        final CustomGroupItem providerTypeItem = CustomGroupItem.createAnchor( name,
-                                                                       IconType.FOLDER_O,
-                                                                       select );
+    public void addProviderType(final String id,
+                                final String name,
+                                final Command select) {
+        final CustomGroupItem providerTypeItem = CustomGroupItem.createAnchor(name,
+                                                                              IconType.FOLDER_O,
+                                                                              select);
 
-        idItem.put( id, providerTypeItem );
+        idItem.put(id,
+                   providerTypeItem);
 
-        providerTypeItems.appendChild( providerTypeItem );
+        providerTypeItems.appendChild(providerTypeItem);
     }
 
     @Override
-    public void select( final String id ) {
-        if ( selected != null ) {
-            selected.setActive( false );
-            selected.getClassList().remove( "active" );
+    public void select(final String id) {
+        if (selected != null) {
+            selected.setActive(false);
+            selected.getClassList().remove("active");
         }
-        selected = idItem.get( id );
-        selected.setActive( true );
+        selected = idItem.get(id);
+        selected.setActive(true);
     }
 
     @Override
     public void clean() {
-        removeAllChildren( providerTypeItems );
+        removeAllChildren(providerTypeItems);
         selected = null;
-        removeAllChildren( providerTypeItems );
+        removeAllChildren(providerTypeItems);
     }
 
     private String getTitleText() {
-        return translationService.format( GuvnorAlaUIConstants.ProviderTypeNavigationView_TitleText );
+        return translationService.format(GuvnorAlaUIConstants.ProviderTypeNavigationView_TitleText);
     }
 }

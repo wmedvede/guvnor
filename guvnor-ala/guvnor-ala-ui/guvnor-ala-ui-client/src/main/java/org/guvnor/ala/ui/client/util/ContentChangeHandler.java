@@ -18,5 +18,5 @@ package org.guvnor.ala.ui.client.util;
 
 public interface ContentChangeHandler {
 
-    void onContentChange( );
+    void onContentChange();
 }

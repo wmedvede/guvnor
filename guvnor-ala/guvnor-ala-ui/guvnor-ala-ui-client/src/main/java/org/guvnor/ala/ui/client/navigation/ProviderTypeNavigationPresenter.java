@@ -25,9 +25,9 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.AddNewProviderType;
-import org.guvnor.ala.ui.client.events.ProviderTypeListRefresh;
-import org.guvnor.ala.ui.client.events.ProviderTypeSelected;
+import org.guvnor.ala.ui.client.events.AddNewProviderTypeEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
+import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.slf4j.Logger;
 import org.uberfire.client.mvp.UberElement;
@@ -52,18 +52,18 @@ public class ProviderTypeNavigationPresenter {
     private final Logger logger;
     private final View view;
 
-    private final Event<AddNewProviderType > addNewProviderTypeEvent;
-    private final Event<ProviderTypeListRefresh > providerTypeListRefreshEvent;
-    private final Event<ProviderTypeSelected > providerTypeSelectedEvent;
+    private final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
+    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
+    private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
     private Set<ProviderType > providerTypes = new HashSet<>();
 
     @Inject
     public ProviderTypeNavigationPresenter( final Logger logger,
                                             final View view,
-                                            final Event<AddNewProviderType> addNewProviderTypeEvent,
-                                            final Event<ProviderTypeListRefresh> providerTypeListRefreshEvent,
-                                            final Event<ProviderTypeSelected> providerTypeSelectedEvent ) {
+                                            final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent,
+                                            final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
+                                            final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent ) {
         this.logger = logger;
         this.view = view;
         this.addNewProviderTypeEvent = addNewProviderTypeEvent;
@@ -98,18 +98,18 @@ public class ProviderTypeNavigationPresenter {
         this.view.addProviderType( providerType.getKey().getId(), providerType.getName(), () -> select( providerType ) );
     }
 
-    public void onSelect( @Observes final ProviderTypeSelected providerTypeSelected ) {
-        if ( providerTypeSelected != null &&
-                providerTypeSelected.getProviderTypeKey() != null &&
-                providerTypeSelected.getProviderTypeKey().getId() != null ) {
-            view.select( providerTypeSelected.getProviderTypeKey().getId() );
+    public void onSelect( @Observes final ProviderTypeSelectedEvent providerTypeSelectedEvent) {
+        if ( providerTypeSelectedEvent != null &&
+                providerTypeSelectedEvent.getProviderTypeKey() != null &&
+                providerTypeSelectedEvent.getProviderTypeKey().getId() != null ) {
+            view.select(providerTypeSelectedEvent.getProviderTypeKey().getId() );
         } else {
             logger.warn( "Illegal event argument." );
         }
     }
 
     public void select( final ProviderType providerType ) {
-        providerTypeSelectedEvent.fire( new ProviderTypeSelected( providerType.getKey() ) );
+        providerTypeSelectedEvent.fire( new ProviderTypeSelectedEvent(providerType.getKey() ) );
     }
 
     public void clear() {
@@ -117,11 +117,11 @@ public class ProviderTypeNavigationPresenter {
     }
 
     public void refresh() {
-        providerTypeListRefreshEvent.fire( new ProviderTypeListRefresh() );
+        providerTypeListRefreshEvent.fire( new ProviderTypeListRefreshEvent() );
     }
 
     public void newProviderType() {
-        addNewProviderTypeEvent.fire( new AddNewProviderType() );
+        addNewProviderTypeEvent.fire( new AddNewProviderTypeEvent() );
     }
 
 }

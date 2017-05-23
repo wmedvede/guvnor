@@ -28,7 +28,7 @@ public class RuntimeStatusChange {
 
     }
 
-    public RuntimeStatusChange( final Runtime runtime ) {
+    public RuntimeStatusChange(final Runtime runtime) {
         this.runtime = runtime;
     }
 
