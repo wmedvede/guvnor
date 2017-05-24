@@ -23,6 +23,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.handler.AbstractProviderHandlerRegistry;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 
 @ApplicationScoped
 public class BackendProviderHandlerRegistry
@@ -40,5 +41,13 @@ public class BackendProviderHandlerRegistry
     @PostConstruct
     protected void setUp() {
         super.setUp();
+    }
+
+    public BackendProviderHandler ensureHandler(ProviderTypeKey providerTypeKey) {
+        final BackendProviderHandler handler = getProviderHandler(providerTypeKey);
+        if (handler == null) {
+            throw new RuntimeException("BackendProviderHandler was not found for providerTypeKey: " + providerTypeKey);
+        }
+        return handler;
     }
 }

@@ -20,7 +20,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.jboss.errai.common.client.api.IsElement;
@@ -31,16 +30,11 @@ import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 
 public class ProviderConfigurationPagePresenter
-        extends AbstractHasContentChangeHandlers
         implements WizardPage {
 
     public interface View extends UberElement<ProviderConfigurationPagePresenter> {
 
         void setForm(final IsElement element);
-
-        String getNewProviderCreateErrorMessage();
-
-        String getNewProviderCreateSuccessMessage();
     }
 
     private final View view;
@@ -56,7 +50,7 @@ public class ProviderConfigurationPagePresenter
         this.view.init(this);
     }
 
-    public void setFormProvider(final ProviderConfigurationForm providerConfigurationForm) {
+    public void setProviderConfigurationForm(final ProviderConfigurationForm providerConfigurationForm) {
         this.providerConfigurationForm = providerConfigurationForm;
         this.view.setForm(providerConfigurationForm.getView());
         providerConfigurationForm.addContentChangeHandler(this::onContentChanged);
@@ -96,16 +90,7 @@ public class ProviderConfigurationPagePresenter
         return providerConfigurationForm.buildProviderConfiguration();
     }
 
-    public String getNewProviderWizardSuccessMessage() {
-        return view.getNewProviderCreateSuccessMessage();
-    }
-
-    public String getNewPoviderWizardCreateErrorMessage() {
-        return view.getNewProviderCreateErrorMessage();
-    }
-
     private void onContentChanged() {
-        fireChangeHandlers();
         wizardPageStatusChangeEvent.fire(new WizardPageStatusChangeEvent(ProviderConfigurationPagePresenter.this));
     }
 }

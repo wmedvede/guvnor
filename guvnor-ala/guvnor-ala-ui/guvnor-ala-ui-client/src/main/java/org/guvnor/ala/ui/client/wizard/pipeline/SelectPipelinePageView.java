@@ -21,43 +21,48 @@ import javax.inject.Inject;
 
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.ui.client.local.api.IsElement;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SelectPipelinePageView_title;
 import static org.jboss.errai.common.client.dom.DOMUtil.*;
 
 @Dependent
 @Templated
-public class PipelineView implements IsElement,
-                                     PipelinePresenter.View {
+public class SelectPipelinePageView
+        implements IsElement,
+                   SelectPipelinePagePresenter.View {
 
-    private PipelinePresenter presenter;
+    private SelectPipelinePagePresenter presenter;
 
     @Inject
     @DataField
-    Div container;
+    private Div container;
+
+    @Inject
+    private TranslationService translationService;
+
+    public SelectPipelinePageView() {
+    }
 
     @Override
-    public void init( final PipelinePresenter presenter ) {
+    public void init(final SelectPipelinePagePresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
     public void clear() {
-        for ( int i = 0; i < container.getChildNodes().getLength(); i++ ) {
-            container.removeChild( container.getChildNodes().item( i ) );
-        }
-        removeAllChildren( container );
+        removeAllChildren(container);
     }
 
     @Override
-    public void addPipelineItem( final org.jboss.errai.common.client.api.IsElement element ) {
-        container.appendChild( element.getElement() );
+    public void addPipelineItem(final org.jboss.errai.common.client.api.IsElement element) {
+        container.appendChild(element.getElement());
     }
 
     @Override
-    public String getWizardTitle() {
-        return "Select Pipeline";
+    public String getTitle() {
+        return translationService.getTranslation(SelectPipelinePageView_title);
     }
-
 }

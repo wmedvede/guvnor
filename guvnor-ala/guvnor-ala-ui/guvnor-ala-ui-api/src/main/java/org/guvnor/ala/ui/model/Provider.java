@@ -16,9 +16,6 @@
 
 package org.guvnor.ala.ui.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
@@ -26,41 +23,15 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 public class Provider
         extends AbstractHasKeyObject<ProviderKey> {
 
-    private Map values = new HashMap();
+    private ProviderConfiguration configuration;
 
     public Provider(@MapsTo("key") final ProviderKey key,
-                    @MapsTo("values") final Map values) {
+                    @MapsTo("configuration") final ProviderConfiguration configuration) {
         super(key);
-        this.values = values;
+        this.configuration = configuration;
     }
 
-    public Map getValues() {
-        return values;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        Provider provider = (Provider) o;
-
-        return values != null ? values.equals(provider.values) : provider.values == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = ~~result;
-        result = 31 * result + (values != null ? values.hashCode() : 0);
-        result = ~~result;
-        return result;
+    public ProviderConfiguration getConfiguration() {
+        return configuration;
     }
 }

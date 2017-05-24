@@ -32,14 +32,10 @@ public class ProviderType
 
     private String name;
 
-    private String imageURL;
-
     public ProviderType(@MapsTo("key") ProviderTypeKey key,
-                        @MapsTo("name") String name,
-                        @MapsTo("imageURL") String imageURL) {
+                        @MapsTo("name") String name) {
         super(key);
         this.name = name;
-        this.imageURL = imageURL;
     }
 
     public String getName() {
@@ -48,14 +44,6 @@ public class ProviderType
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getImageURL() {
-        return imageURL;
-    }
-
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
     }
 
     @Override
@@ -72,10 +60,7 @@ public class ProviderType
 
         ProviderType that = (ProviderType) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        return imageURL != null ? imageURL.equals(that.imageURL) : that.imageURL == null;
+        return name != null ? name.equals(that.name) : that.name == null;
     }
 
     @Override
@@ -83,8 +68,6 @@ public class ProviderType
         int result = super.hashCode();
         result = ~~result;
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = ~~result;
-        result = 31 * result + (imageURL != null ? imageURL.hashCode() : 0);
         result = ~~result;
         return result;
     }

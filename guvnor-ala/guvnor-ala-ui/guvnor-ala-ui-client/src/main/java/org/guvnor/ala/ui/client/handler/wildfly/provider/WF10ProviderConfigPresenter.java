@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.wildfly.provider;
+package org.guvnor.ala.ui.client.handler.wildfly.provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -129,7 +129,6 @@ public class WF10ProviderConfigPresenter
         values.put(PASSWORD,
                    getPassword());
         return new ProviderConfiguration(getName(),
-                                         getName(),
                                          values);
     }
 
@@ -267,13 +266,13 @@ public class WF10ProviderConfigPresenter
     @Override
     public void load(final Provider provider) {
         view.setContent(provider.getKey().getId(),
-                        getStringValue(provider.getValues(),
+                        getStringValue(provider.getConfiguration().getValues(),
                                        HOST),
-                        getStringValue(provider.getValues(),
+                        getStringValue(provider.getConfiguration().getValues(),
                                        PORT),
-                        getStringValue(provider.getValues(),
+                        getStringValue(provider.getConfiguration().getValues(),
                                        MANAGEMENT_PORT),
-                        getStringValue(provider.getValues(),
+                        getStringValue(provider.getConfiguration().getValues(),
                                        USER),
                         "****");
     }

@@ -35,13 +35,13 @@ public class PipelineItemPresenter {
 
     public interface View extends UberElement<PipelineItemPresenter> {
 
-        boolean isSelected( );
+        boolean isSelected();
 
-        void unSelect( );
+        void unSelect();
 
-        void addContentChangeHandler( final ContentChangeHandler contentChangeHandler );
+        void addContentChangeHandler(final ContentChangeHandler contentChangeHandler);
 
-        void setPipelineName( String name );
+        void setPipelineName(String name);
     }
 
     private final View view;
@@ -52,21 +52,22 @@ public class PipelineItemPresenter {
     private String pipeline;
 
     @Inject
-    public PipelineItemPresenter( final View view,
-                                  final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent ) {
+    public PipelineItemPresenter(final View view,
+                                 final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent) {
         this.view = view;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
     }
 
     @PostConstruct
     public void init() {
-        this.view.init( this );
+        this.view.init(this);
     }
 
-    public void addContentChangeHandler( final ContentChangeHandler contentChangeHandler ) {
-        this.changeHandler = checkNotNull( "contentChangeHandler", contentChangeHandler );
-        if ( view != null ) {
-            view.addContentChangeHandler( changeHandler );
+    public void addContentChangeHandler(final ContentChangeHandler contentChangeHandler) {
+        this.changeHandler = checkNotNull("contentChangeHandler",
+                                          contentChangeHandler);
+        if (view != null) {
+            view.addContentChangeHandler(changeHandler);
         }
     }
 
@@ -74,13 +75,13 @@ public class PipelineItemPresenter {
         return pipeline;
     }
 
-    public void setup( final String pipeline ) {
+    public void setup(final String pipeline) {
         this.pipeline = pipeline;
-        view.setPipelineName( pipeline );
+        view.setPipelineName(pipeline);
     }
 
     public void unselectOthers() {
-        for ( PipelineItemPresenter other : others ) {
+        for (PipelineItemPresenter other : others) {
             other.unSelect();
         }
     }
@@ -89,10 +90,10 @@ public class PipelineItemPresenter {
         view.unSelect();
     }
 
-    public void addOthers( final Collection<PipelineItemPresenter> pipelineItemPresenters ) {
-        for ( PipelineItemPresenter other : pipelineItemPresenters ) {
-            if ( !other.equals( this ) ) {
-                others.add( other );
+    public void addOthers(final Collection<PipelineItemPresenter> pipelineItemPresenters) {
+        for (PipelineItemPresenter other : pipelineItemPresenters) {
+            if (!other.equals(this)) {
+                others.add(other);
             }
         }
     }

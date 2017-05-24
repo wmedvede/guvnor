@@ -18,12 +18,12 @@ package org.guvnor.ala.ui.client.wizard.providertype;
 
 import java.util.Collection;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
-import org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants;
 import org.guvnor.ala.ui.client.wizard.AbstractMultiPageWizard;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
@@ -32,13 +32,17 @@ import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.uberfire.workbench.events.NotificationEvent;
 
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableErrorMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_title;
+
 @ApplicationScoped
 public class EnableProviderTypeWizard
         extends AbstractMultiPageWizard {
 
-    private EnableProviderTypePagePresenter enableProviderTypePagePresenter;
+    private EnableProviderTypePagePresenter enableProviderTypePage;
     private Caller<ProviderTypeService> providerTypeService;
-    private Event<ProviderTypeListRefreshEvent> providerTypeListRefresh;
+    private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
 
     public EnableProviderTypeWizard() {
     }
@@ -48,30 +52,27 @@ public class EnableProviderTypeWizard
                                     final TranslationService translationService,
                                     final Caller<ProviderTypeService> providerTypeService,
                                     final Event<NotificationEvent> notification,
-                                    final Event<ProviderTypeListRefreshEvent> providerTypeListRefresh) {
+                                    final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent) {
         super(translationService,
               notification);
-        this.enableProviderTypePagePresenter = enableProviderTypePage;
+        this.enableProviderTypePage = enableProviderTypePage;
         this.providerTypeService = providerTypeService;
         this.notification = notification;
-        this.providerTypeListRefresh = providerTypeListRefresh;
+        this.providerTypeListRefreshEvent = providerTypeListRefreshEvent;
     }
 
-    @Override
-    public void start() {
-        enableProviderTypePagePresenter.initialise();
-        super.start();
+    @PostConstruct
+    private void init() {
+        pages.add(enableProviderTypePage);
     }
 
     public void setup(final Map<ProviderType, ProviderTypeStatus> providerTypeStatus) {
-        enableProviderTypePagePresenter.setup(providerTypeStatus);
-        pages.clear();
-        pages.add(enableProviderTypePagePresenter);
+        enableProviderTypePage.setup(providerTypeStatus);
     }
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(GuvnorAlaUIConstants.EnableProviderTypeWizard_title);
+        return translationService.getTranslation(EnableProviderTypeWizard_title);
     }
 
     @Override
@@ -85,30 +86,24 @@ public class EnableProviderTypeWizard
     }
 
     @Override
-    public void close() {
-        super.close();
-    }
-
-    @Override
     public void complete() {
-        final Collection<ProviderType> providerTypes = enableProviderTypePagePresenter.getSelectedProviderTypes();
+        final Collection<ProviderType> providerTypes = enableProviderTypePage.getSelectedProviderTypes();
 
         providerTypeService.call((Void aVoid) -> onEnableTypesSuccess(providerTypes),
                                  (message, throwable) -> onEnableTypesError()).enableProviderTypes(providerTypes);
     }
 
     private void onEnableTypesSuccess(final Collection<ProviderType> providerTypes) {
-        notification.fire(new NotificationEvent(enableProviderTypePagePresenter.getEnableProviderTypeWizardSuccessMessage(),
+        notification.fire(new NotificationEvent(translationService.getTranslation(EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage),
                                                 NotificationEvent.NotificationType.SUCCESS));
         EnableProviderTypeWizard.super.complete();
-        providerTypeListRefresh.fire(new ProviderTypeListRefreshEvent(providerTypes.iterator().next().getKey()));
+        providerTypeListRefreshEvent.fire(new ProviderTypeListRefreshEvent(providerTypes.iterator().next().getKey()));
     }
 
     private boolean onEnableTypesError() {
-        notification.fire(new NotificationEvent(enableProviderTypePagePresenter.getEnableProviderTypeWizardErrorMessage(),
+        notification.fire(new NotificationEvent(translationService.getTranslation(EnableProviderTypeWizard_ProviderTypeEnableErrorMessage),
                                                 NotificationEvent.NotificationType.ERROR));
-        EnableProviderTypeWizard.this.pageSelected(0);
-        EnableProviderTypeWizard.this.start();
+        start();
         return false;
     }
 }

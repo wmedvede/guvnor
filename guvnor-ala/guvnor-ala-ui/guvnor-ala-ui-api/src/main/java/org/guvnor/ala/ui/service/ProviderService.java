@@ -32,8 +32,7 @@ public interface ProviderService {
     Collection<ProviderKey> getProvidersKey(final ProviderType providerType);
 
     boolean isValidProvider(final ProviderType providerType,
-                            final String id,
-                            final String name);
+                            final String id);
 
     void createProvider(final ProviderType providerType,
                         final ProviderConfiguration configuration);

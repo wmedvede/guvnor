@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.wildfly;
+package org.guvnor.ala.ui.client.handler.ose;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -25,13 +25,15 @@ import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
 @ApplicationScoped
-public class WildflyProviderHandler
+public class OSEProviderHandler
         implements ClientProviderHandler {
 
-    private WildflyFormResolver formResolver;
+    private static final String PROVIDER_TYPE_ICON_URL = "images/provider-icon-ose.png";
+
+    private OSEFormResolver formResolver;
 
     @Inject
-    public WildflyProviderHandler(WildflyFormResolver formResolver) {
+    public OSEProviderHandler(OSEFormResolver formResolver) {
         this.formResolver = formResolver;
     }
 
@@ -42,11 +44,16 @@ public class WildflyProviderHandler
 
     @Override
     public boolean acceptProviderType(ProviderTypeKey providerTypeKey) {
-        return providerTypeKey != null && ProviderType.WILDFY_PROVIDER_TYPE.equals(providerTypeKey.getId());
+        return providerTypeKey != null && ProviderType.OPEN_SHIFT_PROVIDER_TYPE.equals(providerTypeKey.getId());
     }
 
     @Override
     public FormResolver getFormResolver() {
         return formResolver;
+    }
+
+    @Override
+    public String getProviderTypeImageURL() {
+        return PROVIDER_TYPE_ICON_URL;
     }
 }

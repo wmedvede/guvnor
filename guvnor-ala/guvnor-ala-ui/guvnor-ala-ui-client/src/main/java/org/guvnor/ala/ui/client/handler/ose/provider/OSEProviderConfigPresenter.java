@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.ose.provider;
+package org.guvnor.ala.ui.client.handler.ose.provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +23,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
-import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.util.HasContentChangeHandlers;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
@@ -101,7 +100,6 @@ public class OSEProviderConfigPresenter
         values.put("password",
                    getPassword());
         return new ProviderConfiguration(getName(),
-                                         getName(),
                                          values);
     }
 
@@ -195,8 +193,8 @@ public class OSEProviderConfigPresenter
     @Override
     public void load(final Provider provider) {
         view.setContent(provider.getKey().getId(),
-                        provider.getValues().get("master-url").toString(),
-                        provider.getValues().get("username").toString(),
+                        provider.getConfiguration().getValues().get("master-url").toString(),
+                        provider.getConfiguration().getValues().get("username").toString(),
                         "***");
     }
 

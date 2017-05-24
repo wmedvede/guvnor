@@ -429,7 +429,7 @@ public class RuntimeServiceImpl
         input.put(WF10ProviderConfigParams.MANAGEMENT_REALM,
                   "ManagementRealm");
         putAsStrings(input,
-                     provider.getValues());
+                     provider.getConfiguration().getValues());
 
         input.put("repo-name",
                   ((InternalGitSource) source).getRepository());

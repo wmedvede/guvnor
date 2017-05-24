@@ -52,7 +52,7 @@ public class WildflyProviderConfigConverter
             return null;
         }
 
-        return new WildflyProviderConfigImpl(modelValue.getName(),
+        return new WildflyProviderConfigImpl(modelValue.getId(),
                                              getStringValue(modelValue.getValues(),
                                                             WF10ProviderConfigParams.HOST),
                                              getStringValue(modelValue.getValues(),
@@ -71,7 +71,7 @@ public class WildflyProviderConfigConverter
             return null;
         }
 
-        final Map<String, String> values = new HashMap<>();
+        final Map<String, Object> values = new HashMap<>();
         values.put(WF10ProviderConfigParams.PROVIDER_NAME,
                    domainValue.getName());
         values.put(WF10ProviderConfigParams.HOST,
@@ -85,7 +85,6 @@ public class WildflyProviderConfigConverter
         values.put(WF10ProviderConfigParams.PASSWORD,
                    domainValue.getPassword());
         return new ProviderConfiguration(domainValue.getName(),
-                                         domainValue.getName(),
                                          values);
     }
 }

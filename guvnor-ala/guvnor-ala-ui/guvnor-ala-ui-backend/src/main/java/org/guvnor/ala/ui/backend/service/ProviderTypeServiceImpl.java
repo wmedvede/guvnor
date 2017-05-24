@@ -28,9 +28,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
-import org.guvnor.ala.ui.backend.service.util.ProviderTypeServiceHelper;
-import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.jboss.errai.bus.server.annotations.Service;
@@ -40,9 +39,9 @@ import org.jboss.errai.bus.server.annotations.Service;
 public class ProviderTypeServiceImpl
         implements ProviderTypeService {
 
+    //TODO, remove this temporal provider type definition.
     private static final ProviderType OSE = new ProviderType(new ProviderTypeKey(ProviderType.OPEN_SHIFT_PROVIDER_TYPE),
-                                                             "OpenShift",
-                                                             "images/ose.png");
+                                                             "OpenShift");
 
     private Map<String, ProviderType> allProviders = new HashMap<>();
 
@@ -50,23 +49,18 @@ public class ProviderTypeServiceImpl
 
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
 
-    private ProviderTypeServiceHelper serviceHelper;
-
     public ProviderTypeServiceImpl() {
         //Empty constructor for Weld proxying
     }
 
     @Inject
-    public ProviderTypeServiceImpl(RuntimeProvisioningServiceBackend runtimeProvisioningService,
-                                   ProviderTypeServiceHelper serviceHelper) {
+    public ProviderTypeServiceImpl(RuntimeProvisioningServiceBackend runtimeProvisioningService) {
         this.runtimeProvisioningService = runtimeProvisioningService;
-        this.serviceHelper = serviceHelper;
     }
 
     @PostConstruct
     private void init() {
-        getAvialableProviderTypes()
-                .stream()
+        getAvialableProviderTypes().stream()
                 .forEach(providerType -> allProviders.put(providerType.getKey().getId(),
                                                           providerType));
         //TODO The open shift provider don't exists, let's add it manually
@@ -85,11 +79,8 @@ public class ProviderTypeServiceImpl
 
         if (providers != null) {
             for (org.guvnor.ala.runtime.providers.ProviderType provider : providers) {
-                ProviderTypeKey providerTypeKey = new ProviderTypeKey(provider.getProviderTypeName());
-                String icon = serviceHelper.getProviderTypeIcon(providerTypeKey);
                 result.add(new ProviderType(new ProviderTypeKey(provider.getProviderTypeName()),
-                                            provider.getProviderTypeName(),
-                                            icon));
+                                            provider.getProviderTypeName()));
             }
         }
         return result;

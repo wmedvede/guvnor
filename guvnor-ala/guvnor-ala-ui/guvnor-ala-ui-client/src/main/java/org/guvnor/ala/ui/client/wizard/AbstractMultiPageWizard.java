@@ -32,8 +32,6 @@ public abstract class AbstractMultiPageWizard extends AbstractWizard {
 
     protected final ArrayList<WizardPage> pages = new ArrayList<>();
 
-    private int selectedPage = 0;
-
     protected TranslationService translationService;
 
     protected Event<NotificationEvent> notification;
@@ -48,24 +46,24 @@ public abstract class AbstractMultiPageWizard extends AbstractWizard {
     }
 
     @Override
-    public void isComplete( final Callback<Boolean> callback ) {
-        final int[] unCompletedPages = { this.pages.size() };
+    public void isComplete(final Callback<Boolean> callback) {
+        final int[] unCompletedPages = {this.pages.size()};
 
         //only when all pages are complete we can say the wizard is complete.
-        for ( WizardPage page : this.pages ) {
-            page.isComplete( new Callback<Boolean>() {
+        for (WizardPage page : this.pages) {
+            page.isComplete(new Callback<Boolean>() {
                 @Override
-                public void callback( final Boolean result ) {
-                    if ( Boolean.TRUE.equals( result ) ) {
-                        unCompletedPages[ 0 ]--;
-                        if ( unCompletedPages[ 0 ] == 0 ) {
-                            callback.callback( true );
+                public void callback(final Boolean result) {
+                    if (Boolean.TRUE.equals(result)) {
+                        unCompletedPages[0]--;
+                        if (unCompletedPages[0] == 0) {
+                            callback.callback(true);
                         }
                     } else {
-                        callback.callback( false );
+                        callback.callback(false);
                     }
                 }
-            } );
+            });
         }
     }
 
@@ -75,18 +73,7 @@ public abstract class AbstractMultiPageWizard extends AbstractWizard {
     }
 
     @Override
-    public Widget getPageWidget( final int pageNumber ) {
-        return pages.get( pageNumber ).asWidget();
+    public Widget getPageWidget(final int pageNumber) {
+        return pages.get(pageNumber).asWidget();
     }
-
-    @Override
-    public void pageSelected( final int pageNumber ) {
-        this.selectedPage = pageNumber;
-        super.pageSelected( pageNumber );
-    }
-
-    public int getSelectedPage() {
-        return selectedPage;
-    }
-
 }

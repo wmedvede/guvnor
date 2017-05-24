@@ -25,9 +25,7 @@ import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderFormPageView_ProviderCreateErrorMessage;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderFormPageView_ProviderCreateSuccessMessage;
-import static org.jboss.errai.common.client.dom.DOMUtil.*;
+import static org.jboss.errai.common.client.dom.DOMUtil.removeAllChildren;
 
 @Dependent
 @Templated
@@ -56,15 +54,5 @@ public class ProviderConfigurationPageView
     public void setForm(final org.jboss.errai.common.client.api.IsElement element) {
         removeAllChildren(content);
         content.appendChild(element.getElement());
-    }
-
-    @Override
-    public String getNewProviderCreateErrorMessage() {
-        return translationService.getTranslation(NewProviderFormPageView_ProviderCreateErrorMessage);
-    }
-
-    @Override
-    public String getNewProviderCreateSuccessMessage() {
-        return translationService.getTranslation(NewProviderFormPageView_ProviderCreateSuccessMessage);
     }
 }

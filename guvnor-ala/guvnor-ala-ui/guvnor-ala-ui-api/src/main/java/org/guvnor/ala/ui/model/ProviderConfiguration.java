@@ -27,15 +27,11 @@ public class ProviderConfiguration {
 
     private String id;
 
-    private String name;
-
-    private final Map values = new HashMap<>();
+    private final Map<String, Object> values = new HashMap<>();
 
     public ProviderConfiguration(@MapsTo("id") final String id,
-                                 @MapsTo("name") final String name,
-                                 @MapsTo("values") final Map values) {
+                                 @MapsTo("values") final Map<String, Object> values) {
         this.id = id;
-        this.name = name;
         this.values.putAll(values);
     }
 
@@ -47,15 +43,7 @@ public class ProviderConfiguration {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Map<?, ?> getValues() {
+    public Map<String, Object> getValues() {
         return values;
     }
 }

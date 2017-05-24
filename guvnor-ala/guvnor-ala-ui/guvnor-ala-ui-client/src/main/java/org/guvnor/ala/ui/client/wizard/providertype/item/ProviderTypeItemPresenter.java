@@ -16,13 +16,16 @@
 
 package org.guvnor.ala.ui.client.wizard.providertype.item;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.guvnor.ala.ui.client.handler.ClientProviderHandler;
+import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
-import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.util.HasContentChangeHandlers;
 import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
@@ -30,6 +33,8 @@ import org.uberfire.client.mvp.UberElement;
 @Dependent
 public class ProviderTypeItemPresenter
         extends AbstractHasContentChangeHandlers {
+
+    private static final String DEFAULT_PROVIDER_TYPE_ICON_URL = "images/provider-icon-default.png";
 
     public interface View
             extends UberElement<ProviderTypeItemPresenter>,
@@ -46,24 +51,26 @@ public class ProviderTypeItemPresenter
 
     private final View view;
     private ProviderType type;
+    private ClientProviderHandlerRegistry handlerRegistry;
 
     @Inject
-    public ProviderTypeItemPresenter(final View view) {
+    public ProviderTypeItemPresenter(final View view,
+                                     final ClientProviderHandlerRegistry handlerRegistry) {
         this.view = view;
+        this.handlerRegistry = handlerRegistry;
         this.view.init(this);
     }
 
-    @Override
-    public void addContentChangeHandler(final ContentChangeHandler changeHandler) {
-        super.addContentChangeHandler(changeHandler);
-        view.addContentChangeHandler(changeHandler);
+    @PostConstruct
+    void setUp() {
+        view.addContentChangeHandler(this::fireChangeHandlers);
     }
 
     public void setup(final ProviderType type,
                       final ProviderTypeStatus status) {
         this.type = type;
         view.setProviderTypeName(type.getName());
-        view.setImage(type.getImageURL());
+        view.setImage(getImageURL(type.getKey()));
         if (status.equals(ProviderTypeStatus.ENABLED)) {
             view.disable();
         }
@@ -79,5 +86,14 @@ public class ProviderTypeItemPresenter
 
     public IsElement getView() {
         return view;
+    }
+
+    private String getImageURL(ProviderTypeKey providerTypeKey) {
+        final ClientProviderHandler handler = handlerRegistry.getProviderHandler(providerTypeKey);
+        String imageURL = null;
+        if (handler != null) {
+            imageURL = handler.getProviderTypeImageURL();
+        }
+        return imageURL != null ? imageURL : DEFAULT_PROVIDER_TYPE_ICON_URL;
     }
 }

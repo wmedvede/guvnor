@@ -25,10 +25,8 @@ import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeView_ProviderTypeEnableErrorMessage;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeView_ProviderTypeEnablePageTitle;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeView_ProviderTypeEnableSuccessMessage;
-import static org.jboss.errai.common.client.dom.DOMUtil.*;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypePageView_title;
+import static org.jboss.errai.common.client.dom.DOMUtil.removeAllChildren;
 
 @Dependent
 @Templated
@@ -65,16 +63,6 @@ public class EnableProviderTypePageView
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(EnableProviderTypeView_ProviderTypeEnablePageTitle);
-    }
-
-    @Override
-    public String getEnableProviderTypeErrorMessage() {
-        return translationService.getTranslation(EnableProviderTypeView_ProviderTypeEnableErrorMessage);
-    }
-
-    @Override
-    public String getEnableProviderTypeSuccessMessage() {
-        return translationService.getTranslation(EnableProviderTypeView_ProviderTypeEnableSuccessMessage);
+        return translationService.getTranslation(EnableProviderTypePageView_title);
     }
 }

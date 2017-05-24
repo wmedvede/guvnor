@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.ose;
+package org.guvnor.ala.ui.client.handler.wildfly;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.handler.FormResolver;
-import org.guvnor.ala.ui.client.ose.provider.OSEProviderConfigPresenter;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
+import org.guvnor.ala.ui.client.handler.wildfly.provider.WF10ProviderConfigPresenter;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 
 @ApplicationScoped
-public class OSEFormResolver
+public class WildflyFormResolver
         implements FormResolver {
 
-    private ManagedInstance<OSEProviderConfigPresenter> providerConfigPresenters;
+    private ManagedInstance<WF10ProviderConfigPresenter> providerConfigPresenters;
 
     @Inject
-    public OSEFormResolver(ManagedInstance<OSEProviderConfigPresenter> providerConfigPresenters) {
+    public WildflyFormResolver(ManagedInstance<WF10ProviderConfigPresenter> providerConfigPresenters) {
         this.providerConfigPresenters = providerConfigPresenters;
     }
 
@@ -42,8 +42,8 @@ public class OSEFormResolver
 
     @Override
     public boolean destroyForm(Object form) {
-        if (form instanceof OSEProviderConfigPresenter) {
-            providerConfigPresenters.destroy((OSEProviderConfigPresenter) form);
+        if (form instanceof WF10ProviderConfigPresenter) {
+            providerConfigPresenters.destroy((WF10ProviderConfigPresenter) form);
             return true;
         }
         return false;

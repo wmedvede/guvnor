@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.ose.provider;
+package org.guvnor.ala.ui.client.handler.ose.provider;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;

@@ -283,10 +283,10 @@ public class SourceFormPresenter implements WizardPage {
 
     private void loadDataSources(Provider provider) {
         provisioningService.call( loadDataSourcesSuccessCallback(), loadDataSourcesErrorCallback() ).findAvailableDataSources(
-                getStringValue(provider.getValues(), HOST),
-                getIntValue(provider.getValues(), MANAGEMENT_PORT, 9990),
-                getStringValue(provider.getValues(), USER),
-                getStringValue(provider.getValues(), PASSWORD),
+                getStringValue(provider.getConfiguration().getValues(), HOST),
+                getIntValue(provider.getConfiguration().getValues(), MANAGEMENT_PORT, 9990),
+                getStringValue(provider.getConfiguration().getValues(), USER),
+                getStringValue(provider.getConfiguration().getValues(), PASSWORD),
                 "ManagementRealm");
     }
 

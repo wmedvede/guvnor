@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.backend.service.util;
+package org.guvnor.ala.ui.backend.service.converter;
 
 import java.util.Map;
+import javax.enterprise.context.ApplicationScoped;
 
-public class ServiceUtil {
+@ApplicationScoped
+public class ConverterRegistry {
 
-    public static final String getStringValue(Map map,
-                                              String key) {
-        return map.get(key) != null ? map.get(key).toString() : null;
-    }
 
-    public static final void putAsStrings(Map<String, String> target,
-                                          Map<String, Object> source) {
-        source.entrySet().forEach(entry -> {
-            target.put(entry.getKey(),
-                       entry.getValue() != null ? entry.getValue().toString() : null);
-        });
-    }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.wildfly.provider;
+package org.guvnor.ala.ui.client.handler.wildfly.provider;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;

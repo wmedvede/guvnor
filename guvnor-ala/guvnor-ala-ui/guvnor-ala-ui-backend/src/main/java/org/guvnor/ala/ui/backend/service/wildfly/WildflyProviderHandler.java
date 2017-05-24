@@ -28,6 +28,8 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 public class WildflyProviderHandler
         implements BackendProviderHandler {
 
+    public static final String WF_10_ICON = "images/wf.png";
+
     private WildflyProviderConfigConverter configConverter;
 
     public WildflyProviderHandler() {
@@ -52,5 +54,10 @@ public class WildflyProviderHandler
     @Override
     public ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey) {
         return configConverter;
+    }
+
+    @Override
+    public String getProviderTypeIcon() {
+        return WF_10_ICON;
     }
 }

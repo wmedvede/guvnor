@@ -27,28 +27,43 @@ public class GuvnorAlaUIConstants {
     public static final String EnableProviderTypeWizard_title = "EnableProviderTypeWizard.title";
 
     @TranslationKey(defaultValue = "")
-    public static final String EnableProviderTypeView_ProviderTypeEnableSuccessMessage = "EnableProviderTypeView.ProviderTypeEnableSuccessMessage";
+    public static final String EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage = "EnableProviderTypeWizard.ProviderTypeEnableSuccessMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String EnableProviderTypeView_ProviderTypeEnableErrorMessage = "EnableProviderTypeView.ProviderTypeEnableErrorMessage";
+    public static final String EnableProviderTypeWizard_ProviderTypeEnableErrorMessage = "EnableProviderTypeWizard.ProviderTypeEnableErrorMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String EnableProviderTypeView_ProviderTypeEnablePageTitle = "EnableProviderTypeView.ProviderTypeEnablePageTitle";
+    public static final String EnableProviderTypePageView_title = "EnableProviderTypePageView.title";
 
     @TranslationKey(defaultValue = "")
     public static final String NewProviderWizard_title = "NewProviderWizard.title";
 
     @TranslationKey(defaultValue = "")
-    public static final String NewProviderFormPageView_ProviderCreateSuccessMessage = "NewProviderFormPageView.ProviderCreateSuccessMessage";
+    public static final String NewProviderWizard_ProviderCreateSuccessMessage = "NewProviderWizard.ProviderCreateSuccessMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String NewProviderFormPageView_ProviderCreateErrorMessage = "NewProviderFormPageView.ProviderCreateErrorMessage";
+    public static final String NewProviderWizard_ProviderCreateErrorMessage = "NewProviderWizard.ProviderCreateErrorMessage";
 
+    @TranslationKey(defaultValue = "")
+    public static final String NewDeployWizard_title = "NewDeployWizard.title";
+
+    @TranslationKey(defaultValue = "")
+    public static final String NewDeployWizard_PipelineStartSuccessMessage = "NewDeployWizard.PipelineStartSuccessMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String NewDeployWizard_PipelineStartErrorMessage = "NewDeployWizard.PipelineStartErrorMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String SelectPipelinePageView_title = "SelectPipelinePageView.title";
 
     ////Not yet reviewed
 
     @TranslationKey(defaultValue = "")
-    public static final String ProviderView_RemoveProviderSuccessMessage = "ProviderView.RemoveProviderSuccessMessage";
+    public static final String ProviderView_RemoveProviderSuccessMessage;
+
+    static {
+        ProviderView_RemoveProviderSuccessMessage = "ProviderView.RemoveProviderSuccessMessage";
+    }
 
     @TranslationKey(defaultValue = "")
     public static final String ProviderView_RemoveProviderErrorMessage = "ProviderView.RemoveProviderErrorMessage";

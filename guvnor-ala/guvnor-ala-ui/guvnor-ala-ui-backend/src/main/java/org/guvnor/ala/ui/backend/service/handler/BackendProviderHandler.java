@@ -25,4 +25,5 @@ public interface BackendProviderHandler
 
     ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey);
 
+    String getProviderTypeIcon();
 }

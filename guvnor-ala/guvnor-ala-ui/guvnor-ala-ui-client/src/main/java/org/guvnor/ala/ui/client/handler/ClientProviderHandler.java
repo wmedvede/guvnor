@@ -22,4 +22,7 @@ public interface ClientProviderHandler
         extends ProviderHandler {
 
     FormResolver getFormResolver();
+
+    String getProviderTypeImageURL();
+
 }

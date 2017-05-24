@@ -23,7 +23,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.wizard.providertype.item.ProviderTypeItemPresenter;
 import org.guvnor.ala.ui.model.ProviderType;
@@ -37,7 +36,6 @@ import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 
 public class EnableProviderTypePagePresenter
-        extends AbstractHasContentChangeHandlers
         implements WizardPage {
 
     public interface View extends UberElement<EnableProviderTypePagePresenter> {
@@ -47,10 +45,6 @@ public class EnableProviderTypePagePresenter
         void addProviderType(final IsElement element);
 
         String getTitle();
-
-        String getEnableProviderTypeErrorMessage();
-
-        String getEnableProviderTypeSuccessMessage();
     }
 
     private final View view;
@@ -116,14 +110,6 @@ public class EnableProviderTypePagePresenter
         return ElementWrapperWidget.getWidget(view.getElement());
     }
 
-    public String getEnableProviderTypeWizardSuccessMessage() {
-        return view.getEnableProviderTypeSuccessMessage();
-    }
-
-    public String getEnableProviderTypeWizardErrorMessage() {
-        return view.getEnableProviderTypeErrorMessage();
-    }
-
     public Collection<ProviderType> getSelectedProviderTypes() {
         final Collection<ProviderType> result = new ArrayList<>();
         for (ProviderTypeItemPresenter providerType : providerTypes) {
@@ -135,7 +121,6 @@ public class EnableProviderTypePagePresenter
     }
 
     private void onProviderTypeSelectionChange() {
-        fireChangeHandlers();
         wizardPageStatusChangeEvent.fire(new WizardPageStatusChangeEvent(EnableProviderTypePagePresenter.this));
     }
 

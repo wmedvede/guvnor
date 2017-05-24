@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.wildfly;
+package org.guvnor.ala.ui.client.handler.ose;
 
 import org.jboss.errai.ioc.client.api.EntryPoint;
 
 @EntryPoint
-public class WF10ProviderTypeEntryPoint {
+public class OSEProviderTypeEntryPoint {
 
 }
