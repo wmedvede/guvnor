@@ -16,7 +16,6 @@
 
 package org.guvnor.ala.ui.client.empty;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -27,32 +26,31 @@ import org.uberfire.client.mvp.UberElement;
 @ApplicationScoped
 public class ProviderTypeEmptyPresenter {
 
-    public interface View extends UberElement<ProviderTypeEmptyPresenter> {
+    public interface View
+            extends UberElement<ProviderTypeEmptyPresenter> {
 
     }
 
-    private final View view;
+    private View view;
 
-    private final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
+    private Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
+
+    public ProviderTypeEmptyPresenter() {
+    }
 
     @Inject
-    public ProviderTypeEmptyPresenter( final View view,
-                                       final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent ) {
+    public ProviderTypeEmptyPresenter(final View view,
+                                      final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent) {
         this.view = view;
         this.addNewProviderTypeEvent = addNewProviderTypeEvent;
-    }
-
-    @PostConstruct
-    public void init() {
-        view.init( this );
+        this.view.init(this);
     }
 
     public View getView() {
         return view;
     }
 
-    public void addProviderType() {
-        addNewProviderTypeEvent.fire( new AddNewProviderTypeEvent() );
+    public void onAddProviderType() {
+        addNewProviderTypeEvent.fire(new AddNewProviderTypeEvent());
     }
-
 }

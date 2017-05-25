@@ -31,41 +31,37 @@ public class InternalGitSource
 
     private String project;
 
-    private IDataSourceInfo dataSourceInfo;
-
-    public InternalGitSource( @MapsTo( "ou" ) String ou,
-                              @MapsTo( "repository" ) String repository,
-                              @MapsTo( "branch" ) String branch,
-                              @MapsTo("project") String project,
-                              @MapsTo("dataSourceInfo") IDataSourceInfo dataSourceInfo) {
+    public InternalGitSource(@MapsTo("ou") String ou,
+                             @MapsTo("repository") String repository,
+                             @MapsTo("branch") String branch,
+                             @MapsTo("project") String project) {
         this.ou = ou;
         this.repository = repository;
         this.branch = branch;
         this.project = project;
-        this.dataSourceInfo = dataSourceInfo;
     }
 
-    public String getOu( ) {
+    public String getOu() {
         return ou;
     }
 
-    public void setOu( String ou ) {
+    public void setOu(String ou) {
         this.ou = ou;
     }
 
-    public String getRepository( ) {
+    public String getRepository() {
         return repository;
     }
 
-    public void setRepository( String repository ) {
+    public void setRepository(String repository) {
         this.repository = repository;
     }
 
-    public String getBranch( ) {
+    public String getBranch() {
         return branch;
     }
 
-    public void setBranch( String branch ) {
+    public void setBranch(String branch) {
         this.branch = branch;
     }
 
@@ -75,13 +71,5 @@ public class InternalGitSource
 
     public void setProject(String project) {
         this.project = project;
-    }
-
-    public IDataSourceInfo getDataSourceInfo() {
-        return dataSourceInfo;
-    }
-
-    public void setDataSourceInfo(IDataSourceInfo dataSourceInfo) {
-        this.dataSourceInfo = dataSourceInfo;
     }
 }

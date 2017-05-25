@@ -22,7 +22,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.wizard.pipeline.item.PipelineItemPresenter;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.ui.ElementWrapperWidget;
@@ -46,9 +45,9 @@ public class SelectPipelinePagePresenter
 
     private View view;
     private Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-    private ManagedInstance<PipelineItemPresenter> pipelineItemPresenterInstance;
+    private ManagedInstance<PipelineItemPresenter> itemPresenterInstance;
 
-    private Collection<PipelineItemPresenter> pipelineItemPresenters = new ArrayList<>();
+    private Collection<PipelineItemPresenter> itemPresenters = new ArrayList<>();
 
     public SelectPipelinePagePresenter() {
     }
@@ -56,27 +55,24 @@ public class SelectPipelinePagePresenter
     @Inject
     public SelectPipelinePagePresenter(final View view,
                                        final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent,
-                                       final ManagedInstance<PipelineItemPresenter> pipelineItemPresenterInstance) {
+                                       final ManagedInstance<PipelineItemPresenter> itemPresenterInstance) {
         this.view = view;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
-        this.pipelineItemPresenterInstance = pipelineItemPresenterInstance;
+        this.itemPresenterInstance = itemPresenterInstance;
         this.view.init(this);
     }
 
     public void setup(final Collection<String> pipelines) {
         clear();
-        final ContentChangeHandler contentChangeHandler = this::onContentChange;
-        for (String pipeline : pipelines) {
+        pipelines.forEach(pipeline -> {
             final PipelineItemPresenter presenter = newItemPresenter();
             presenter.setup(pipeline);
-            presenter.addContentChangeHandler(contentChangeHandler);
-
-            pipelineItemPresenters.add(presenter);
+            presenter.addContentChangeHandler(this::onContentChange);
+            itemPresenters.add(presenter);
             view.addPipelineItem(presenter.getView());
-        }
-        for (PipelineItemPresenter pipelineItemPresenter : pipelineItemPresenters) {
-            pipelineItemPresenter.addOthers(pipelineItemPresenters);
-        }
+        });
+
+        itemPresenters.forEach(item -> item.addOthers(itemPresenters));
     }
 
     @Override
@@ -90,8 +86,8 @@ public class SelectPipelinePagePresenter
 
     @Override
     public void isComplete(final Callback<Boolean> callback) {
-        for (PipelineItemPresenter providerType : pipelineItemPresenters) {
-            if (providerType.isSelected()) {
+        for (PipelineItemPresenter item : itemPresenters) {
+            if (item.isSelected()) {
                 callback.callback(true);
                 return;
             }
@@ -115,12 +111,11 @@ public class SelectPipelinePagePresenter
     }
 
     public String getPipeline() {
-        for (PipelineItemPresenter itemPresenter : pipelineItemPresenters) {
-            if (itemPresenter.isSelected()) {
-                return itemPresenter.getPipeline();
-            }
-        }
-        return null;
+        return itemPresenters.stream()
+                .filter(PipelineItemPresenter::isSelected)
+                .map(PipelineItemPresenter::getPipeline)
+                .findFirst()
+                .orElse(null);
     }
 
     private void onContentChange() {
@@ -128,11 +123,11 @@ public class SelectPipelinePagePresenter
     }
 
     private PipelineItemPresenter newItemPresenter() {
-        return pipelineItemPresenterInstance.get();
+        return itemPresenterInstance.get();
     }
 
     private void clearItemPresenters() {
-        pipelineItemPresenters.forEach(pipelineItemPresenterInstance::destroy);
-        pipelineItemPresenters.clear();
+        itemPresenters.forEach(itemPresenterInstance::destroy);
+        itemPresenters.clear();
     }
 }

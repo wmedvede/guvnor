@@ -18,18 +18,15 @@ package org.guvnor.ala.ui.client.handler.wildfly.provider;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
-import org.guvnor.ala.ui.client.util.HasContentChangeHandlers;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.model.ITestConnectionResult;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
 import org.guvnor.ala.ui.service.IProvisioningService;
 import org.jboss.errai.bus.client.api.messaging.Message;
@@ -42,8 +39,6 @@ import org.uberfire.ext.widgets.common.client.common.popups.YesNoCancelPopup;
 import org.uberfire.ext.widgets.common.client.common.popups.errors.ErrorPopup;
 
 import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
-import static org.uberfire.commons.validation.PortablePreconditions.checkCondition;
-import static org.uberfire.commons.validation.PortablePreconditions.checkNotEmpty;
 
 @Dependent
 public class WF10ProviderConfigPresenter
@@ -51,17 +46,10 @@ public class WF10ProviderConfigPresenter
         implements ProviderConfigurationForm,
                    WF10ProviderConfigParams {
 
-    public interface View extends UberElement<WF10ProviderConfigPresenter>,
-                                  HasContentChangeHandlers {
+    public interface View
+            extends UberElement<WF10ProviderConfigPresenter> {
 
-        void setContent(final String name,
-                        final String host,
-                        final String port,
-                        final String managementPort,
-                        final String username,
-                        final String password);
-
-        String getName();
+        String getProviderName();
 
         String getHost();
 
@@ -72,6 +60,18 @@ public class WF10ProviderConfigPresenter
         String getUsername();
 
         String getPassword();
+
+        void setProviderName(String name);
+
+        void setHost(String host);
+
+        void setPort(String port);
+
+        void setManagementPort(String managementPort);
+
+        void setUsername(String username);
+
+        void setPassword(String password);
 
         void disable();
 
@@ -105,19 +105,13 @@ public class WF10ProviderConfigPresenter
         this.view.init(this);
     }
 
-    @PostConstruct
-    public void init() {
-        view.init(this);
-        view.addContentChangeHandler(this::onContentChange);
-    }
-
     public View getView() {
         return view;
     }
 
     @Override
     public ProviderConfiguration buildProviderConfiguration() {
-        final Map values = new HashMap<>();
+        final Map<String, Object> values = new HashMap<>();
         values.put(HOST,
                    getHost());
         values.put(PORT,
@@ -128,7 +122,7 @@ public class WF10ProviderConfigPresenter
                    getUsername());
         values.put(PASSWORD,
                    getPassword());
-        return new ProviderConfiguration(getName(),
+        return new ProviderConfiguration(getProviderName(),
                                          values);
     }
 
@@ -137,37 +131,23 @@ public class WF10ProviderConfigPresenter
         view.clear();
     }
 
-    public void setup(final String providerTypeId) {
-        checkNotEmpty("providerTypeId",
-                      providerTypeId);
-        checkCondition("providerTypeId",
-                       providerTypeId.equals(ProviderType.WILDFY_PROVIDER_TYPE));
+    @Override
+    public void load(final Provider provider) {
+        clear();
+        view.setProviderName(provider.getKey().getId());
+        view.setHost(getStringValue(provider.getConfiguration().getValues(),
+                                    HOST));
+        view.setPort(getStringValue(provider.getConfiguration().getValues(),
+                                    PORT));
+        view.setManagementPort(getStringValue(provider.getConfiguration().getValues(),
+                                              MANAGEMENT_PORT));
+        view.setUsername(getStringValue(provider.getConfiguration().getValues(),
+                                        USER));
+        view.setPassword("****");
     }
 
-    public void setup(final String providerTypeId,
-                      final String name,
-                      final String host,
-                      final String port,
-                      final String managementPort,
-                      final String username,
-                      final String password) {
-        setup(providerTypeId);
-        view.setContent(checkNotEmpty(PROVIDER_NAME,
-                                      name),
-                        checkNotEmpty(HOST,
-                                      host),
-                        checkNotEmpty(PORT,
-                                      port),
-                        checkNotEmpty(MANAGEMENT_PORT,
-                                      managementPort),
-                        checkNotEmpty(USER,
-                                      username),
-                        checkNotEmpty(PASSWORD,
-                                      password));
-    }
-
-    public String getName() {
-        return view.getName();
+    public String getProviderName() {
+        return view.getProviderName();
     }
 
     public String getHost() {
@@ -191,61 +171,12 @@ public class WF10ProviderConfigPresenter
     }
 
     public void isValid(final Callback<Boolean> callback) {
-        boolean isValid = true;
-        if (getName().trim().isEmpty()) {
-            view.setProviderNameStatus(FormStatus.ERROR);
-            isValid = false;
-        } else {
-            view.setProviderNameStatus(FormStatus.VALID);
-        }
-
-        if (getHost().trim().isEmpty()) {
-            view.setHostStatus(FormStatus.ERROR);
-            isValid = false;
-        } else {
-            view.setHostStatus(FormStatus.VALID);
-        }
-
-        if (getPort().trim().isEmpty()) {
-            view.setPortStatus(FormStatus.ERROR);
-            isValid = false;
-        } else {
-            try {
-                Integer.valueOf(getPort().trim());
-                view.setPortStatus(FormStatus.VALID);
-            } catch (Exception ex) {
-                view.setPortStatus(FormStatus.ERROR);
-                isValid = false;
-            }
-        }
-
-        if (getManagementPort().trim().isEmpty()) {
-            view.setManagementPortStatus(FormStatus.ERROR);
-            isValid = false;
-        } else {
-            try {
-                Integer.valueOf(getManagementPort().trim());
-                view.setManagementPortStatus(FormStatus.VALID);
-            } catch (Exception ex) {
-                view.setManagementPortStatus(FormStatus.ERROR);
-                isValid = false;
-            }
-        }
-
-        if (getUsername().trim().isEmpty()) {
-            view.setUsernameStatus(FormStatus.ERROR);
-            isValid = false;
-        } else {
-            view.setUsernameStatus(FormStatus.VALID);
-        }
-
-        if (getPassword().trim().isEmpty()) {
-            view.setPasswordStatus(FormStatus.ERROR);
-            isValid = false;
-        } else {
-            view.setPasswordStatus(FormStatus.VALID);
-        }
-
+        boolean isValid = !isEmpty(view.getProviderName()) &&
+                !isEmpty(view.getHost()) &&
+                isValidPort(view.getPort()) &&
+                isValidPort(view.getManagementPort()) &&
+                !isEmpty(view.getUsername()) &&
+                !isEmpty(view.getPassword());
         callback.callback(isValid);
     }
 
@@ -263,21 +194,61 @@ public class WF10ProviderConfigPresenter
         fireChangeHandlers();
     }
 
-    @Override
-    public void load(final Provider provider) {
-        view.setContent(provider.getKey().getId(),
-                        getStringValue(provider.getConfiguration().getValues(),
-                                       HOST),
-                        getStringValue(provider.getConfiguration().getValues(),
-                                       PORT),
-                        getStringValue(provider.getConfiguration().getValues(),
-                                       MANAGEMENT_PORT),
-                        getStringValue(provider.getConfiguration().getValues(),
-                                       USER),
-                        "****");
+    protected void onProviderNameChange() {
+        if (!isEmpty(view.getProviderName())) {
+            view.setProviderNameStatus(FormStatus.VALID);
+        } else {
+            view.setProviderNameStatus(FormStatus.ERROR);
+        }
+        onContentChange();
     }
 
-    public void onTestConnection() {
+    protected void onHostChange() {
+        if (!isEmpty(view.getHost())) {
+            view.setHostStatus(FormStatus.VALID);
+        } else {
+            view.setHostStatus(FormStatus.ERROR);
+        }
+        onContentChange();
+    }
+
+    protected void onPortChange() {
+        if (isValidPort(view.getPort())) {
+            view.setPortStatus(FormStatus.VALID);
+        } else {
+            view.setPortStatus(FormStatus.ERROR);
+        }
+        onContentChange();
+    }
+
+    protected void onManagementPortChange() {
+        if (isValidPort(view.getManagementPort())) {
+            view.setManagementPortStatus(FormStatus.VALID);
+        } else {
+            view.setManagementPortStatus(FormStatus.ERROR);
+        }
+        onContentChange();
+    }
+
+    protected void onUserNameChange() {
+        if (!isEmpty(view.getUsername())) {
+            view.setUsernameStatus(FormStatus.VALID);
+        } else {
+            view.setUsernameStatus(FormStatus.ERROR);
+        }
+        onContentChange();
+    }
+
+    protected void onPasswordChange() {
+        if (!isEmpty(view.getPassword())) {
+            view.setPasswordStatus(FormStatus.VALID);
+        } else {
+            view.setPasswordStatus(FormStatus.ERROR);
+        }
+        onContentChange();
+    }
+
+    protected void onTestConnection() {
         if (validateRemoteParams()) {
             provisioningService.call(getTestConnectionSuccessCallback(),
                                      getTestConnectionErrorCallback()).testConnection(view.getHost(),

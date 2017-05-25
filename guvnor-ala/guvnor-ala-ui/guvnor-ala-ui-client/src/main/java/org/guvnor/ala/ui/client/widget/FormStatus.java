@@ -17,6 +17,6 @@
 package org.guvnor.ala.ui.client.widget;
 
 public enum FormStatus {
-
-    ERROR, VALID;
+    ERROR,
+    VALID;
 }

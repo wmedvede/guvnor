@@ -438,17 +438,6 @@ public class RuntimeServiceImpl
         input.put("project-dir",
                   ((InternalGitSource) source).getProject());
 
-        if (((InternalGitSource) source).getDataSourceInfo() != null) {
-            IDataSourceInfo dataSourceInfo = ((InternalGitSource) source).getDataSourceInfo();
-            input.put("jndi-data-source",
-                      dataSourceInfo.getJndi());
-            if (dataSourceInfo.isKieDataSource()) {
-                input.put("kie-data-source",
-                          dataSourceInfo.getKieUuid());
-                input.put("kie-data-source-deployment-id",
-                          dataSourceInfo.getDeploymentId());
-            }
-        }
 
         /*
         put( "repo-name", repository.getAlias() );

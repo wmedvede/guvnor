@@ -34,36 +34,37 @@ import static org.uberfire.commons.validation.PortablePreconditions.*;
 public abstract class CustomGroupItem implements Anchor {
 
     @JsOverlay
-    public static CustomGroupItem createAnchor( final String text,
-                                                final IconType iconType,
-                                                final Command command ) {
-        final CustomGroupItem anchor = (CustomGroupItem) Window.getDocument().createElement( "a" );
-        anchor.setClassName( Styles.LIST_GROUP_ITEM );
-        if ( iconType != null ) {
-            final HTMLElement icon = Window.getDocument().createElement( "i" );
-            icon.getClassList().add( "fa" );
-            icon.getClassList().add( iconType.getCssName() );
-            anchor.setInnerHTML( icon.getOuterHTML() + " " + text );
+    public static CustomGroupItem createAnchor(final String text,
+                                               final IconType iconType,
+                                               final Command command) {
+        final CustomGroupItem anchor = (CustomGroupItem) Window.getDocument().createElement("a");
+        anchor.setClassName(Styles.LIST_GROUP_ITEM);
+        if (iconType != null) {
+            final HTMLElement icon = Window.getDocument().createElement("i");
+            icon.getClassList().add("fa");
+            icon.getClassList().add(iconType.getCssName());
+            anchor.setInnerHTML(icon.getOuterHTML() + " " + text);
         } else {
-            anchor.setTextContent( checkNotEmpty( "text", text ) );
+            anchor.setTextContent(checkNotEmpty("text",
+                                                text));
         }
-        anchor.setHref( "#" );
+        anchor.setHref("#");
         //can't use lambda here; GWT limitation (bug!)!
-        anchor.setOnclick( new EventListener() {
+        anchor.setOnclick(new EventListener() {
             @Override
-            public void call( final Event event ) {
+            public void call(final Event event) {
                 command.execute();
             }
-        } );
+        });
         return anchor;
     }
 
     @JsOverlay
-    public final void setActive( boolean active ) {
-        if ( active ) {
-            getClassList().add( "active" );
+    public final void setActive(boolean active) {
+        if (active) {
+            getClassList().add("active");
         } else {
-            getClassList().remove( "active" );
+            getClassList().remove("active");
         }
     }
 }

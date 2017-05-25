@@ -39,11 +39,11 @@ public class ProviderTypeEmptyView
 
     @EventHandler("empty-add-provider-type")
     public void onAddProviderType(@ForEvent("click") final Event event) {
-        presenter.addProviderType();
+        presenter.onAddProviderType();
     }
 
     @EventHandler("new-provider-type-anchor")
     public void onAddProviderTypeAnchor(@ForEvent("click") final Event event) {
-        presenter.addProviderType();
+        presenter.onAddProviderType();
     }
 }

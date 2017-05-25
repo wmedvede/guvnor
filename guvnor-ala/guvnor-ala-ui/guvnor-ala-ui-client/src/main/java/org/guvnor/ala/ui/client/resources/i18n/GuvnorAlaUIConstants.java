@@ -56,6 +56,9 @@ public class GuvnorAlaUIConstants {
     @TranslationKey(defaultValue = "")
     public static final String SelectPipelinePageView_title = "SelectPipelinePageView.title";
 
+    @TranslationKey(defaultValue = "")
+    public static final String SourceConfigurationPageView_title = "SourceConfigurationPageView.title";
+
     ////Not yet reviewed
 
     @TranslationKey(defaultValue = "")
@@ -75,10 +78,10 @@ public class GuvnorAlaUIConstants {
     public static final String ProviderView_ConfirmRemovePopupTitle = "ProviderView.ConfirmRemovePopupTitle";
 
     @TranslationKey(defaultValue = "")
-    public static final String ProviderTypeView_ProviderTypeRemovePopupText = "ProviderTypeView.ProviderTypeRemovePopupText";
+    public static final String ProviderTypeView_ProviderTypeRemovePopupTitle = "ProviderTypeView.ProviderTypeRemovePopupTitle";
 
     @TranslationKey(defaultValue = "")
-    public static final String ProviderTypeView_ProviderTypeRemovePopupTitle = "ProviderTypeView.ProviderTypeRemovePopupTitle";
+    public static final String ProviderTypeView_ProviderTypeRemovePopupText = "ProviderTypeView.ProviderTypeRemovePopupText";
 
     @TranslationKey(defaultValue = "")
     public static final String ProviderTypeNavigationView_TitleText = "ProviderTypeNavigationView.TitleText";

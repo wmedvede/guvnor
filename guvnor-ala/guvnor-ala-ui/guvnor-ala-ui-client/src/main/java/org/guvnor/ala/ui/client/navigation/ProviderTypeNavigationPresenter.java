@@ -17,9 +17,8 @@
 package org.guvnor.ala.ui.client.navigation;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -29,99 +28,95 @@ import org.guvnor.ala.ui.client.events.AddNewProviderTypeEvent;
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
 import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
 import org.guvnor.ala.ui.model.ProviderType;
-import org.slf4j.Logger;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.mvp.Command;
 
-import static org.uberfire.commons.validation.PortablePreconditions.*;
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 @ApplicationScoped
 public class ProviderTypeNavigationPresenter {
 
     public interface View extends UberElement<ProviderTypeNavigationPresenter> {
 
-        void addProviderType( final String id,
-                              final String name,
-                              final Command select );
+        void addProviderType(final String id,
+                             final String name,
+                             final Command select);
 
-        void select( final String id );
+        void select(final String id);
 
-        void clean( );
+        void clear();
     }
 
-    private final Logger logger;
-    private final View view;
+    private View view;
 
-    private final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
-    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
-    private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
+    private Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
+    private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
+    private Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
-    private Set<ProviderType > providerTypes = new HashSet<>();
+    private Map<ProviderTypeKey, ProviderType> providerTypes = new HashMap<>();
+
+    public ProviderTypeNavigationPresenter() {
+    }
 
     @Inject
-    public ProviderTypeNavigationPresenter( final Logger logger,
-                                            final View view,
-                                            final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent,
-                                            final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
-                                            final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent ) {
-        this.logger = logger;
+    public ProviderTypeNavigationPresenter(final View view,
+                                           final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent,
+                                           final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
+                                           final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent) {
         this.view = view;
         this.addNewProviderTypeEvent = addNewProviderTypeEvent;
         this.providerTypeListRefreshEvent = providerTypeListRefreshEvent;
         this.providerTypeSelectedEvent = providerTypeSelectedEvent;
+        this.view.init(this);
     }
 
-    @PostConstruct
-    public void init() {
-        view.init( this );
+    public void setup(final ProviderType firstProvider,
+                      final Collection<ProviderType> providerTypes) {
+        view.clear();
+        this.providerTypes.clear();
+        addProviderType(checkNotNull("firstProvider",
+                                     firstProvider));
+        providerTypes.stream()
+                .filter(providerType -> !providerType.equals(firstProvider))
+                .forEach(this::addProviderType);
     }
 
     public View getView() {
         return view;
     }
 
-    public void setup( final ProviderType firstProvider,
-                       final Collection<ProviderType > providerTypes ) {
-        view.clean();
-        this.providerTypes.clear();
-        addProviderType( checkNotNull( "firstProvider", firstProvider ) );
-        for ( final ProviderType providerType : providerTypes ) {
-            if ( !providerType.equals( firstProvider ) ) {
-                addProviderType( providerType );
-            }
+    private void addProviderType(final ProviderType providerType) {
+        checkNotNull("providerType",
+                     providerType);
+        providerTypes.put(providerType.getKey(),
+                          providerType);
+        view.addProviderType(providerType.getKey().getId(),
+                             providerType.getName(),
+                             () -> select(providerType));
+    }
+
+    private void onSelect(@Observes final ProviderTypeSelectedEvent event) {
+        if (event.getProviderTypeKey() != null &&
+                event.getProviderTypeKey().getId() != null &&
+                providerTypes.containsKey(event.getProviderTypeKey())) {
+            view.select(event.getProviderTypeKey().getId());
         }
     }
 
-    private void addProviderType( final ProviderType providerType ) {
-        checkNotNull( "providerType", providerType );
-        providerTypes.add( providerType );
-        this.view.addProviderType( providerType.getKey().getId(), providerType.getName(), () -> select( providerType ) );
-    }
-
-    public void onSelect( @Observes final ProviderTypeSelectedEvent providerTypeSelectedEvent) {
-        if ( providerTypeSelectedEvent != null &&
-                providerTypeSelectedEvent.getProviderTypeKey() != null &&
-                providerTypeSelectedEvent.getProviderTypeKey().getId() != null ) {
-            view.select(providerTypeSelectedEvent.getProviderTypeKey().getId() );
-        } else {
-            logger.warn( "Illegal event argument." );
-        }
-    }
-
-    public void select( final ProviderType providerType ) {
-        providerTypeSelectedEvent.fire( new ProviderTypeSelectedEvent(providerType.getKey() ) );
+    private void select(final ProviderType providerType) {
+        providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(providerType.getKey()));
     }
 
     public void clear() {
-        view.clean();
+        view.clear();
     }
 
-    public void refresh() {
-        providerTypeListRefreshEvent.fire( new ProviderTypeListRefreshEvent() );
+    public void onRefresh() {
+        providerTypeListRefreshEvent.fire(new ProviderTypeListRefreshEvent());
     }
 
-    public void newProviderType() {
-        addNewProviderTypeEvent.fire( new AddNewProviderTypeEvent() );
+    public void onAddProviderType() {
+        addNewProviderTypeEvent.fire(new AddNewProviderTypeEvent());
     }
-
 }

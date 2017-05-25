@@ -17,7 +17,6 @@
 package org.guvnor.ala.ui.client.navigation.providertype;
 
 import java.util.Collection;
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -26,119 +25,104 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.events.AddNewProvider;
 import org.guvnor.ala.ui.client.events.ProviderSelectedEvent;
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
-import org.guvnor.ala.ui.model.ProviderType;
-import org.jboss.errai.common.client.api.Caller;
 import org.guvnor.ala.ui.model.ProviderKey;
+import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.service.ProviderTypeService;
-import org.slf4j.Logger;
+import org.jboss.errai.common.client.api.Caller;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.mvp.Command;
-import org.uberfire.workbench.events.NotificationEvent;
 
 @ApplicationScoped
 public class ProviderTypePresenter {
 
-    public interface View extends UberElement<ProviderTypePresenter> {
+    public interface View
+            extends UberElement<ProviderTypePresenter> {
 
-        void clear( );
+        void clear();
 
-        void setProviderType( final String id,
-                              final String name );
+        void setProviderType(final String providerTypeId,
+                             final String providerTypeName);
 
-        void selectProvider( final String id );
+        void select(final String providerId);
 
-        void addProvider( final String providerId,
-                          final String providerName,
-                          final Command onSelect );
+        void addProvider(final String providerId,
+                         final String providerName,
+                         final Command onSelect);
 
-        void confirmRemove( Command command );
+        void confirmRemove(Command command);
     }
 
-    private final Logger logger;
-    private final View view;
-    private final Caller<ProviderTypeService> providerTypeService;
+    private View view;
+    private Caller<ProviderTypeService> providerTypeService;
 
-    private final Event<NotificationEvent> notification;
-    private final Event<AddNewProvider > addNewProviderEvent;
-    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
-    private final Event<ProviderSelectedEvent> providerSelectedEvent;
+    private Event<AddNewProvider> addNewProviderEvent;
+    private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
+    private Event<ProviderSelectedEvent> providerSelectedEvent;
 
     private ProviderType providerType;
 
+    public ProviderTypePresenter() {
+    }
+
     @Inject
-    public ProviderTypePresenter( final Logger logger,
-                                  final View view,
-                                  final Caller<ProviderTypeService> providerTypeService,
-                                  final Event<NotificationEvent> notification,
-                                  final Event<AddNewProvider> addNewProviderEvent,
-                                  final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
-                                  final Event<ProviderSelectedEvent> providerSelectedEvent ) {
-        this.logger = logger;
+    public ProviderTypePresenter(final View view,
+                                 final Caller<ProviderTypeService> providerTypeService,
+                                 final Event<AddNewProvider> addNewProviderEvent,
+                                 final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
+                                 final Event<ProviderSelectedEvent> providerSelectedEvent) {
         this.view = view;
         this.providerTypeService = providerTypeService;
-        this.notification = notification;
         this.addNewProviderEvent = addNewProviderEvent;
         this.providerTypeListRefreshEvent = providerTypeListRefreshEvent;
         this.providerSelectedEvent = providerSelectedEvent;
-    }
-
-    @PostConstruct
-    public void init() {
-        view.init( this );
+        this.view.init(this);
     }
 
     public View getView() {
         return view;
     }
 
-    public ProviderType getCurrentProviderType() {
-        return providerType;
-    }
-
-    public void setup( final ProviderType providerType,
-                       final Collection<ProviderKey> providers,
-                       final ProviderKey firstProviderKey ) {
+    public void setup(final ProviderType providerType,
+                      final Collection<ProviderKey> providers,
+                      final ProviderKey firstProviderKey) {
         view.clear();
         this.providerType = providerType;
-        view.setProviderType( providerType.getKey().getId(), providerType.getName() );
+        view.setProviderType(providerType.getKey().getId(),
+                             providerType.getName());
 
-        if ( firstProviderKey != null ) {
-            addProvider( firstProviderKey );
-            for ( final ProviderKey provider : providers ) {
-                if ( !provider.equals( firstProviderKey ) ) {
-                    addProvider( provider );
-                }
-            }
-            providerSelectedEvent.fire( new ProviderSelectedEvent(firstProviderKey ) );
+        if (firstProviderKey != null) {
+            addProvider(firstProviderKey);
+            providers.stream()
+                    .filter(providerKey -> !providerKey.equals(firstProviderKey))
+                    .forEach(this::addProvider);
+            providerSelectedEvent.fire(new ProviderSelectedEvent(firstProviderKey));
         }
     }
 
-    private void addProvider( final ProviderKey provider ) {
-        view.addProvider( provider.getId(), provider.getId(), () -> providerSelectedEvent.fire( new ProviderSelectedEvent(provider ) ) );
+    private void addProvider(final ProviderKey provider) {
+        view.addProvider(provider.getId(),
+                         provider.getId(),
+                         () -> providerSelectedEvent.fire(new ProviderSelectedEvent(provider)));
     }
 
-    public void onProviderSelect( @Observes final ProviderSelectedEvent providerSelectedEvent) {
-        if ( providerSelectedEvent != null &&
-                providerSelectedEvent.getProviderKey() != null &&
+    public void onProviderSelect(@Observes final ProviderSelectedEvent providerSelectedEvent) {
+        if (providerSelectedEvent.getProviderKey() != null &&
                 providerSelectedEvent.getProviderKey().getId() != null &&
                 providerSelectedEvent.getProviderKey().getProviderTypeKey() != null &&
-                providerSelectedEvent.getProviderKey().getProviderTypeKey().equals(providerType.getKey() ) ) {
-            view.selectProvider(providerSelectedEvent.getProviderKey().getId() );
-        } else {
-            logger.warn( "Illegal event argument." );
+                providerSelectedEvent.getProviderKey().getProviderTypeKey().equals(providerType.getKey())) {
+            view.select(providerSelectedEvent.getProviderKey().getId());
         }
     }
 
-    public void addNewProvider() {
-        addNewProviderEvent.fire( new AddNewProvider( providerType ) );
+    public void onAddNewProvider() {
+        addNewProviderEvent.fire(new AddNewProvider(providerType));
     }
 
-    public void removeProviderType() {
+    public void onRemoveProviderType() {
         view.confirmRemove(
                 () -> providerTypeService.call(
-                        none -> providerTypeListRefreshEvent.fire( new ProviderTypeListRefreshEvent() ) )
-                        .disableProvider( providerType )
+                        none -> providerTypeListRefreshEvent.fire(new ProviderTypeListRefreshEvent()))
+                        .disableProvider(providerType)
         );
     }
-
 }

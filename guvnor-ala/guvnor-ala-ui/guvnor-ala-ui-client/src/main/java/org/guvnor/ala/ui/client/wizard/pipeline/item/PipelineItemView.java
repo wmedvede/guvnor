@@ -16,12 +16,11 @@
 
 package org.guvnor.ala.ui.client.wizard.pipeline.item;
 
-import java.util.ArrayList;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.guvnor.ala.ui.client.util.ContentChangeHandler;
+import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.common.client.dom.HTMLElement;
@@ -36,10 +35,9 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 @Dependent
 @Templated
 public class PipelineItemView
+        extends AbstractHasContentChangeHandlers
         implements IsElement,
                    PipelineItemPresenter.View {
-
-    private PipelineItemPresenter presenter;
 
     @Inject
     @DataField("accented-area")
@@ -57,16 +55,11 @@ public class PipelineItemView
     @DataField
     private HTMLElement image = Window.getDocument().createElement("i");
 
-    private final ArrayList<ContentChangeHandler> changeHandlers = new ArrayList<ContentChangeHandler>();
+    private PipelineItemPresenter presenter;
 
     @Override
     public void init(final PipelineItemPresenter presenter) {
         this.presenter = presenter;
-    }
-
-    @Override
-    public void addContentChangeHandler(final ContentChangeHandler contentChangeHandler) {
-        changeHandlers.add(contentChangeHandler);
     }
 
     @Override
@@ -80,7 +73,6 @@ public class PipelineItemView
             accentedArea.getClassList().toggle("card-pf-accented");
             if (accentedArea.getClassList().contains("card-pf-accented")) {
                 removeOpacity();
-                presenter.unselectOthers();
             } else {
                 addOpacity();
             }
@@ -106,11 +98,5 @@ public class PipelineItemView
 
     private void removeOpacity() {
         body.getStyle().removeProperty("opacity");
-    }
-
-    private void fireChangeHandlers() {
-        for (final ContentChangeHandler changeHandler : changeHandlers) {
-            changeHandler.onContentChange();
-        }
     }
 }

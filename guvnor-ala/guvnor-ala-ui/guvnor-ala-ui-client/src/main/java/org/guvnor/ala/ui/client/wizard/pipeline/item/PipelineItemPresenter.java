@@ -18,57 +18,44 @@ package org.guvnor.ala.ui.client.wizard.pipeline.item;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.util.ContentChangeHandler;
+import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
+import org.guvnor.ala.ui.client.util.HasContentChangeHandlers;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
-
-import static org.uberfire.commons.validation.PortablePreconditions.*;
 
 @Dependent
-public class PipelineItemPresenter {
+public class PipelineItemPresenter
+        extends AbstractHasContentChangeHandlers {
 
-    public interface View extends UberElement<PipelineItemPresenter> {
+    public interface View extends UberElement<PipelineItemPresenter>,
+                                  HasContentChangeHandlers {
 
         boolean isSelected();
 
         void unSelect();
 
-        void addContentChangeHandler(final ContentChangeHandler contentChangeHandler);
-
         void setPipelineName(String name);
     }
 
     private final View view;
-    private final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-    private ContentChangeHandler changeHandler;
     private final Collection<PipelineItemPresenter> others = new ArrayList<>();
 
     private String pipeline;
 
     @Inject
-    public PipelineItemPresenter(final View view,
-                                 final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent) {
+    public PipelineItemPresenter(final View view) {
         this.view = view;
-        this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
-    }
-
-    @PostConstruct
-    public void init() {
         this.view.init(this);
     }
 
-    public void addContentChangeHandler(final ContentChangeHandler contentChangeHandler) {
-        this.changeHandler = checkNotNull("contentChangeHandler",
-                                          contentChangeHandler);
-        if (view != null) {
-            view.addContentChangeHandler(changeHandler);
-        }
+    @PostConstruct
+    private void init() {
+        view.addContentChangeHandler(this::onContentChange);
     }
 
     public String getPipeline() {
@@ -80,22 +67,19 @@ public class PipelineItemPresenter {
         view.setPipelineName(pipeline);
     }
 
-    public void unselectOthers() {
-        for (PipelineItemPresenter other : others) {
-            other.unSelect();
-        }
+    public void unSelectOthers() {
+        others.forEach(PipelineItemPresenter::unSelect);
     }
 
     private void unSelect() {
         view.unSelect();
     }
 
-    public void addOthers(final Collection<PipelineItemPresenter> pipelineItemPresenters) {
-        for (PipelineItemPresenter other : pipelineItemPresenters) {
-            if (!other.equals(this)) {
-                others.add(other);
-            }
-        }
+    public void addOthers(final Collection<PipelineItemPresenter> items) {
+        others.addAll(items.stream()
+                              .filter(other -> !other.equals(this))
+                              .collect(Collectors.toList())
+        );
     }
 
     public boolean isSelected() {
@@ -104,5 +88,12 @@ public class PipelineItemPresenter {
 
     public IsElement getView() {
         return view;
+    }
+
+    private void onContentChange() {
+        if (view.isSelected()) {
+            unSelectOthers();
+        }
+        fireChangeHandlers();
     }
 }

@@ -17,6 +17,7 @@
 package org.guvnor.ala.ui.client.widget;
 
 import com.google.gwt.dom.client.Style;
+import org.gwtbootstrap3.client.ui.constants.ValidationState;
 import org.jboss.errai.common.client.dom.HTMLElement;
 
 /**
@@ -24,38 +25,53 @@ import org.jboss.errai.common.client.dom.HTMLElement;
  */
 public class StyleHelper {
 
-    public static <E extends Style.HasCssName, F extends Enum<? extends Style.HasCssName>> void addUniqueEnumStyleName( final HTMLElement element,
-                                                                                                                        final Class<F> enumClass,
-                                                                                                                        final E style ) {
-        removeEnumStyleNames( element, enumClass );
-        addEnumStyleName( element, style );
+    public static <E extends Style.HasCssName, F extends Enum<? extends Style.HasCssName>> void addUniqueEnumStyleName(final HTMLElement element,
+                                                                                                                       final Class<F> enumClass,
+                                                                                                                       final E style) {
+        removeEnumStyleNames(element,
+                             enumClass);
+        addEnumStyleName(element,
+                         style);
     }
 
-    public static <E extends Enum<? extends Style.HasCssName>> void removeEnumStyleNames( final HTMLElement element,
-                                                                                          final Class<E> enumClass ) {
+    public static <E extends Enum<? extends Style.HasCssName>> void removeEnumStyleNames(final HTMLElement element,
+                                                                                         final Class<E> enumClass) {
 
-        for ( final Enum<? extends Style.HasCssName> constant : enumClass.getEnumConstants() ) {
-            final String cssClass = ( (Style.HasCssName) constant ).getCssName();
+        for (final Enum<? extends Style.HasCssName> constant : enumClass.getEnumConstants()) {
+            final String cssClass = ((Style.HasCssName) constant).getCssName();
 
-            if ( cssClass != null && !cssClass.isEmpty() ) {
-                element.getClassList().remove( cssClass );
+            if (cssClass != null && !cssClass.isEmpty()) {
+                element.getClassList().remove(cssClass);
             }
         }
     }
 
-    public static <E extends Style.HasCssName> void addEnumStyleName( final HTMLElement element,
-                                                                      final E style ) {
+    public static <E extends Style.HasCssName> void addEnumStyleName(final HTMLElement element,
+                                                                     final E style) {
 
-        if ( style != null && style.getCssName() != null && !style.getCssName().isEmpty() ) {
-            element.getClassList().add( style.getCssName() );
+        if (style != null && style.getCssName() != null && !style.getCssName().isEmpty()) {
+            element.getClassList().add(style.getCssName());
         }
     }
 
-    public static <E extends Style.HasCssName> void removeEnumStyleName( final HTMLElement element,
-                                                                         final E style ) {
+    public static <E extends Style.HasCssName> void removeEnumStyleName(final HTMLElement element,
+                                                                        final E style) {
 
-        if ( style != null && style.getCssName() != null && !style.getCssName().isEmpty() ) {
-            element.getClassList().remove( style.getCssName() );
+        if (style != null && style.getCssName() != null && !style.getCssName().isEmpty()) {
+            element.getClassList().remove(style.getCssName());
+        }
+    }
+
+    public static void setFormStatus(final HTMLElement form,
+                                     final FormStatus status) {
+        if (status.equals(FormStatus.ERROR)) {
+            addUniqueEnumStyleName(form,
+                                   ValidationState.class,
+                                   ValidationState.ERROR);
+        } else {
+            addUniqueEnumStyleName(form,
+                                   ValidationState.class,
+                                   ValidationState.NONE);
         }
     }
 }

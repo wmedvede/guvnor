@@ -34,14 +34,14 @@ public class SelectPipelinePageView
         implements IsElement,
                    SelectPipelinePagePresenter.View {
 
-    private SelectPipelinePagePresenter presenter;
-
     @Inject
     @DataField
     private Div container;
 
     @Inject
     private TranslationService translationService;
+
+    private SelectPipelinePagePresenter presenter;
 
     public SelectPipelinePageView() {
     }

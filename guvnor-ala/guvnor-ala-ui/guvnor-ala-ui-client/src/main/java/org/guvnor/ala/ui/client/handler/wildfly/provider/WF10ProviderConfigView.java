@@ -19,9 +19,7 @@ package org.guvnor.ala.ui.client.handler.wildfly.provider;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.widget.FormStatus;
-import org.gwtbootstrap3.client.ui.constants.ValidationState;
 import org.jboss.errai.common.client.dom.Button;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
@@ -32,17 +30,14 @@ import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
-import static org.guvnor.ala.ui.client.widget.StyleHelper.addUniqueEnumStyleName;
+import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 @Dependent
 @Templated
 public class WF10ProviderConfigView
-        extends AbstractHasContentChangeHandlers
         implements IsElement,
                    WF10ProviderConfigPresenter.View {
-
-    private WF10ProviderConfigPresenter presenter;
 
     @Inject
     @DataField("provider-name-form")
@@ -96,29 +91,15 @@ public class WF10ProviderConfigView
     @DataField("test-connection-button")
     private Button testConnectionButton;
 
+    private WF10ProviderConfigPresenter presenter;
+
     @Override
     public void init(final WF10ProviderConfigPresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
-    public void setContent(final String name,
-                           final String host,
-                           final String port,
-                           final String managementPort,
-                           final String username,
-                           final String password) {
-        resetFormState();
-        this.name.setValue(name);
-        this.host.setValue(host);
-        this.port.setValue(port);
-        this.managementPort.setValue(managementPort);
-        this.username.setValue(username);
-        this.password.setValue(password);
-    }
-
-    @Override
-    public String getName() {
+    public String getProviderName() {
         return name.getValue();
     }
 
@@ -147,178 +128,94 @@ public class WF10ProviderConfigView
         return password.getValue();
     }
 
-    @EventHandler("provider-name")
-    public void onProviderNameChange(@ForEvent("change") final Event event) {
-        if (!name.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(providerNameForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setProviderName(String name) {
+        this.name.setTextContent(name);
     }
 
-    @EventHandler("host")
-    public void onHostChange(@ForEvent("change") final Event event) {
-        if (!host.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(hostForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setHost(String host) {
+        this.host.setTextContent(host);
     }
 
-    @EventHandler("port")
-    public void onPortChange(@ForEvent("change") final Event event) {
-        if (!port.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(portForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setPort(String port) {
+        this.port.setTextContent(port);
     }
 
-    @EventHandler("management-port")
-    public void onManagementPortChange(@ForEvent("change") final Event event) {
-        if (!managementPort.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(managementPortForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setManagementPort(String managementPort) {
+        this.managementPort.setTextContent(managementPort);
     }
 
-    @EventHandler("username")
-    public void onUsernameChange(@ForEvent("change") final Event event) {
-        if (!username.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(usernameForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setUsername(String username) {
+        this.username.setTextContent(username);
     }
 
-    @EventHandler("password")
-    public void onPasswordChange(@ForEvent("change") final Event event) {
-        if (!password.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(passwordForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setPassword(String password) {
+        this.password.setTextContent(password);
     }
 
     @Override
     public void disable() {
         resetFormState();
-        this.name.setDisabled(true);
-        this.host.setDisabled(true);
-        this.port.setDisabled(true);
-        this.managementPort.setDisabled(true);
-        this.username.setDisabled(true);
-        this.password.setDisabled(true);
-        this.testConnectionButton.setDisabled(true);
+        enable(false);
     }
 
     @Override
     public void enable() {
         resetFormState();
-        this.name.setDisabled(false);
-        this.host.setDisabled(false);
-        this.port.setDisabled(false);
-        this.managementPort.setDisabled(false);
-        this.username.setDisabled(false);
-        this.password.setDisabled(false);
-        this.testConnectionButton.setDisabled(false);
+        enable(true);
     }
 
     @Override
     public void setProviderNameStatus(final FormStatus status) {
         checkNotNull("status",
                      status);
-        if (status.equals(FormStatus.ERROR)) {
-            addUniqueEnumStyleName(providerNameForm,
-                                   ValidationState.class,
-                                   ValidationState.ERROR);
-        } else {
-            addUniqueEnumStyleName(providerNameForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
+        setFormStatus(providerNameForm,
+                      status);
     }
 
     @Override
     public void setHostStatus(final FormStatus status) {
         checkNotNull("status",
                      status);
-        if (status.equals(FormStatus.ERROR)) {
-            addUniqueEnumStyleName(hostForm,
-                                   ValidationState.class,
-                                   ValidationState.ERROR);
-        } else {
-            addUniqueEnumStyleName(hostForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
+        setFormStatus(hostForm,
+                      status);
     }
 
     @Override
     public void setPortStatus(final FormStatus status) {
         checkNotNull("status",
                      status);
-        if (status.equals(FormStatus.ERROR)) {
-            addUniqueEnumStyleName(portForm,
-                                   ValidationState.class,
-                                   ValidationState.ERROR);
-        } else {
-            addUniqueEnumStyleName(portForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
+        setFormStatus(portForm,
+                      status);
     }
 
     @Override
     public void setManagementPortStatus(final FormStatus status) {
         checkNotNull("status",
                      status);
-        if (status.equals(FormStatus.ERROR)) {
-            addUniqueEnumStyleName(managementPortForm,
-                                   ValidationState.class,
-                                   ValidationState.ERROR);
-        } else {
-            addUniqueEnumStyleName(managementPortForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
+        setFormStatus(managementPortForm,
+                      status);
     }
 
     @Override
     public void setUsernameStatus(final FormStatus status) {
         checkNotNull("status",
                      status);
-        if (status.equals(FormStatus.ERROR)) {
-            addUniqueEnumStyleName(usernameForm,
-                                   ValidationState.class,
-                                   ValidationState.ERROR);
-        } else {
-            addUniqueEnumStyleName(usernameForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
+        setFormStatus(usernameForm,
+                      status);
     }
 
     @Override
     public void setPasswordStatus(final FormStatus status) {
         checkNotNull("status",
                      status);
-        if (status.equals(FormStatus.ERROR)) {
-            addUniqueEnumStyleName(passwordForm,
-                                   ValidationState.class,
-                                   ValidationState.ERROR);
-        } else {
-            addUniqueEnumStyleName(passwordForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
+        setFormStatus(passwordForm,
+                      status);
     }
 
     @Override
@@ -337,25 +234,59 @@ public class WF10ProviderConfigView
         return "WildFly 10";
     }
 
+    private void enable(boolean enabled) {
+        this.name.setDisabled(!enabled);
+        this.host.setDisabled(!enabled);
+        this.port.setDisabled(!enabled);
+        this.managementPort.setDisabled(!enabled);
+        this.username.setDisabled(!enabled);
+        this.password.setDisabled(!enabled);
+        this.testConnectionButton.setDisabled(!enabled);
+    }
+
     private void resetFormState() {
-        addUniqueEnumStyleName(providerNameForm,
-                               ValidationState.class,
-                               ValidationState.NONE);
-        addUniqueEnumStyleName(hostForm,
-                               ValidationState.class,
-                               ValidationState.NONE);
-        addUniqueEnumStyleName(portForm,
-                               ValidationState.class,
-                               ValidationState.NONE);
-        addUniqueEnumStyleName(managementPortForm,
-                               ValidationState.class,
-                               ValidationState.NONE);
-        addUniqueEnumStyleName(usernameForm,
-                               ValidationState.class,
-                               ValidationState.NONE);
-        addUniqueEnumStyleName(passwordForm,
-                               ValidationState.class,
-                               ValidationState.NONE);
+        setFormStatus(providerNameForm,
+                      FormStatus.VALID);
+        setFormStatus(hostForm,
+                      FormStatus.VALID);
+        setFormStatus(portForm,
+                      FormStatus.VALID);
+        setFormStatus(managementPortForm,
+                      FormStatus.VALID);
+        setFormStatus(usernameForm,
+                      FormStatus.VALID);
+        setFormStatus(passwordForm,
+                      FormStatus.VALID);
+    }
+
+    @EventHandler("provider-name")
+    private void onProviderNameChange(@ForEvent("change") final Event event) {
+        presenter.onProviderNameChange();
+    }
+
+    @EventHandler("host")
+    private void onHostChange(@ForEvent("change") final Event event) {
+        presenter.onHostChange();
+    }
+
+    @EventHandler("port")
+    private void onPortChange(@ForEvent("change") final Event event) {
+        presenter.onPortChange();
+    }
+
+    @EventHandler("management-port")
+    private void onManagementPortChange(@ForEvent("change") final Event event) {
+        presenter.onManagementPortChange();
+    }
+
+    @EventHandler("username")
+    private void onUsernameChange(@ForEvent("change") final Event event) {
+        presenter.onUserNameChange();
+    }
+
+    @EventHandler("password")
+    private void onPasswordChange(@ForEvent("change") final Event event) {
+        presenter.onPasswordChange();
     }
 
     @EventHandler("test-connection-button")

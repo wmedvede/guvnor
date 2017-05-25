@@ -24,7 +24,7 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.RefreshRuntime;
 import org.guvnor.ala.ui.client.wizard.pipeline.SelectPipelinePagePresenter;
-import org.guvnor.ala.ui.client.wizard.source.SourceFormPresenter;
+import org.guvnor.ala.ui.client.wizard.source.SourceConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.RuntimeService;
@@ -41,7 +41,7 @@ public class NewDeployWizard
         extends AbstractMultiPageWizard {
 
     private SelectPipelinePagePresenter selectPipelinePage;
-    private SourceFormPresenter sourceFormPresenter;
+    private SourceConfigurationPagePresenter sourceConfigPage;
 
     private Caller<RuntimeService> runtimeService;
 
@@ -54,7 +54,7 @@ public class NewDeployWizard
 
     @Inject
     public NewDeployWizard(final SelectPipelinePagePresenter selectPipelinePage,
-                           final SourceFormPresenter sourceFormPresenter,
+                           final SourceConfigurationPagePresenter sourceConfigPage,
                            final TranslationService translationService,
                            final Caller<RuntimeService> runtimeService,
                            final Event<NotificationEvent> notification,
@@ -62,7 +62,7 @@ public class NewDeployWizard
         super(translationService,
               notification);
         this.selectPipelinePage = selectPipelinePage;
-        this.sourceFormPresenter = sourceFormPresenter;
+        this.sourceConfigPage = sourceConfigPage;
         this.runtimeService = runtimeService;
         this.refreshRuntimeEvent = refreshRuntimeEvent;
     }
@@ -70,7 +70,7 @@ public class NewDeployWizard
     @PostConstruct
     private void init() {
         pages.add(selectPipelinePage);
-        pages.add(sourceFormPresenter);
+        pages.add(sourceConfigPage);
     }
 
     public void setup(final Provider provider,
@@ -78,7 +78,7 @@ public class NewDeployWizard
         this.provider = provider;
         clear();
         selectPipelinePage.setup(pipelines);
-        sourceFormPresenter.setup(provider);
+        sourceConfigPage.setup();
     }
 
     @Override
@@ -99,8 +99,8 @@ public class NewDeployWizard
     @Override
     public void complete() {
         final String pipeline = selectPipelinePage.getPipeline();
-        final String runtime = sourceFormPresenter.getRuntime();
-        final Source source = sourceFormPresenter.buildSource();
+        final String runtime = sourceConfigPage.getRuntime();
+        final Source source = sourceConfigPage.buildSource();
 
         runtimeService.call((Void aVoid) -> onPipelineStartSuccess(),
                             (message, throwable) -> onPipelineStartError()).createRuntime(provider.getKey(),
@@ -126,6 +126,6 @@ public class NewDeployWizard
 
     private void clear() {
         selectPipelinePage.clear();
-        sourceFormPresenter.clear();
+        sourceConfigPage.clear();
     }
 }

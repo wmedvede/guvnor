@@ -41,10 +41,6 @@ public class ProviderView
         implements IsElement,
                    ProviderPresenter.View {
 
-    private ProviderPresenter presenter;
-
-    private TranslationService translationService;
-
     @Inject
     @DataField("provider-name")
     private Span providerName;
@@ -81,6 +77,14 @@ public class ProviderView
     @DataField("config-content")
     private Div configContent;
 
+    @Inject
+    private TranslationService translationService;
+
+    private ProviderPresenter presenter;
+
+    public ProviderView() {
+    }
+
     @Override
     public void init(final ProviderPresenter presenter) {
         this.presenter = presenter;
@@ -88,6 +92,7 @@ public class ProviderView
 
     @Override
     public void confirmRemove(final Command command) {
+        //TODO i18n
         final YesNoCancelPopup result = YesNoCancelPopup.newYesNoCancelPopup("Remove Provider",
                                                                              "Are you sure you want remove the current provider?",
                                                                              command,
