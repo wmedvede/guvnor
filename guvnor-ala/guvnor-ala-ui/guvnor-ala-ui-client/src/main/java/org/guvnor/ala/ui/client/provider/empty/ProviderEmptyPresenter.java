@@ -47,7 +47,7 @@ public class ProviderEmptyPresenter {
 
     @PostConstruct
     public void init() {
-        this.view.init(this);
+        view.init(this);
     }
 
     public void setProviderType(final ProviderType providerType) {

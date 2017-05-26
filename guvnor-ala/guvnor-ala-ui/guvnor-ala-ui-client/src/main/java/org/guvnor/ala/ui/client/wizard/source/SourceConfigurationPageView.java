@@ -89,9 +89,6 @@ public class SourceConfigurationPageView
 
     private SourceConfigurationPagePresenter presenter;
 
-    public SourceConfigurationPageView() {
-    }
-
     @Override
     public void init(final SourceConfigurationPagePresenter presenter) {
         this.presenter = presenter;

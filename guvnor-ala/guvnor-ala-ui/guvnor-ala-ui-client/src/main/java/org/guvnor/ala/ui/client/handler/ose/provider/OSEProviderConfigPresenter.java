@@ -77,7 +77,6 @@ public class OSEProviderConfigPresenter
     @Inject
     public OSEProviderConfigPresenter(final View view) {
         this.view = view;
-        this.view.init(this);
     }
 
     @PostConstruct

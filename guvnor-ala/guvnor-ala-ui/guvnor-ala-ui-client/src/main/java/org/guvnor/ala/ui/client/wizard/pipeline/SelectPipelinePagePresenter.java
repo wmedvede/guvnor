@@ -18,6 +18,7 @@ package org.guvnor.ala.ui.client.wizard.pipeline;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -43,14 +44,11 @@ public class SelectPipelinePagePresenter
         String getTitle();
     }
 
-    private View view;
-    private Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-    private ManagedInstance<PipelineItemPresenter> itemPresenterInstance;
+    private final View view;
+    private final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
+    private final ManagedInstance<PipelineItemPresenter> itemPresenterInstance;
 
     private Collection<PipelineItemPresenter> itemPresenters = new ArrayList<>();
-
-    public SelectPipelinePagePresenter() {
-    }
 
     @Inject
     public SelectPipelinePagePresenter(final View view,
@@ -59,7 +57,11 @@ public class SelectPipelinePagePresenter
         this.view = view;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
         this.itemPresenterInstance = itemPresenterInstance;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public void setup(final Collection<String> pipelines) {

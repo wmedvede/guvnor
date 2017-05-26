@@ -18,9 +18,6 @@ package org.guvnor.ala.ui.client.events;
 
 import org.guvnor.ala.ui.model.ProviderType;
 
-/**
- * TODO: update me
- */
 public class AddNewProviderEvent {
 
     private final ProviderType providerType;

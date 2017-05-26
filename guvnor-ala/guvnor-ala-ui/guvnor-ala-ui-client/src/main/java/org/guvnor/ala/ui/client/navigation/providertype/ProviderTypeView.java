@@ -63,9 +63,6 @@ public class ProviderTypeView
 
     private CustomGroupItem selected = null;
 
-    public ProviderTypeView() {
-    }
-
     @Override
     public void init(final ProviderTypePresenter presenter) {
         this.presenter = presenter;

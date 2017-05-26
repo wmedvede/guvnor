@@ -16,6 +16,7 @@
 
 package org.guvnor.ala.ui.client.widget.pipeline.stage;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -43,6 +44,10 @@ public class StagePresenter {
     @Inject
     public StagePresenter(final View view) {
         this.view = view;
+    }
+
+    @PostConstruct
+    public void init() {
         view.init(this);
     }
 

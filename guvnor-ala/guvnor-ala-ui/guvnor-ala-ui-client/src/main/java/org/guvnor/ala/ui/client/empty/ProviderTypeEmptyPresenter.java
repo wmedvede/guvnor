@@ -16,6 +16,7 @@
 
 package org.guvnor.ala.ui.client.empty;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -31,19 +32,20 @@ public class ProviderTypeEmptyPresenter {
 
     }
 
-    private View view;
+    private final View view;
 
-    private Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
-
-    public ProviderTypeEmptyPresenter() {
-    }
+    private final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
 
     @Inject
     public ProviderTypeEmptyPresenter(final View view,
                                       final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent) {
         this.view = view;
         this.addNewProviderTypeEvent = addNewProviderTypeEvent;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public View getView() {

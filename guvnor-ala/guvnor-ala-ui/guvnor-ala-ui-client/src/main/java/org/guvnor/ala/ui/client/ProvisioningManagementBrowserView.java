@@ -59,9 +59,6 @@ public class ProvisioningManagementBrowserView
     @Inject
     private TranslationService translationService;
 
-    public ProvisioningManagementBrowserView() {
-    }
-
     @PostConstruct
     public void init() {
         removeAllChildren(container);

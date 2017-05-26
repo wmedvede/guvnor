@@ -67,26 +67,23 @@ public class ProvisioningManagementBrowserPresenter {
         void setContent(final IsElement view);
     }
 
-    private View view;
+    private final View view;
 
-    private ProviderTypeNavigationPresenter providerTypeNavigationPresenter;
+    private final ProviderTypeNavigationPresenter providerTypeNavigationPresenter;
 
-    private ProviderTypePresenter providerTypePresenter;
+    private final ProviderTypePresenter providerTypePresenter;
 
-    private ProviderTypeEmptyPresenter providerTypeEmptyPresenter;
+    private final ProviderTypeEmptyPresenter providerTypeEmptyPresenter;
 
-    private ProviderEmptyPresenter providerEmptyPresenter;
+    private final ProviderEmptyPresenter providerEmptyPresenter;
 
-    private ProviderPresenter providerPresenter;
+    private final ProviderPresenter providerPresenter;
 
-    private Caller<ProviderTypeService> providerTypeService;
+    private final Caller<ProviderTypeService> providerTypeService;
 
-    private Caller<ProviderService> providerService;
+    private final Caller<ProviderService> providerService;
 
-    private Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
-
-    public ProvisioningManagementBrowserPresenter() {
-    }
+    private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
     @Inject
     public ProvisioningManagementBrowserPresenter(final ProvisioningManagementBrowserPresenter.View view,
@@ -107,12 +104,12 @@ public class ProvisioningManagementBrowserPresenter {
         this.providerTypeService = providerTypeService;
         this.providerService = providerService;
         this.providerTypeSelectedEvent = providerTypeSelectedEvent;
-        view.init(this);
     }
 
     @PostConstruct
     public void init() {
-        this.view.setProviderTypesNavigation(providerTypeNavigationPresenter.getView());
+        view.init(this);
+        view.setProviderTypesNavigation(providerTypeNavigationPresenter.getView());
     }
 
     @OnOpen

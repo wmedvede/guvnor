@@ -17,6 +17,7 @@
 package org.guvnor.ala.ui.client.navigation.providertype;
 
 import java.util.Collection;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -52,17 +53,14 @@ public class ProviderTypePresenter {
         void confirmRemove(Command command);
     }
 
-    private View view;
-    private Caller<ProviderTypeService> providerTypeService;
+    private final View view;
+    private final Caller<ProviderTypeService> providerTypeService;
 
-    private Event<AddNewProviderEvent> addNewProviderEvent;
-    private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
-    private Event<ProviderSelectedEvent> providerSelectedEvent;
+    private final Event<AddNewProviderEvent> addNewProviderEvent;
+    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
+    private final Event<ProviderSelectedEvent> providerSelectedEvent;
 
     private ProviderType providerType;
-
-    public ProviderTypePresenter() {
-    }
 
     @Inject
     public ProviderTypePresenter(final View view,
@@ -75,7 +73,11 @@ public class ProviderTypePresenter {
         this.addNewProviderEvent = addNewProviderEvent;
         this.providerTypeListRefreshEvent = providerTypeListRefreshEvent;
         this.providerSelectedEvent = providerSelectedEvent;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public View getView() {
@@ -105,12 +107,12 @@ public class ProviderTypePresenter {
                          () -> providerSelectedEvent.fire(new ProviderSelectedEvent(provider)));
     }
 
-    public void onProviderSelect(@Observes final ProviderSelectedEvent providerSelectedEvent) {
-        if (providerSelectedEvent.getProviderKey() != null &&
-                providerSelectedEvent.getProviderKey().getId() != null &&
-                providerSelectedEvent.getProviderKey().getProviderTypeKey() != null &&
-                providerSelectedEvent.getProviderKey().getProviderTypeKey().equals(providerType.getKey())) {
-            view.select(providerSelectedEvent.getProviderKey().getId());
+    public void onProviderSelect(@Observes final ProviderSelectedEvent event) {
+        if (event.getProviderKey() != null &&
+                event.getProviderKey().getId() != null &&
+                event.getProviderKey().getProviderTypeKey() != null &&
+                event.getProviderKey().getProviderTypeKey().equals(providerType.getKey())) {
+            view.select(event.getProviderKey().getId());
         }
     }
 

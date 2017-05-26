@@ -16,6 +16,7 @@
 
 package org.guvnor.ala.ui.client.widget.pipeline;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -38,6 +39,11 @@ public class PipelinePresenter {
     @Inject
     public PipelinePresenter(final View view) {
         this.view = view;
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public View getView() {

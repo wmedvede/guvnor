@@ -108,7 +108,7 @@ public class ProviderPresenter {
 
     @PostConstruct
     public void init() {
-        this.view.init(this);
+        view.init(this);
     }
 
     public void onProviderSelected(@Observes final ProviderSelectedEvent event) {

@@ -19,6 +19,7 @@ package org.guvnor.ala.ui.client.navigation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -48,16 +49,13 @@ public class ProviderTypeNavigationPresenter {
         void clear();
     }
 
-    private View view;
+    private final View view;
 
-    private Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
-    private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
-    private Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
+    private final Event<AddNewProviderTypeEvent> addNewProviderTypeEvent;
+    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
+    private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
     private Map<ProviderTypeKey, ProviderType> providerTypes = new HashMap<>();
-
-    public ProviderTypeNavigationPresenter() {
-    }
 
     @Inject
     public ProviderTypeNavigationPresenter(final View view,
@@ -68,7 +66,11 @@ public class ProviderTypeNavigationPresenter {
         this.addNewProviderTypeEvent = addNewProviderTypeEvent;
         this.providerTypeListRefreshEvent = providerTypeListRefreshEvent;
         this.providerTypeSelectedEvent = providerTypeSelectedEvent;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public void setup(final ProviderType firstProvider,

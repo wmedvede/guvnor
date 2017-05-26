@@ -50,19 +50,20 @@ public class ProviderTypeItemPresenter
     }
 
     private final View view;
+    private final ClientProviderHandlerRegistry handlerRegistry;
+
     private ProviderType type;
-    private ClientProviderHandlerRegistry handlerRegistry;
 
     @Inject
     public ProviderTypeItemPresenter(final View view,
                                      final ClientProviderHandlerRegistry handlerRegistry) {
         this.view = view;
         this.handlerRegistry = handlerRegistry;
-        this.view.init(this);
     }
 
     @PostConstruct
-    void setUp() {
+    public void init() {
+        view.init(this);
         view.addContentChangeHandler(this::fireChangeHandlers);
     }
 

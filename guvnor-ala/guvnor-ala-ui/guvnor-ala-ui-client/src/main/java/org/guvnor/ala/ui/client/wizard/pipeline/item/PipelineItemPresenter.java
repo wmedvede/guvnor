@@ -43,18 +43,18 @@ public class PipelineItemPresenter
     }
 
     private final View view;
-    private final Collection<PipelineItemPresenter> others = new ArrayList<>();
 
+    private final Collection<PipelineItemPresenter> others = new ArrayList<>();
     private String pipeline;
 
     @Inject
     public PipelineItemPresenter(final View view) {
         this.view = view;
-        this.view.init(this);
     }
 
     @PostConstruct
     private void init() {
+        view.init(this);
         view.addContentChangeHandler(this::onContentChange);
     }
 

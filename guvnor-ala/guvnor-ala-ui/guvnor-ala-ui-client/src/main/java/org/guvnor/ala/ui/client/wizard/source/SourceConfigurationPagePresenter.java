@@ -17,6 +17,7 @@
 package org.guvnor.ala.ui.client.wizard.source;
 
 import java.util.Collection;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -87,12 +88,9 @@ public class SourceConfigurationPagePresenter
         void addProject(String projectName);
     }
 
-    private View view;
-    private Caller<SourceService> sourceService;
-    private Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-
-    public SourceConfigurationPagePresenter() {
-    }
+    private final View view;
+    private final Caller<SourceService> sourceService;
+    private final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
 
     @Inject
     public SourceConfigurationPagePresenter(final View view,
@@ -101,7 +99,11 @@ public class SourceConfigurationPagePresenter
         this.view = view;
         this.sourceService = sourceService;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     @Override

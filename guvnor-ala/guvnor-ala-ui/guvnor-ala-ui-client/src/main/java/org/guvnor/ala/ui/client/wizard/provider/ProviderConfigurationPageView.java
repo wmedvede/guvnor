@@ -42,9 +42,6 @@ public class ProviderConfigurationPageView
     @Inject
     private TranslationService translationService;
 
-    public ProviderConfigurationPageView() {
-    }
-
     @Override
     public void init(final ProviderConfigurationPagePresenter presenter) {
         this.presenter = presenter;

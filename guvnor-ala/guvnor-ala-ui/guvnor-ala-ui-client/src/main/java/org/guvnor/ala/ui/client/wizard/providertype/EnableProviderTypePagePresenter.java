@@ -19,6 +19,7 @@ package org.guvnor.ala.ui.client.wizard.providertype;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -49,7 +50,7 @@ public class EnableProviderTypePagePresenter
 
     private final View view;
     private final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
-    private ManagedInstance<ProviderTypeItemPresenter> providerTypeItemPresenterInstance;
+    private final ManagedInstance<ProviderTypeItemPresenter> providerTypeItemPresenterInstance;
 
     private Collection<ProviderTypeItemPresenter> providerTypes = new ArrayList<>();
 
@@ -60,7 +61,11 @@ public class EnableProviderTypePagePresenter
         this.view = view;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
         this.providerTypeItemPresenterInstance = providerTypeItemPresenterInstance;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public void setup(final Map<ProviderType, ProviderTypeStatus> providerTypeStatus) {

@@ -43,9 +43,6 @@ public class EnableProviderTypePageView
     @Inject
     private TranslationService translationService;
 
-    public EnableProviderTypePageView() {
-    }
-
     @Override
     public void init(final EnableProviderTypePagePresenter presenter) {
         this.presenter = presenter;

@@ -18,9 +18,6 @@ package org.guvnor.ala.ui.client.events;
 
 import org.guvnor.ala.ui.model.ProviderKey;
 
-/**
- * TODO: update me
- */
 public class ProviderSelectedEvent {
 
     private final ProviderKey providerKey;

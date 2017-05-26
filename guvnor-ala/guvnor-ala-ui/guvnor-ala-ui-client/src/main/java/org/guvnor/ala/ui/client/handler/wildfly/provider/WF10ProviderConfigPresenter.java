@@ -18,6 +18,7 @@ package org.guvnor.ala.ui.client.handler.wildfly.provider;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -95,14 +96,18 @@ public class WF10ProviderConfigPresenter
     }
 
     private final View view;
-    private Caller<IProvisioningService> provisioningService;
+    private final Caller<IProvisioningService> provisioningService;
 
     @Inject
     public WF10ProviderConfigPresenter(final View view,
                                        final Caller<IProvisioningService> provisioningService) {
         this.view = view;
         this.provisioningService = provisioningService;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public View getView() {

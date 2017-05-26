@@ -16,6 +16,7 @@
 
 package org.guvnor.ala.ui.client.wizard.provider;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -47,7 +48,11 @@ public class ProviderConfigurationPagePresenter
                                               final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent) {
         this.view = view;
         this.wizardPageStatusChangeEvent = wizardPageStatusChangeEvent;
-        this.view.init(this);
+    }
+
+    @PostConstruct
+    public void init() {
+        view.init(this);
     }
 
     public void setProviderConfigurationForm(final ProviderConfigurationForm providerConfigurationForm) {

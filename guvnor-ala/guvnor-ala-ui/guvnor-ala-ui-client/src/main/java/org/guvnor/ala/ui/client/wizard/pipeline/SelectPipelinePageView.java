@@ -43,9 +43,6 @@ public class SelectPipelinePageView
 
     private SelectPipelinePagePresenter presenter;
 
-    public SelectPipelinePageView() {
-    }
-
     @Override
     public void init(final SelectPipelinePagePresenter presenter) {
         this.presenter = presenter;
