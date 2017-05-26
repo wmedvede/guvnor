@@ -21,11 +21,11 @@ import org.guvnor.ala.ui.model.ProviderKey;
 /**
  * TODO: update me
  */
-public class RefreshRuntime {
+public class RefreshRuntimeEvent {
 
     private final ProviderKey providerKey;
 
-    public RefreshRuntime( final ProviderKey providerKey ) {
+    public RefreshRuntimeEvent(final ProviderKey providerKey ) {
         this.providerKey = providerKey;
     }
 

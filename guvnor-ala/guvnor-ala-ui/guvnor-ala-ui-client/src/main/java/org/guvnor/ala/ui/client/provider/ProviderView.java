@@ -82,9 +82,6 @@ public class ProviderView
 
     private ProviderPresenter presenter;
 
-    public ProviderView() {
-    }
-
     @Override
     public void init(final ProviderPresenter presenter) {
         this.presenter = presenter;

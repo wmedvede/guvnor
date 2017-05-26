@@ -27,9 +27,9 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
 @Templated
-public class PipelineView implements
-                          org.jboss.errai.ui.client.local.api.IsElement,
-                          PipelinePresenter.View {
+public class PipelineView
+        implements org.jboss.errai.ui.client.local.api.IsElement,
+                   PipelinePresenter.View {
 
     @Inject
     @DataField("pipeline-container")

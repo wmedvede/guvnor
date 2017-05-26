@@ -31,7 +31,8 @@ import org.uberfire.client.mvp.UberElement;
 public class ProviderConfigEmptyPresenter
         implements ProviderConfigurationForm {
 
-    public interface View extends UberElement<ProviderConfigEmptyPresenter> {
+    public interface View
+            extends UberElement<ProviderConfigEmptyPresenter> {
 
         String getWizardTitle();
     }

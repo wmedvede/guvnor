@@ -22,7 +22,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.AddNewProvider;
+import org.guvnor.ala.ui.client.events.AddNewProviderEvent;
 import org.guvnor.ala.ui.client.events.ProviderSelectedEvent;
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
 import org.guvnor.ala.ui.model.ProviderKey;
@@ -55,7 +55,7 @@ public class ProviderTypePresenter {
     private View view;
     private Caller<ProviderTypeService> providerTypeService;
 
-    private Event<AddNewProvider> addNewProviderEvent;
+    private Event<AddNewProviderEvent> addNewProviderEvent;
     private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
     private Event<ProviderSelectedEvent> providerSelectedEvent;
 
@@ -67,7 +67,7 @@ public class ProviderTypePresenter {
     @Inject
     public ProviderTypePresenter(final View view,
                                  final Caller<ProviderTypeService> providerTypeService,
-                                 final Event<AddNewProvider> addNewProviderEvent,
+                                 final Event<AddNewProviderEvent> addNewProviderEvent,
                                  final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent,
                                  final Event<ProviderSelectedEvent> providerSelectedEvent) {
         this.view = view;
@@ -115,7 +115,7 @@ public class ProviderTypePresenter {
     }
 
     public void onAddNewProvider() {
-        addNewProviderEvent.fire(new AddNewProvider(providerType));
+        addNewProviderEvent.fire(new AddNewProviderEvent(providerType));
     }
 
     public void onRemoveProviderType() {

@@ -30,8 +30,8 @@ import org.guvnor.ala.pipeline.events.PipelineEventListener;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
 import org.guvnor.ala.registry.PipelineExecutorRegistry;
-import org.guvnor.ala.ui.events.PipelineStatusChange;
-import org.guvnor.ala.ui.events.StageStatusChange;
+import org.guvnor.ala.ui.events.PipelineStatusChangeEvent;
+import org.guvnor.ala.ui.events.StageStatusChangeEvent;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineStatus;
 
@@ -42,15 +42,15 @@ import org.guvnor.ala.ui.model.PipelineStatus;
 public class PipelineExecutionListener
         implements PipelineEventListener {
 
-    private Event<PipelineStatusChange> pipelineStatusChangeEvent;
+    private Event<PipelineStatusChangeEvent> pipelineStatusChangeEvent;
 
-    private Event<StageStatusChange> stageStatusChangeEvent;
+    private Event<StageStatusChangeEvent> stageStatusChangeEvent;
 
     private PipelineExecutorRegistry executorRegistry;
 
     @Inject
-    public PipelineExecutionListener(final Event<PipelineStatusChange> pipelineStatusChangeEvent,
-                                     final Event<StageStatusChange> stageStatusChangeEvent,
+    public PipelineExecutionListener(final Event<PipelineStatusChangeEvent> pipelineStatusChangeEvent,
+                                     final Event<StageStatusChangeEvent> stageStatusChangeEvent,
                                      final PipelineExecutorRegistry executorRegistry) {
         this.pipelineStatusChangeEvent = pipelineStatusChangeEvent;
         this.stageStatusChangeEvent = stageStatusChangeEvent;
@@ -61,8 +61,8 @@ public class PipelineExecutionListener
     public void beforePipelineExecution(BeforePipelineExecutionEvent bpee) {
         PipelineExecutorTask task = getTask(bpee);
         if (task != null) {
-            pipelineStatusChangeEvent.fire(new PipelineStatusChange(new PipelineExecutionTraceKey(bpee.getExecutionId()),
-                                                                    PipelineStatus.RUNNING));
+            pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(bpee.getExecutionId()),
+                                                                         PipelineStatus.RUNNING));
         }
     }
 
@@ -70,8 +70,8 @@ public class PipelineExecutionListener
     public void afterPipelineExecution(AfterPipelineExecutionEvent apee) {
         PipelineExecutorTask task = getTask(apee);
         if (task != null) {
-            pipelineStatusChangeEvent.fire(new PipelineStatusChange(new PipelineExecutionTraceKey(apee.getExecutionId()),
-                                                                    PipelineStatus.FINISHED));
+            pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(apee.getExecutionId()),
+                                                                         PipelineStatus.FINISHED));
         }
     }
 
@@ -79,9 +79,9 @@ public class PipelineExecutionListener
     public void beforeStageExecution(BeforeStageExecutionEvent bsee) {
         PipelineExecutorTask task = getTask(bsee);
         if (task != null) {
-            stageStatusChangeEvent.fire(new StageStatusChange(new PipelineExecutionTraceKey(task.getId()),
-                                                              bsee.getStage().getName(),
-                                                              PipelineStatus.RUNNING));
+            stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(task.getId()),
+                                                                   bsee.getStage().getName(),
+                                                                   PipelineStatus.RUNNING));
         }
     }
 
@@ -89,9 +89,9 @@ public class PipelineExecutionListener
     public void onStageError(OnErrorStageExecutionEvent oesee) {
         PipelineExecutorTask task = getTask(oesee);
         if (task != null) {
-            stageStatusChangeEvent.fire(new StageStatusChange(new PipelineExecutionTraceKey(task.getId()),
-                                                              oesee.getStage().getName(),
-                                                              PipelineStatus.ERROR));
+            stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(task.getId()),
+                                                                   oesee.getStage().getName(),
+                                                                   PipelineStatus.ERROR));
         }
     }
 
@@ -99,9 +99,9 @@ public class PipelineExecutionListener
     public void afterStageExecution(AfterStageExecutionEvent asee) {
         PipelineExecutorTask task = getTask(asee);
         if (task != null) {
-            stageStatusChangeEvent.fire(new StageStatusChange(new PipelineExecutionTraceKey(task.getId()),
-                                                              asee.getStage().getName(),
-                                                              PipelineStatus.FINISHED));
+            stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(task.getId()),
+                                                                   asee.getStage().getName(),
+                                                                   PipelineStatus.FINISHED));
         }
     }
 
@@ -109,8 +109,8 @@ public class PipelineExecutionListener
     public void onPipelineError(OnErrorPipelineExecutionEvent oepee) {
         PipelineExecutorTask task = getTask(oepee);
         if (task != null) {
-            pipelineStatusChangeEvent.fire(new PipelineStatusChange(new PipelineExecutionTraceKey(oepee.getExecutionId()),
-                                                                    PipelineStatus.ERROR));
+            pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(oepee.getExecutionId()),
+                                                                         PipelineStatus.ERROR));
         }
     }
 

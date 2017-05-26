@@ -19,6 +19,7 @@ package org.guvnor.ala.ui.client.provider.status;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
@@ -26,11 +27,13 @@ import org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenter;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
+import org.uberfire.client.mvp.UberElement;
 
 @Dependent
 public class ProviderStatusPresenter {
 
-    public interface View extends IsElement {
+    public interface View
+            extends UberElement<ProviderStatusPresenter> {
 
         void addListItem(final IsElement listItem);
 
@@ -50,15 +53,20 @@ public class ProviderStatusPresenter {
         this.runtimePresenterInstance = runtimePresenterInstance;
     }
 
+    @PostConstruct
+    public void init() {
+        view.init(this);
+    }
+
     public void setupItems(final Collection<RuntimeListItem> response) {
         view.clear();
         clearItems();
-        for (final RuntimeListItem item : response) {
+        response.forEach(item -> {
             final RuntimePresenter runtimePresenter = newRuntimePresenter();
             runtimePresenter.setup(item);
             currentItems.add(runtimePresenter);
             view.addListItem(runtimePresenter.getView());
-        }
+        });
     }
 
     public View getView() {

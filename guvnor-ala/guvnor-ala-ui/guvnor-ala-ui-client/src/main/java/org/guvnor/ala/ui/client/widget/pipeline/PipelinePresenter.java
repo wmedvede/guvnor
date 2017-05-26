@@ -25,7 +25,8 @@ import org.uberfire.client.mvp.UberElement;
 @Dependent
 public class PipelinePresenter {
 
-    public interface View extends UberElement<PipelinePresenter> {
+    public interface View
+            extends UberElement<PipelinePresenter> {
 
         void addStage(final IsElement element);
 

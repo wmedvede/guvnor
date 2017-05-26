@@ -130,32 +130,32 @@ public class WF10ProviderConfigView
 
     @Override
     public void setProviderName(String name) {
-        this.name.setTextContent(name);
+        this.name.setValue(name);
     }
 
     @Override
     public void setHost(String host) {
-        this.host.setTextContent(host);
+        this.host.setValue(host);
     }
 
     @Override
     public void setPort(String port) {
-        this.port.setTextContent(port);
+        this.port.setValue(port);
     }
 
     @Override
     public void setManagementPort(String managementPort) {
-        this.managementPort.setTextContent(managementPort);
+        this.managementPort.setValue(managementPort);
     }
 
     @Override
     public void setUsername(String username) {
-        this.username.setTextContent(username);
+        this.username.setValue(username);
     }
 
     @Override
     public void setPassword(String password) {
-        this.password.setTextContent(password);
+        this.password.setValue(password);
     }
 
     @Override

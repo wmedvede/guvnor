@@ -21,7 +21,7 @@ import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.RefreshRuntime;
+import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.uberfire.client.mvp.UberElement;
 
@@ -30,19 +30,20 @@ import static org.uberfire.commons.validation.PortablePreconditions.*;
 @Dependent
 public class ProviderStatusEmptyPresenter {
 
-    public interface View extends UberElement<ProviderStatusEmptyPresenter> {
+    public interface View
+            extends UberElement<ProviderStatusEmptyPresenter> {
 
     }
 
     private final View view;
 
-    private final Event<RefreshRuntime> refreshRuntimeEvent;
+    private final Event<RefreshRuntimeEvent> refreshRuntimeEvent;
 
     private ProviderKey providerKey;
 
     @Inject
     public ProviderStatusEmptyPresenter(final View view,
-                                        final Event<RefreshRuntime> refreshRuntimeEvent) {
+                                        final Event<RefreshRuntimeEvent> refreshRuntimeEvent) {
         this.view = view;
         this.refreshRuntimeEvent = refreshRuntimeEvent;
     }
@@ -61,7 +62,7 @@ public class ProviderStatusEmptyPresenter {
                                         providerKey);
     }
 
-    public void refresh() {
-        refreshRuntimeEvent.fire(new RefreshRuntime(providerKey));
+    public void onRefresh() {
+        refreshRuntimeEvent.fire(new RefreshRuntimeEvent(providerKey));
     }
 }

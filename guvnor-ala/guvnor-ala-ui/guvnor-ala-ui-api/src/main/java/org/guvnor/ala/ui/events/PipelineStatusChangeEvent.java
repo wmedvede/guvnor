@@ -22,14 +22,14 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
-public class PipelineStatusChange {
+public class PipelineStatusChangeEvent {
 
     private PipelineExecutionTraceKey pipelineExecutionTraceKey;
 
     private PipelineStatus status;
 
-    public PipelineStatusChange(@MapsTo("pipelineExecutionTraceKey") final PipelineExecutionTraceKey pipelineExecutionTraceKey,
-                                @MapsTo("status") final PipelineStatus status) {
+    public PipelineStatusChangeEvent(@MapsTo("pipelineExecutionTraceKey") final PipelineExecutionTraceKey pipelineExecutionTraceKey,
+                                     @MapsTo("status") final PipelineStatus status) {
         this.pipelineExecutionTraceKey = pipelineExecutionTraceKey;
         this.status = status;
     }

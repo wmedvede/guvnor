@@ -37,6 +37,13 @@ public class ProviderStatusView
     @DataField("container")
     private Div container;
 
+    private ProviderStatusPresenter presenter;
+
+    @Override
+    public void init(final ProviderStatusPresenter presenter) {
+        this.presenter = presenter;
+    }
+
     @Override
     public void addListItem(final IsElement listItem) {
         container.appendChild(checkNotNull("listItem",

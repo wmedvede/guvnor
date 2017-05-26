@@ -21,11 +21,11 @@ import org.guvnor.ala.ui.model.ProviderType;
 /**
  * TODO: update me
  */
-public class AddNewProvider {
+public class AddNewProviderEvent {
 
     private final ProviderType providerType;
 
-    public AddNewProvider( final ProviderType providerType ) {
+    public AddNewProviderEvent(final ProviderType providerType ) {
         this.providerType = providerType;
     }
 

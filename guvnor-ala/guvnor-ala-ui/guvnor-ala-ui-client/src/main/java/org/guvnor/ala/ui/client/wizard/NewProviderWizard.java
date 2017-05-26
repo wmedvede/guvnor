@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.wizard.provider;
+package org.guvnor.ala.ui.client.wizard;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +27,7 @@ import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
 import org.guvnor.ala.ui.client.util.PopupsUtil;
-import org.guvnor.ala.ui.client.wizard.AbstractMultiPageWizard;
+import org.guvnor.ala.ui.client.wizard.provider.ProviderConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -44,18 +44,15 @@ import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewPr
 public class NewProviderWizard
         extends AbstractMultiPageWizard {
 
-    private ProviderConfigurationPagePresenter providerConfigurationPage;
-    private ClientProviderHandlerRegistry handlerRegistry;
-    private PopupsUtil popupsUtil;
-    private Caller<ProviderService> providerService;
-    private Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
+    private final ProviderConfigurationPagePresenter providerConfigurationPage;
+    private final ClientProviderHandlerRegistry handlerRegistry;
+    private final PopupsUtil popupsUtil;
+    private final Caller<ProviderService> providerService;
+    private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
     private ProviderType providerType;
     private Map<ProviderTypeKey, ProviderConfigurationForm> providerConfigurationFormMap = new HashMap<>();
     private ProviderConfigurationForm providerConfigurationForm;
-
-    public NewProviderWizard() {
-    }
 
     @Inject
     public NewProviderWizard(final ProviderConfigurationPagePresenter providerConfigurationPage,

@@ -22,7 +22,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.RefreshRuntime;
+import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
 import org.guvnor.ala.ui.client.wizard.pipeline.SelectPipelinePagePresenter;
 import org.guvnor.ala.ui.client.wizard.source.SourceConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.Provider;
@@ -40,17 +40,14 @@ import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDe
 public class NewDeployWizard
         extends AbstractMultiPageWizard {
 
-    private SelectPipelinePagePresenter selectPipelinePage;
-    private SourceConfigurationPagePresenter sourceConfigPage;
+    private final SelectPipelinePagePresenter selectPipelinePage;
+    private final SourceConfigurationPagePresenter sourceConfigPage;
 
-    private Caller<RuntimeService> runtimeService;
+    private final Caller<RuntimeService> runtimeService;
 
-    private Event<RefreshRuntime> refreshRuntimeEvent;
+    private final Event<RefreshRuntimeEvent> refreshRuntimeEvent;
 
     private Provider provider;
-
-    public NewDeployWizard() {
-    }
 
     @Inject
     public NewDeployWizard(final SelectPipelinePagePresenter selectPipelinePage,
@@ -58,7 +55,7 @@ public class NewDeployWizard
                            final TranslationService translationService,
                            final Caller<RuntimeService> runtimeService,
                            final Event<NotificationEvent> notification,
-                           final Event<RefreshRuntime> refreshRuntimeEvent) {
+                           final Event<RefreshRuntimeEvent> refreshRuntimeEvent) {
         super(translationService,
               notification);
         this.selectPipelinePage = selectPipelinePage;
@@ -113,7 +110,7 @@ public class NewDeployWizard
         notification.fire(new NotificationEvent(translationService.getTranslation(NewDeployWizard_PipelineStartSuccessMessage),
                                                 NotificationEvent.NotificationType.SUCCESS));
         NewDeployWizard.super.complete();
-        refreshRuntimeEvent.fire(new RefreshRuntime(provider.getKey()));
+        refreshRuntimeEvent.fire(new RefreshRuntimeEvent(provider.getKey()));
     }
 
     private boolean onPipelineStartError() {

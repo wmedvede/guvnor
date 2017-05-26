@@ -22,11 +22,11 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.events.AddNewProvider;
+import org.guvnor.ala.ui.client.events.AddNewProviderEvent;
 import org.guvnor.ala.ui.client.events.AddNewProviderTypeEvent;
 import org.guvnor.ala.ui.client.events.AddNewRuntimeEvent;
-import org.guvnor.ala.ui.client.wizard.provider.NewProviderWizard;
-import org.guvnor.ala.ui.client.wizard.providertype.EnableProviderTypeWizard;
+import org.guvnor.ala.ui.client.wizard.NewProviderWizard;
+import org.guvnor.ala.ui.client.wizard.EnableProviderTypeWizard;
 import org.guvnor.ala.ui.client.wizard.NewDeployWizard;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
@@ -85,9 +85,9 @@ public class ProvisioningManagementPerspective {
                                  new DefaultErrorCallback()).getProviderTypesStatus();
     }
 
-    public void onNewProvider(@Observes final AddNewProvider addNewProvider) {
-        if (addNewProvider.getProviderType() != null && addNewProvider.getProviderType().getKey() != null) {
-            newProviderWizard.setup(addNewProvider.getProviderType());
+    public void onNewProvider(@Observes final AddNewProviderEvent event) {
+        if (event.getProviderType() != null && event.getProviderType().getKey() != null) {
+            newProviderWizard.setup(event.getProviderType());
             newProviderWizard.start();
         }
     }

@@ -16,10 +16,8 @@
 
 package org.guvnor.ala.ui.client.provider;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -30,7 +28,7 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.events.AddNewRuntimeEvent;
 import org.guvnor.ala.ui.client.events.ProviderSelectedEvent;
 import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
-import org.guvnor.ala.ui.client.events.RefreshRuntime;
+import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
 import org.guvnor.ala.ui.client.handler.FormResolver;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
 import org.guvnor.ala.ui.client.provider.status.ProviderStatusPresenter;
@@ -54,7 +52,8 @@ import org.uberfire.workbench.events.NotificationEvent;
 @ApplicationScoped
 public class ProviderPresenter {
 
-    public interface View extends UberElement<ProviderPresenter> {
+    public interface View
+            extends UberElement<ProviderPresenter> {
 
         void confirmRemove(final Command command);
 
@@ -78,12 +77,11 @@ public class ProviderPresenter {
     private final ClientProviderHandlerRegistry providerHandlerRegistry;
 
     private final Event<NotificationEvent> notification;
-    private final Event<ProviderTypeSelectedEvent> providerTypeSelected;
+    private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
     private final Event<AddNewRuntimeEvent> addNewRuntimeEvent;
 
     private Provider provider;
-    private List<ProviderConfigurationForm> providerConfigurationForms = new ArrayList<>();
-    private Map<ProviderConfigurationForm, FormResolver> formFormResolverMap = new HashMap<>();
+    private Map<ProviderConfigurationForm, FormResolver> formToResolverMap = new HashMap<>();
 
     @Inject
     public ProviderPresenter(final View view,
@@ -93,7 +91,7 @@ public class ProviderPresenter {
                              final ProviderStatusPresenter providerStatusPresenter,
                              final ProviderConfigEmptyPresenter providerConfigEmptyPresenter,
                              final ClientProviderHandlerRegistry providerHandlerRegistry,
-                             final Event<ProviderTypeSelectedEvent> providerTypeSelected,
+                             final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent,
                              final Event<NotificationEvent> notification,
                              final Event<AddNewRuntimeEvent> addNewRuntimeEvent) {
         this.view = view;
@@ -104,7 +102,7 @@ public class ProviderPresenter {
         this.providerConfigEmptyPresenter = providerConfigEmptyPresenter;
         this.providerHandlerRegistry = providerHandlerRegistry;
         this.notification = notification;
-        this.providerTypeSelected = providerTypeSelected;
+        this.providerTypeSelectedEvent = providerTypeSelectedEvent;
         this.addNewRuntimeEvent = addNewRuntimeEvent;
     }
 
@@ -113,23 +111,20 @@ public class ProviderPresenter {
         this.view.init(this);
     }
 
-    public void onProviderSelected(@Observes final ProviderSelectedEvent providerSelectedEvent) {
-        if (providerSelectedEvent != null &&
-                providerSelectedEvent.getProviderKey() != null) {
-            load(providerSelectedEvent.getProviderKey());
+    public void onProviderSelected(@Observes final ProviderSelectedEvent event) {
+        if (event.getProviderKey() != null) {
+            load(event.getProviderKey());
         }
     }
 
-    public void onRefreshRuntime(@Observes RefreshRuntime refreshRuntime) {
-        if (refreshRuntime != null &&
-                refreshRuntime.getProviderKey() != null &&
-                refreshRuntime.getProviderKey().equals(provider.getKey())) {
-            load(refreshRuntime.getProviderKey());
+    public void onRefreshRuntime(@Observes final RefreshRuntimeEvent event) {
+        if (event.getProviderKey() != null && event.getProviderKey().equals(provider.getKey())) {
+            load(event.getProviderKey());
         }
     }
 
     private void load(final ProviderKey providerKey) {
-        providerService.call((RemoteCallback<Provider>) provider -> {
+        providerService.call((Provider provider) -> {
                                  this.provider = provider;
                                  runtimeService.call(getLoadItemsSuccessCallback(),
                                                      new DefaultErrorCallback()).getRuntimesInfo(providerKey);
@@ -164,12 +159,12 @@ public class ProviderPresenter {
                                                           notification.fire(new NotificationEvent(view.getRemoveProviderSuccessMessage(),
                                                                                                   NotificationEvent.NotificationType.SUCCESS));
 
-                                                          providerTypeSelected.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
+                                                          providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
                                                       },
-                                                      (o, throwable) -> {
+                                                      (message, throwable) -> {
                                                           notification.fire(new NotificationEvent(view.getRemoveProviderErrorMessage(),
                                                                                                   NotificationEvent.NotificationType.ERROR));
-                                                          providerTypeSelected.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
+                                                          providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
                                                           return false;
                                                       }).deleteProvider(provider.getKey()));
     }
@@ -186,9 +181,8 @@ public class ProviderPresenter {
         if (providerHandlerRegistry.isProviderEnabled(providerTypeKey)) {
             final FormResolver formResolver = providerHandlerRegistry.getProviderHandler(providerTypeKey).getFormResolver();
             final ProviderConfigurationForm providerConfigurationForm = formResolver.newProviderConfigurationForm();
-            providerConfigurationForms.add(providerConfigurationForm);
-            formFormResolverMap.put(providerConfigurationForm,
-                                    formResolver);
+            formToResolverMap.put(providerConfigurationForm,
+                                  formResolver);
             return providerConfigurationForm;
         } else {
             return providerConfigEmptyPresenter;
@@ -196,12 +190,7 @@ public class ProviderPresenter {
     }
 
     private void clearProviderConfigurationForm() {
-        providerConfigurationForms.forEach(form -> {
-            if (formFormResolverMap.containsKey(form)) {
-                formFormResolverMap.get(form).destroyForm(form);
-            }
-        });
-        providerConfigurationForms.clear();
-        formFormResolverMap.clear();
+        formToResolverMap.entrySet().forEach(entry -> entry.getValue().destroyForm(entry.getKey()));
+        formToResolverMap.clear();
     }
 }

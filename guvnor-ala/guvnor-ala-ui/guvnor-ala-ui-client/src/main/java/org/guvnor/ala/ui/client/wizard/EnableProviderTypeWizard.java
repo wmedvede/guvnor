@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.wizard.providertype;
+package org.guvnor.ala.ui.client.wizard;
 
 import java.util.Collection;
 import java.util.Map;
@@ -24,7 +24,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.ProviderTypeListRefreshEvent;
-import org.guvnor.ala.ui.client.wizard.AbstractMultiPageWizard;
+import org.guvnor.ala.ui.client.wizard.providertype.EnableProviderTypePagePresenter;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
@@ -40,12 +40,9 @@ import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.Enabl
 public class EnableProviderTypeWizard
         extends AbstractMultiPageWizard {
 
-    private EnableProviderTypePagePresenter enableProviderTypePage;
-    private Caller<ProviderTypeService> providerTypeService;
-    private Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
-
-    public EnableProviderTypeWizard() {
-    }
+    private final EnableProviderTypePagePresenter enableProviderTypePage;
+    private final Caller<ProviderTypeService> providerTypeService;
+    private final Event<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
 
     @Inject
     public EnableProviderTypeWizard(final EnableProviderTypePagePresenter enableProviderTypePage,

@@ -25,7 +25,8 @@ import org.uberfire.client.mvp.UberElement;
 @Dependent
 public class StagePresenter {
 
-    public interface View extends UberElement<StagePresenter> {
+    public interface View
+            extends UberElement<StagePresenter> {
 
         void setName(final String name);
 

@@ -26,8 +26,9 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Dependent
 @Templated
-public class ProviderStatusEmptyView implements IsElement,
-                                                ProviderStatusEmptyPresenter.View {
+public class ProviderStatusEmptyView
+        implements IsElement,
+                   ProviderStatusEmptyPresenter.View {
 
     private ProviderStatusEmptyPresenter presenter;
 
@@ -38,6 +39,6 @@ public class ProviderStatusEmptyView implements IsElement,
 
     @EventHandler("refresh-runtime-providers")
     public void onRefresh(@ForEvent("click") final Event event) {
-        presenter.refresh();
+        presenter.onRefresh();
     }
 }
