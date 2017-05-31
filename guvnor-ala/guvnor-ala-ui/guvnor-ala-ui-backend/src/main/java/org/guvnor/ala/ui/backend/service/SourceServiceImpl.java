@@ -19,14 +19,10 @@ package org.guvnor.ala.ui.backend.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.guvnor.ala.ui.service.SourceService;
 import org.guvnor.common.services.project.model.Project;
 import org.guvnor.common.services.project.service.ProjectService;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
@@ -34,7 +30,6 @@ import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
 import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.repositories.RepositoryService;
 import org.jboss.errai.bus.server.annotations.Service;
-import org.guvnor.ala.ui.service.SourceService;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -74,6 +69,7 @@ public class SourceServiceImpl
 
     @Override
     public Collection< String > getBranches(final String repository) {
+        //TODO load all branches.
         return Arrays.asList("master");
     }
 

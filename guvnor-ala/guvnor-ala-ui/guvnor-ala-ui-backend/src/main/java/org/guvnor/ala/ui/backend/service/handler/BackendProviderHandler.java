@@ -24,6 +24,5 @@ public interface BackendProviderHandler
         extends ProviderHandler {
 
     ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey);
-
-    String getProviderTypeIcon();
+    
 }

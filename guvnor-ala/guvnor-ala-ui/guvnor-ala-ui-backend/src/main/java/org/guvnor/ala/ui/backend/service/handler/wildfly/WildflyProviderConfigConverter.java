@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.backend.service.wildfly;
+package org.guvnor.ala.ui.backend.service.handler.wildfly;
 
 import java.util.HashMap;
 import java.util.Map;

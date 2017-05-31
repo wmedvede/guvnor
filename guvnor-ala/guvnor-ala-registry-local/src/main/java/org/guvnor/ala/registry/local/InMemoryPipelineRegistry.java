@@ -78,6 +78,7 @@ public class InMemoryPipelineRegistry implements PipelineRegistry {
 
     @Override
     public List<Pipeline> getPipelines(String providerType,
+                                       String version,
                                        int page,
                                        int pageSize,
                                        String sort,
@@ -86,7 +87,9 @@ public class InMemoryPipelineRegistry implements PipelineRegistry {
                 .stream()
                 .filter(entry -> providerType != null &&
                         entry.getProviderType() != null &&
-                        providerType.equals(entry.getProviderType().getProviderTypeName()))
+                        providerType.equals(entry.getProviderType().getProviderTypeName()) &&
+                        version != null && version.equals(entry.getProviderType().getVersion())
+                )
                 .map(PipelineRegistryEntry::getPipeline)
                 .collect(Collectors.toList());
 

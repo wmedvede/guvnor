@@ -18,10 +18,12 @@ package org.guvnor.ala.ui.client.util;
 
 import java.util.Map;
 
+import org.guvnor.ala.ui.model.ProviderType;
+
 public class UIUtil {
 
     public static final String getStringValue(Map map,
-                                        String key) {
+                                              String key) {
         return map.get(key) != null ? map.get(key).toString() : null;
     }
 
@@ -31,4 +33,12 @@ public class UIUtil {
         return map.get(key) != null ? Integer.parseInt(map.get(key).toString()) : defaultValue;
     }
 
+    /**
+     * Helper method for showing whe provider type name in a consistent way around the different widgets.
+     * @param providerType a provider type.
+     * @return Returns a String with the provider name to show in the UI.
+     */
+    public static String getDisplayableProviderTypeName(ProviderType providerType) {
+        return providerType.getName() + " " + providerType.getKey().getVersion();
+    }
 }

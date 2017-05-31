@@ -33,20 +33,18 @@ public interface RuntimeService {
 
     RuntimeListItem getRuntimeInfo(final PipelineExecutionTraceKey pipelineExecutionTraceKey);
 
-    Collection<String> getPipelines(final ProviderKey providerKey);
-
     Collection<String> getPipelines(final ProviderTypeKey providerTypeKey);
 
     String createRuntime(final ProviderKey providerKey,
-                         final String runtimeId,
+                         final String runtimeName,
                          final Source source,
                          final String pipelineName);
 
-    void start(RuntimeKey runtimeKey);
+    void start(final RuntimeKey runtimeKey);
 
-    void stop(RuntimeKey runtimeKey);
+    void stop(final RuntimeKey runtimeKey);
 
-    void rebuild(RuntimeKey runtimeKey);
+    void rebuild(final RuntimeKey runtimeKey);
 
-    void delete(RuntimeKey runtimeKey);
+    void delete(final RuntimeKey runtimeKey);
 }

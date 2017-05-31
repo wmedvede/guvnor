@@ -30,6 +30,8 @@ import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeName;
+
 @Dependent
 public class ProviderTypeItemPresenter
         extends AbstractHasContentChangeHandlers {
@@ -70,7 +72,7 @@ public class ProviderTypeItemPresenter
     public void setup(final ProviderType type,
                       final ProviderTypeStatus status) {
         this.type = type;
-        view.setProviderTypeName(type.getName());
+        view.setProviderTypeName(getDisplayableProviderTypeName(type));
         view.setImage(getImageURL(type.getKey()));
         if (status.equals(ProviderTypeStatus.ENABLED)) {
             view.disable();

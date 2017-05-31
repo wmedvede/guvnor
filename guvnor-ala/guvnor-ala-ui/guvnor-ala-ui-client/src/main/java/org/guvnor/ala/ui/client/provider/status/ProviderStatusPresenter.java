@@ -59,14 +59,18 @@ public class ProviderStatusPresenter {
     }
 
     public void setupItems(final Collection<RuntimeListItem> response) {
-        view.clear();
-        clearItems();
+        clear();
         response.forEach(item -> {
             final RuntimePresenter runtimePresenter = newRuntimePresenter();
             runtimePresenter.setup(item);
             currentItems.add(runtimePresenter);
             view.addListItem(runtimePresenter.getView());
         });
+    }
+
+    public void clear() {
+        view.clear();
+        clearItems();
     }
 
     public View getView() {

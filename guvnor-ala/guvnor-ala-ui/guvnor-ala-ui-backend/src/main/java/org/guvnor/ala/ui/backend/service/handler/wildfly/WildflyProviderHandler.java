@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.backend.service.wildfly;
+package org.guvnor.ala.ui.backend.service.handler.wildfly;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.backend.service.converter.ProviderConfigConverter;
-import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.wildfly.model.WildflyProviderType;
 
 @ApplicationScoped
 public class WildflyProviderHandler
         implements BackendProviderHandler {
-
-    public static final String WF_10_ICON = "images/wf.png";
 
     private WildflyProviderConfigConverter configConverter;
 
@@ -48,16 +46,11 @@ public class WildflyProviderHandler
 
     @Override
     public boolean acceptProviderType(ProviderTypeKey providerTypeKey) {
-        return providerTypeKey != null && ProviderType.WILDFY_PROVIDER_TYPE.equals(providerTypeKey.getId());
+        return providerTypeKey != null && WildflyProviderType.instance().getProviderTypeName().equals(providerTypeKey.getId());
     }
 
     @Override
     public ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey) {
         return configConverter;
-    }
-
-    @Override
-    public String getProviderTypeIcon() {
-        return WF_10_ICON;
     }
 }

@@ -33,6 +33,7 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.mvp.Command;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeName;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 @ApplicationScoped
@@ -40,11 +41,11 @@ public class ProviderTypeNavigationPresenter {
 
     public interface View extends UberElement<ProviderTypeNavigationPresenter> {
 
-        void addProviderType(final String id,
+        void addProviderType(final ProviderTypeKey providerTypeKey,
                              final String name,
                              final Command select);
 
-        void select(final String id);
+        void select(final ProviderTypeKey providerTypeKey);
 
         void clear();
     }
@@ -93,8 +94,8 @@ public class ProviderTypeNavigationPresenter {
                      providerType);
         providerTypes.put(providerType.getKey(),
                           providerType);
-        view.addProviderType(providerType.getKey().getId(),
-                             providerType.getName(),
+        view.addProviderType(providerType.getKey(),
+                             getDisplayableProviderTypeName(providerType),
                              () -> select(providerType));
     }
 
@@ -102,7 +103,7 @@ public class ProviderTypeNavigationPresenter {
         if (event.getProviderTypeKey() != null &&
                 event.getProviderTypeKey().getId() != null &&
                 providerTypes.containsKey(event.getProviderTypeKey())) {
-            view.select(event.getProviderTypeKey().getId());
+            view.select(event.getProviderTypeKey());
         }
     }
 

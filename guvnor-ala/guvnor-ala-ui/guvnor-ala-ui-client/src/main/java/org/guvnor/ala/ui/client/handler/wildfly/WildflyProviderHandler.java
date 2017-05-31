@@ -21,12 +21,13 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.handler.FormResolver;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandler;
-import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
 @ApplicationScoped
 public class WildflyProviderHandler
         implements ClientProviderHandler {
+
+    private static final String PROVIDER_TYPE_NAME = "wildfly";
 
     private static final String PROVIDER_TYPE_ICON_URL = "images/provider-icon-wildlfy.png";
 
@@ -44,7 +45,7 @@ public class WildflyProviderHandler
 
     @Override
     public boolean acceptProviderType(ProviderTypeKey providerTypeKey) {
-        return providerTypeKey != null && ProviderType.WILDFY_PROVIDER_TYPE.equals(providerTypeKey.getId());
+        return providerTypeKey != null && PROVIDER_TYPE_NAME.equals(providerTypeKey.getId());
     }
 
     @Override

@@ -33,6 +33,8 @@ import org.jboss.errai.common.client.api.Caller;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.mvp.Command;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeName;
+
 @ApplicationScoped
 public class ProviderTypePresenter {
 
@@ -41,8 +43,7 @@ public class ProviderTypePresenter {
 
         void clear();
 
-        void setProviderType(final String providerTypeId,
-                             final String providerTypeName);
+        void setProviderTypeName(final String providerTypeName);
 
         void select(final String providerId);
 
@@ -89,8 +90,7 @@ public class ProviderTypePresenter {
                       final ProviderKey firstProviderKey) {
         view.clear();
         this.providerType = providerType;
-        view.setProviderType(providerType.getKey().getId(),
-                             providerType.getName());
+        view.setProviderTypeName(getDisplayableProviderTypeName(providerType));
 
         if (firstProviderKey != null) {
             addProvider(firstProviderKey);
@@ -101,10 +101,10 @@ public class ProviderTypePresenter {
         }
     }
 
-    private void addProvider(final ProviderKey provider) {
-        view.addProvider(provider.getId(),
-                         provider.getId(),
-                         () -> providerSelectedEvent.fire(new ProviderSelectedEvent(provider)));
+    private void addProvider(final ProviderKey providerKey) {
+        view.addProvider(providerKey.getId(),
+                         providerKey.getId(),
+                         () -> providerSelectedEvent.fire(new ProviderSelectedEvent(providerKey)));
     }
 
     public void onProviderSelect(@Observes final ProviderSelectedEvent event) {

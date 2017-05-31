@@ -23,12 +23,8 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 public class ProviderType
         extends AbstractHasKeyObject<ProviderTypeKey> {
 
-    //TODO, check if we wants to keep and use this constants, ideally we shouldn't since the provider type
+    //TODO, remove this constant when the openshif provider is properly implemented
     public static final String OPEN_SHIFT_PROVIDER_TYPE = "openshift";
-
-    public static final String WILDFY_PROVIDER_TYPE = "wildfly";
-
-    public static final String DOCKER_PROVIDER_TYPE = "docker";
 
     private String name;
 

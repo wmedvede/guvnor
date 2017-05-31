@@ -63,6 +63,7 @@ public interface PipelineRegistry {
     /**
      * Gets all the registered Pipelines for a given provider type.
      * @param providerType A provider type name.
+     * @param version the provider type version.
      * @param page the page number
      * @param pageSize the page size
      * @param sort the sort column
@@ -70,6 +71,7 @@ public interface PipelineRegistry {
      * @return the list of pipelines associated to the given provider.
      */
     List<Pipeline> getPipelines(String providerType,
+                                String version,
                                 int page,
                                 int pageSize,
                                 String sort,

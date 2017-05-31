@@ -40,12 +40,13 @@ public class ProviderTypeServiceImpl
         implements ProviderTypeService {
 
     //TODO, remove this temporal provider type definition.
-    private static final ProviderType OSE = new ProviderType(new ProviderTypeKey(ProviderType.OPEN_SHIFT_PROVIDER_TYPE),
+    private static final ProviderType OSE = new ProviderType(new ProviderTypeKey(ProviderType.OPEN_SHIFT_PROVIDER_TYPE,
+                                                                                 "3.5"),
                                                              "OpenShift");
 
-    private Map<String, ProviderType> allProviders = new HashMap<>();
+    private Map<ProviderTypeKey, ProviderType> allProviders = new HashMap<>();
 
-    private Map<String, ProviderType> enabledProviders = new HashMap<>();
+    private Map<ProviderTypeKey, ProviderType> enabledProviders = new HashMap<>();
 
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
 
@@ -60,11 +61,10 @@ public class ProviderTypeServiceImpl
 
     @PostConstruct
     private void init() {
-        getAvialableProviderTypes().stream()
-                .forEach(providerType -> allProviders.put(providerType.getKey().getId(),
-                                                          providerType));
+        getAvialableProviderTypes().forEach(providerType -> allProviders.put(providerType.getKey(),
+                                                                             providerType));
         //TODO The open shift provider don't exists, let's add it manually
-        allProviders.put(OSE.getKey().getId(),
+        allProviders.put(OSE.getKey(),
                          OSE);
     }
 
@@ -79,7 +79,8 @@ public class ProviderTypeServiceImpl
 
         if (providers != null) {
             for (org.guvnor.ala.runtime.providers.ProviderType provider : providers) {
-                result.add(new ProviderType(new ProviderTypeKey(provider.getProviderTypeName()),
+                result.add(new ProviderType(new ProviderTypeKey(provider.getProviderTypeName(),
+                                                                provider.getVersion()),
                                             provider.getProviderTypeName()));
             }
         }
@@ -88,7 +89,7 @@ public class ProviderTypeServiceImpl
 
     @Override
     public void enableProviderType(final ProviderType providerType) {
-        enabledProviders.put(providerType.getKey().getId(),
+        enabledProviders.put(providerType.getKey(),
                              providerType);
     }
 
@@ -101,7 +102,7 @@ public class ProviderTypeServiceImpl
 
     @Override
     public void disableProvider(final ProviderType providerType) {
-        enabledProviders.remove(providerType.getKey().getId());
+        enabledProviders.remove(providerType.getKey());
     }
 
     @Override
@@ -122,7 +123,7 @@ public class ProviderTypeServiceImpl
 
     @Override
     public ProviderType getProviderType(final ProviderTypeKey providerTypeKey) {
-        return allProviders.get(providerTypeKey.getId());
+        return allProviders.get(providerTypeKey);
     }
 
     public Collection<ProviderType> getEnabledProviderTypes() {

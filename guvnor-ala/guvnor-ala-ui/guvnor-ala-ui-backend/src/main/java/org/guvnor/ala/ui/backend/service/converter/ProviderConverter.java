@@ -60,7 +60,8 @@ public class ProviderConverter
     public Provider toModel(org.guvnor.ala.runtime.providers.Provider provider) {
         Provider result = null;
         if (provider != null) {
-            ProviderTypeKey providerTypeKey = new ProviderTypeKey(provider.getProviderType().getProviderTypeName());
+            ProviderTypeKey providerTypeKey = new ProviderTypeKey(provider.getProviderType().getProviderTypeName(),
+                                                                  provider.getProviderType().getVersion());
             ProviderKey providerKey = new ProviderKey(providerTypeKey,
                                                       provider.getId());
 

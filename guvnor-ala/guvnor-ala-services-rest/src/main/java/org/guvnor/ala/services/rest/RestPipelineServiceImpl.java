@@ -18,6 +18,7 @@ package org.guvnor.ala.services.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -68,10 +69,51 @@ public class RestPipelineServiceImpl implements PipelineService {
         pipelineRegistry.getPipelines(page,
                                       pageSize,
                                       sort,
-                                      sortOrder).stream().forEach((p) -> {
-            configs.add(p.getConfig());
-        });
+                                      sortOrder)
+                .stream()
+                .filter(p -> p.getConfig() != null)
+                .forEach((p) -> configs.add(p.getConfig()));
+
         return new PipelineConfigsList(configs);
+    }
+
+    @Override
+    public PipelineConfigsList getPipelineConfigs(String providerTypeName,
+                                                  String providerTypeVersion,
+                                                  Integer page,
+                                                  Integer pageSize,
+                                                  String sort,
+                                                  boolean sortOrder) throws BusinessException {
+        final List<PipelineConfig> configs = new ArrayList<>();
+        pipelineRegistry.getPipelines(providerTypeName,
+                                      providerTypeVersion,
+                                      page,
+                                      pageSize,
+                                      sort,
+                                      sortOrder)
+                .stream()
+                .filter(p -> p.getConfig() != null)
+                .forEach((p) -> configs.add(p.getConfig()));
+
+        return new PipelineConfigsList(configs);
+    }
+
+    @Override
+    public List<String> getPipelineNames(String providerTypeName,
+                                         String providerTypeVersion,
+                                         Integer page,
+                                         Integer pageSize,
+                                         String sort,
+                                         boolean sortOrder) throws BusinessException {
+        return pipelineRegistry.getPipelines(providerTypeName,
+                                             providerTypeVersion,
+                                             page,
+                                             pageSize,
+                                             sort,
+                                             sortOrder)
+                .stream()
+                .map(Pipeline::getName)
+                .collect(Collectors.toList());
     }
 
     @Override

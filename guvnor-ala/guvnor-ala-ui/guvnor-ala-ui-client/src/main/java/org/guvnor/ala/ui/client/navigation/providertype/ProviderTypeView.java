@@ -77,8 +77,7 @@ public class ProviderTypeView
     }
 
     @Override
-    public void setProviderType(final String providerTypeId,
-                                final String providerTypeName) {
+    public void setProviderTypeName(final String providerTypeName) {
         providerType.setInnerText(providerTypeName);
     }
 

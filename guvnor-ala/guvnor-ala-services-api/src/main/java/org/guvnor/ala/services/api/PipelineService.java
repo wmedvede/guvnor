@@ -16,6 +16,7 @@
 
 package org.guvnor.ala.services.api;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -56,6 +57,41 @@ public interface PipelineService {
             throws BusinessException;
 
     /**
+     * Gets the Pipeline Configurations registered in the service and associated to the given provider type.
+     * @param providerTypeName a provider type name registered in the system.
+     * @param providerTypeVersion the provider type version corresponding to the provider type.
+     * @return a PipelineConfigsList with the pipeline configurations associated with the provider type.
+     * @see PipelineConfigsList
+     */
+    @GET
+    @Produces(value = APPLICATION_JSON)
+    @Consumes(value = APPLICATION_JSON)
+    PipelineConfigsList getPipelineConfigs(@QueryParam("providerTypeName") String providerTypeName,
+                                           @QueryParam("providerTypeVersion") String providerTypeVersion,
+                                           @QueryParam("page") @DefaultValue("0") Integer page,
+                                           @QueryParam("pageSize") @DefaultValue("10") Integer pageSize,
+                                           @QueryParam("sort") String sort,
+                                           @QueryParam("sortOrder") @DefaultValue("true") boolean sortOrder)
+            throws BusinessException;
+
+    /**
+     * Gets the names of the Pipelines associated to the given provider type.
+     * @param providerTypeName a provider type name registered in the system.
+     * @param providerTypeVersion the provider type version corresponding to the provider type.
+     * @return a list with the names of the Pipelines associated with the provider type.
+     */
+    @GET
+    @Produces(value = APPLICATION_JSON)
+    @Consumes(value = APPLICATION_JSON)
+    List<String> getPipelineNames(@QueryParam("providerTypeName") String providerTypeName,
+                                  @QueryParam("providerTypeVersion") String providerTypeVersion,
+                                  @QueryParam("page") @DefaultValue("0") Integer page,
+                                  @QueryParam("pageSize") @DefaultValue("10") Integer pageSize,
+                                  @QueryParam("sort") String sort,
+                                  @QueryParam("sortOrder") @DefaultValue("true") boolean sortOrder)
+            throws BusinessException;
+
+    /**
      * Registers a new Pipeline with the provided configuration.
      * @param config the pipeline configuration.
      * @return the pipeline id.
@@ -90,5 +126,4 @@ public interface PipelineService {
     @Path("{id}")
     String runPipeline(@PathParam("id") String id,
                        @NotNull Input input) throws BusinessException;
-
 }

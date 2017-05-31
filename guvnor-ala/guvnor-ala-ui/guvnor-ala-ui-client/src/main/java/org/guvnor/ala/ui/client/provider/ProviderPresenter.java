@@ -124,6 +124,7 @@ public class ProviderPresenter {
     }
 
     private void load(final ProviderKey providerKey) {
+        providerStatusPresenter.clear();
         providerService.call((Provider provider) -> {
                                  this.provider = provider;
                                  runtimeService.call(getLoadItemsSuccessCallback(),

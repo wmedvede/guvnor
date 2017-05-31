@@ -28,6 +28,7 @@ import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
 import org.guvnor.ala.ui.backend.service.converter.ProviderConverter;
 import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandlerRegistry;
+import org.guvnor.ala.ui.model.AbstractHasKeyObject;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderKey;
@@ -73,7 +74,8 @@ public class ProviderServiceImpl
                                                         true);
         if (providers != null) {
             result = providers.stream()
-                    .filter(provider -> provider.getProviderType().getProviderTypeName().equals(providerType.getKey().getId()))
+                    .filter(provider -> provider.getProviderType().getProviderTypeName().equals(providerType.getKey().getId()) &&
+                            provider.getProviderType().getVersion().equals(providerType.getKey().getVersion()))
                     .map(this::convert)
                     .collect(toList());
         }
@@ -83,7 +85,7 @@ public class ProviderServiceImpl
     @Override
     public Collection<ProviderKey> getProvidersKey(final ProviderType providerType) {
         return getProviders(providerType).stream()
-                .map(p -> p.getKey())
+                .map(AbstractHasKeyObject::getKey)
                 .collect(toList());
     }
 

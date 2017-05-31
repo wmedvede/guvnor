@@ -23,6 +23,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.widget.CustomGroupItem;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
@@ -57,7 +58,7 @@ public class ProviderTypeNavigationView
     @Inject
     private TranslationService translationService;
 
-    private final Map<String, CustomGroupItem> itemsMap = new HashMap<>();
+    private final Map<ProviderTypeKey, CustomGroupItem> itemsMap = new HashMap<>();
 
     private CustomGroupItem selected = null;
 
@@ -72,24 +73,24 @@ public class ProviderTypeNavigationView
     }
 
     @Override
-    public void addProviderType(final String id,
+    public void addProviderType(final ProviderTypeKey providerTypeKey,
                                 final String name,
                                 final Command select) {
         final CustomGroupItem providerTypeItem = CustomGroupItem.createAnchor(name,
                                                                               IconType.FOLDER_O,
                                                                               select);
-        itemsMap.put(id,
+        itemsMap.put(providerTypeKey,
                      providerTypeItem);
 
         providerTypeItems.appendChild(providerTypeItem);
     }
 
     @Override
-    public void select(final String id) {
+    public void select(final ProviderTypeKey providerTypeKey) {
         if (selected != null) {
             selected.setActive(false);
         }
-        selected = itemsMap.get(id);
+        selected = itemsMap.get(providerTypeKey);
         if (selected != null) {
             selected.setActive(true);
         }

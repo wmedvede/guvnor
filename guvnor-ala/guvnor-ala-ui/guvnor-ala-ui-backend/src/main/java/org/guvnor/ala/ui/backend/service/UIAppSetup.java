@@ -28,6 +28,7 @@ import org.guvnor.ala.build.maven.config.MavenBuildExecConfig;
 import org.guvnor.ala.build.maven.config.MavenProjectConfig;
 import org.guvnor.ala.config.BinaryConfig;
 import org.guvnor.ala.config.BuildConfig;
+import org.guvnor.ala.config.Config;
 import org.guvnor.ala.config.ProjectConfig;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
@@ -37,16 +38,18 @@ import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineFactory;
 import org.guvnor.ala.pipeline.Stage;
 import org.guvnor.ala.registry.PipelineRegistry;
+import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
 import org.guvnor.ala.source.git.config.GitConfig;
 import org.guvnor.ala.wildfly.config.WildflyProviderConfig;
 import org.guvnor.ala.wildfly.config.impl.ContextAwareWildflyRuntimeExecConfig;
+import org.guvnor.ala.wildfly.model.WildflyProviderType;
 import org.uberfire.commons.services.cdi.Startup;
 import org.uberfire.commons.services.cdi.StartupType;
 
-import static org.guvnor.ala.pipeline.StageUtil.*;
+import static org.guvnor.ala.pipeline.StageUtil.config;
 
 /**
- * Temporal component for the pipelines initialization.
+ * Temporal component for having some pipelines initialized for development purposes.
  */
 @ApplicationScoped
 @Startup(StartupType.BOOTSTRAP)
@@ -71,56 +74,69 @@ public class UIAppSetup {
     protected void initPipelines() {
 
         // Create Wildfly Pipeline Configuration
-        final Stage<Input, SourceConfig> sourceConfig = config("Git Source",
-                                                               gitConfig -> new GitConfig() {
-                                                               });
+        final GitConfig gitConfig = new GitConfig() {
+        };
+        final Stage<Input, SourceConfig> sourceConfigStage = config("Git Source", f -> gitConfig);
 
-        final Stage<SourceConfig, ProjectConfig> projectConfig = config("Maven Project",
-                                                                        mavenProjectConfig -> new MavenProjectConfig() {
-                                                                        });
+        final MavenProjectConfig projectConfig = new MavenProjectConfig() {
+        };
+        final Stage<SourceConfig, ProjectConfig> projectConfigStage = config("Maven Project", f -> projectConfig);
 
-        final Stage<ProjectConfig, BuildConfig> buildConfig = config("Maven Build Config",
-                                                                     mavenBuildConfig ->
-                                                                             new MavenBuildConfig() {
-                                                                                 @Override
-                                                                                 public List<String> getGoals() {
-                                                                                     final List<String> result = new ArrayList<>();
-                                                                                     result.add("clean");
-                                                                                     result.add("package");
-                                                                                     return result;
-                                                                                 }
+        final MavenBuildConfig mavenBuildConfig = new MavenBuildConfig() {
+            @Override
+            public List<String> getGoals() {
+                final List<String> result = new ArrayList<>();
+                result.add("clean");
+                result.add("package");
+                return result;
+            }
 
-                                                                                 @Override
-                                                                                 public Properties getProperties() {
-                                                                                     final Properties result = new Properties();
-                                                                                     result.setProperty("failIfNoTests",
-                                                                                                        "false");
-                                                                                     return result;
-                                                                                 }
-                                                                             });
+            @Override
+            public Properties getProperties() {
+                final Properties result = new Properties();
+                result.setProperty("failIfNoTests",
+                                   "false");
+                return result;
+            }
+        };
+        final Stage<ProjectConfig, BuildConfig> buildConfigStage = config("Maven Build Config", f -> mavenBuildConfig );
 
-        final Stage<BuildConfig, BinaryConfig> buildExec = config("Maven Build",
-                                                                  mavenBuildExecConfig ->
-                                                                          new MavenBuildExecConfig() {
-                                                                          });
 
-        final Stage<BinaryConfig, ProviderConfig> providerConfig = config("Wildfly Provider Config",
-                                                                          wildflyProviderConfig ->
-                                                                                  new WildflyProviderConfig() {
-                                                                                  });
+        final MavenBuildExecConfig mavenBuildExecConfig =  new MavenBuildExecConfig() {
+        };
+        final Stage<BuildConfig, BinaryConfig> buildExecStage = config("Maven Build", f -> mavenBuildExecConfig);
 
-        final Stage<ProviderConfig, RuntimeConfig> runtimeExec = config("Wildfly Runtime Exec",
-                                                                        wildflyRuntimeExecConfig ->
-                                                                                new ContextAwareWildflyRuntimeExecConfig()
-        );
 
-        final Pipeline wildflyPipeline = PipelineFactory
-                .startFrom(sourceConfig)
-                .andThen(projectConfig)
-                .andThen(buildConfig)
-                .andThen(buildExec)
-                .andThen(providerConfig)
-                .andThen(runtimeExec).buildAs("wildfly ala-ui provisioning pipeline");
-        pipelineRegistry.registerPipeline(wildflyPipeline);
+        final WildflyProviderConfig wildflyProviderConfig =  new WildflyProviderConfig() { };
+        final Stage<BinaryConfig, ProviderConfig> providerConfigStage = config("Wildfly Provider Config", f -> wildflyProviderConfig);
+
+        final ContextAwareWildflyRuntimeExecConfig wildflyRuntimeExecConfig = new ContextAwareWildflyRuntimeExecConfig();
+
+        final Stage<ProviderConfig, RuntimeConfig> runtimeExecStage = config("Wildfly Runtime Exec", f -> wildflyRuntimeExecConfig);
+
+
+        final Pipeline pipeline1 = PipelineFactory
+                .startFrom(sourceConfigStage)
+                .andThen(projectConfigStage)
+                .andThen(buildConfigStage)
+                .andThen(buildExecStage)
+                .andThen(providerConfigStage)
+                .andThen(runtimeExecStage).buildAs("pipeline from stages");
+
+
+        final List<Config> configs = new ArrayList<>();
+        configs.add(gitConfig);
+        configs.add(projectConfig);
+        configs.add(mavenBuildConfig);
+        configs.add(mavenBuildExecConfig);
+        configs.add(wildflyProviderConfig);
+        configs.add(wildflyRuntimeExecConfig);
+
+        final PipelineConfigImpl pipelineConfig = new PipelineConfigImpl("pipeline from configs", configs);
+        final Pipeline pipeline2 = PipelineFactory.startFrom(null).build(pipelineConfig);
+
+        pipelineRegistry.registerPipeline(pipeline1, WildflyProviderType.instance());
+        pipelineRegistry.registerPipeline(pipeline2, WildflyProviderType.instance());
+
     }
 }

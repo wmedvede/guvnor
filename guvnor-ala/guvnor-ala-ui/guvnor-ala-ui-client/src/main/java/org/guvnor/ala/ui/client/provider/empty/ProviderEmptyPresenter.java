@@ -25,6 +25,7 @@ import org.guvnor.ala.ui.model.ProviderType;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeName;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 public class ProviderEmptyPresenter {
@@ -53,7 +54,7 @@ public class ProviderEmptyPresenter {
     public void setProviderType(final ProviderType providerType) {
         this.providerType = checkNotNull("providerType",
                                          providerType);
-        this.view.setProviderTypeName(providerType.getName());
+        this.view.setProviderTypeName(getDisplayableProviderTypeName(providerType));
     }
 
     public IsElement getView() {

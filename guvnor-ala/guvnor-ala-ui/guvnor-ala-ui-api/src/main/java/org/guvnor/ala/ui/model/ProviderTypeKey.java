@@ -24,12 +24,20 @@ public class ProviderTypeKey {
 
     private String id;
 
-    public ProviderTypeKey(@MapsTo("id") final String id) {
+    private String version;
+
+    public ProviderTypeKey(@MapsTo("id") final String id,
+                           @MapsTo("version") final String version) {
         this.id = id;
+        this.version = version;
     }
 
     public String getId() {
         return id;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     @Override
@@ -43,12 +51,17 @@ public class ProviderTypeKey {
 
         ProviderTypeKey that = (ProviderTypeKey) o;
 
-        return id != null ? id.equals(that.id) : that.id == null;
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        return version != null ? version.equals(that.version) : that.version == null;
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (version != null ? version.hashCode() : 0);
         result = ~~result;
         return result;
     }
@@ -57,6 +70,7 @@ public class ProviderTypeKey {
     public String toString() {
         return "ProviderTypeKey{" +
                 "id='" + id + '\'' +
+                ", version='" + version + '\'' +
                 '}';
     }
 }

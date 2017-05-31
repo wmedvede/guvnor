@@ -16,10 +16,8 @@
 
 package org.guvnor.ala.services.rest;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -38,7 +36,6 @@ import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
 import org.guvnor.ala.registry.PipelineExecutorRegistry;
 import org.guvnor.ala.registry.RuntimeRegistry;
 import org.guvnor.ala.runtime.Runtime;
-import org.guvnor.ala.runtime.RuntimeEndpoint;
 import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderType;
 import org.guvnor.ala.services.api.PipelineStageItem;
@@ -61,7 +58,7 @@ import org.uberfire.commons.validation.PortablePreconditions;
 @ApplicationScoped
 public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningService {
 
-    private static final Logger LOG = LoggerFactory.getLogger( RestRuntimeProvisioningServiceImpl.class );
+    private static final Logger LOG = LoggerFactory.getLogger(RestRuntimeProvisioningServiceImpl.class);
 
     private BeanManager beanManager;
 
@@ -96,80 +93,100 @@ public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningSe
 
     @PostConstruct
     public void cacheBeans() {
-        LOG.info( "> Initializing ProviderTypes. " );
-        final Set<Bean<?>> beans = beanManager.getBeans( ProviderType.class, new AnnotationLiteral<Any>() {
-        } );
-        for ( final Bean b : beans ) {
+        LOG.info("> Initializing ProviderTypes. ");
+        final Set<Bean<?>> beans = beanManager.getBeans(ProviderType.class,
+                                                        new AnnotationLiteral<Any>() {
+                                                        });
+        for (final Bean b : beans) {
             try {
                 // I don't want to register the CDI proxy, I need a fresh instance :(
-                ProviderType pt = ( ProviderType ) b.getBeanClass().newInstance();
-                LOG.info( "> Registering ProviderType: " + pt.getProviderTypeName() );
-                runtimeRegistry.registerProviderType(pt );
-            } catch ( InstantiationException | IllegalAccessException ex ) {
-                LOG.error( "Something went wrong with registering Provider Types!", ex );
+                ProviderType pt = (ProviderType) b.getBeanClass().newInstance();
+                LOG.info("> Registering ProviderType: " + pt.getProviderTypeName());
+                runtimeRegistry.registerProviderType(pt);
+            } catch (InstantiationException | IllegalAccessException ex) {
+                LOG.error("Something went wrong with registering Provider Types!",
+                          ex);
             }
         }
     }
 
     @Override
-    public ProviderTypeList getProviderTypes( Integer page, Integer pageSize, String sort, boolean sortOrder ) throws BusinessException {
-        return new ProviderTypeList(runtimeRegistry.getProviderTypes(page, pageSize, sort, sortOrder ) );
+    public ProviderTypeList getProviderTypes(Integer page,
+                                             Integer pageSize,
+                                             String sort,
+                                             boolean sortOrder) throws BusinessException {
+        return new ProviderTypeList(runtimeRegistry.getProviderTypes(page,
+                                                                     pageSize,
+                                                                     sort,
+                                                                     sortOrder));
     }
 
     @Override
-    public ProviderList getProviders( Integer page, Integer pageSize, String sort, boolean sortOrder ) throws BusinessException {
-        return new ProviderList(runtimeRegistry.getProviders(page, pageSize, sort, sortOrder ) );
+    public ProviderList getProviders(Integer page,
+                                     Integer pageSize,
+                                     String sort,
+                                     boolean sortOrder) throws BusinessException {
+        return new ProviderList(runtimeRegistry.getProviders(page,
+                                                             pageSize,
+                                                             sort,
+                                                             sortOrder));
     }
 
     @Override
-    public RuntimeList getRuntimes( Integer page, Integer pageSize, String sort, boolean sortOrder ) throws BusinessException {
-        return new RuntimeList(runtimeRegistry.getRuntimes(page, pageSize, sort, sortOrder ) );
+    public RuntimeList getRuntimes(Integer page,
+                                   Integer pageSize,
+                                   String sort,
+                                   boolean sortOrder) throws BusinessException {
+        return new RuntimeList(runtimeRegistry.getRuntimes(page,
+                                                           pageSize,
+                                                           sort,
+                                                           sortOrder));
     }
 
     @Override
-    public void registerProvider( ProviderConfig conf ) throws BusinessException {
-        final Optional<Provider> newProvider = providerFactory.newProvider( conf );
-        if ( newProvider.isPresent() ) {
-            runtimeRegistry.registerProvider(newProvider.get() );
+    public void registerProvider(ProviderConfig conf) throws BusinessException {
+        final Optional<Provider> newProvider = providerFactory.newProvider(conf);
+        if (newProvider.isPresent()) {
+            runtimeRegistry.registerProvider(newProvider.get());
         }
     }
 
     @Override
-    public void unregisterProvider( String name ) throws BusinessException {
-        runtimeRegistry.unregisterProvider(name );
+    public void unregisterProvider(String name) throws BusinessException {
+        runtimeRegistry.unregisterProvider(name);
     }
 
     @Override
-    public String newRuntime( RuntimeConfig conf ) throws BusinessException {
-        final Optional<Runtime> newRuntime = runtimeFactory.newRuntime( conf );
-        if ( newRuntime.isPresent() ) {
+    public String newRuntime(RuntimeConfig conf) throws BusinessException {
+        final Optional<Runtime> newRuntime = runtimeFactory.newRuntime(conf);
+        if (newRuntime.isPresent()) {
             return newRuntime.get().getId();
         }
         return null;
     }
 
     @Override
-    public void destroyRuntime( String runtimeId ) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId );
-        runtimeFactory.destroyRuntime( runtimeById );
+    public void destroyRuntime(String runtimeId) throws BusinessException {
+        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        runtimeFactory.destroyRuntime(runtimeById);
     }
 
     @Override
-    public void startRuntime( String runtimeId ) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId );
-        runtimeManagerFactory.startRuntime( runtimeById );
+    public void startRuntime(String runtimeId) throws BusinessException {
+        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        runtimeManagerFactory.startRuntime(runtimeById);
     }
 
     @Override
-    public void stopRuntime( String runtimeId ) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId );
-        runtimeManagerFactory.stopRuntime( runtimeById );
+    public void stopRuntime(String runtimeId) throws BusinessException {
+        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        runtimeManagerFactory.stopRuntime(runtimeById);
     }
 
     @Override
-    public void restartRuntime( String runtimeId ) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId );
-        runtimeManagerFactory.restartRuntime( runtimeById );
+    public void restartRuntime(String runtimeId) throws BusinessException {
+        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        runtimeManagerFactory.restartRuntime(runtimeById);
     }
 
     @Override
@@ -179,6 +196,7 @@ public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningSe
 
         Collection<PipelineExecutorTrace> pipelineTraces = pipelineExecutorRegistry.getExecutorTraces().stream()
                 .filter(PipelineExecutorTraceFilter.newInstance()
+                                .withPipelineExecutionId(query.getPipelineExecutionId())
                                 .withProviderId(query.getProviderId())
                                 .withPipelineId(query.getPipelineId()))
                 .collect(Collectors.toList());
@@ -330,6 +348,8 @@ public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningSe
 
         private String pipelineId;
 
+        private String pipelineExecutionId;
+
         private PipelineExecutorTraceFilter() {
 
         }
@@ -348,8 +368,16 @@ public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningSe
             return this;
         }
 
+        public PipelineExecutorTraceFilter withPipelineExecutionId(String pipelineExecutionId) {
+            this.pipelineExecutionId = pipelineExecutionId;
+            return this;
+        }
+
         @Override
         public boolean test(PipelineExecutorTrace pipelineExecutorTrace) {
+            if (pipelineExecutionId != null) {
+                return pipelineExecutionId.equals(pipelineExecutorTrace.getTaskId());
+            }
             if (providerId != null) {
                 if (pipelineExecutorTrace.getTask().getTaskDef().getProviderId() == null) {
                     return false;

@@ -98,6 +98,6 @@ public class ProvisioningManagementPerspective {
                                                       result);
                                 newDeployWizard.start();
                             },
-                            new DefaultErrorCallback()).getPipelines(event.getProvider().getKey());
+                            new DefaultErrorCallback()).getPipelines(event.getProvider().getKey().getProviderTypeKey());
     }
 }
