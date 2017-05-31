@@ -22,11 +22,16 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.guvnor.ala.ui.backend.service.converter.ProviderConfigConverter;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
 import org.guvnor.ala.wildfly.config.WildflyProviderConfig;
 import org.guvnor.ala.wildfly.config.impl.WildflyProviderConfigImpl;
 
+import static org.guvnor.ala.config.ProviderConfig.PROVIDER_NAME;
 import static org.guvnor.ala.ui.backend.service.util.ServiceUtil.getStringValue;
+import static org.guvnor.ala.wildfly.config.WildflyProviderConfig.HOST;
+import static org.guvnor.ala.wildfly.config.WildflyProviderConfig.MANAGEMENT_PORT;
+import static org.guvnor.ala.wildfly.config.WildflyProviderConfig.PORT;
+import static org.guvnor.ala.wildfly.config.WildflyProviderConfig.WILDFLY_PASSWORD;
+import static org.guvnor.ala.wildfly.config.WildflyProviderConfig.WILDFLY_USER;
 
 @ApplicationScoped
 public class WildflyProviderConfigConverter
@@ -54,15 +59,15 @@ public class WildflyProviderConfigConverter
 
         return new WildflyProviderConfigImpl(modelValue.getId(),
                                              getStringValue(modelValue.getValues(),
-                                                            WF10ProviderConfigParams.HOST),
+                                                            HOST),
                                              getStringValue(modelValue.getValues(),
-                                                            WF10ProviderConfigParams.PORT),
+                                                            PORT),
                                              getStringValue(modelValue.getValues(),
-                                                            WF10ProviderConfigParams.MANAGEMENT_PORT),
+                                                            MANAGEMENT_PORT),
                                              getStringValue(modelValue.getValues(),
-                                                            WF10ProviderConfigParams.USER),
+                                                            WILDFLY_USER),
                                              getStringValue(modelValue.getValues(),
-                                                            WF10ProviderConfigParams.PASSWORD));
+                                                            WILDFLY_PASSWORD));
     }
 
     @Override
@@ -72,17 +77,17 @@ public class WildflyProviderConfigConverter
         }
 
         final Map<String, Object> values = new HashMap<>();
-        values.put(WF10ProviderConfigParams.PROVIDER_NAME,
+        values.put(PROVIDER_NAME,
                    domainValue.getName());
-        values.put(WF10ProviderConfigParams.HOST,
+        values.put(HOST,
                    domainValue.getHostIp());
-        values.put(WF10ProviderConfigParams.PORT,
+        values.put(PORT,
                    domainValue.getPort());
-        values.put(WF10ProviderConfigParams.MANAGEMENT_PORT,
+        values.put(MANAGEMENT_PORT,
                    domainValue.getManagementPort());
-        values.put(WF10ProviderConfigParams.USER,
+        values.put(WILDFLY_USER,
                    domainValue.getUser());
-        values.put(WF10ProviderConfigParams.PASSWORD,
+        values.put(WILDFLY_PASSWORD,
                    domainValue.getPassword());
         return new ProviderConfiguration(domainValue.getName(),
                                          values);

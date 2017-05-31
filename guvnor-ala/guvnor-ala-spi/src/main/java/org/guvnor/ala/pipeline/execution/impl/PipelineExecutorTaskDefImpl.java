@@ -19,7 +19,6 @@ package org.guvnor.ala.pipeline.execution.impl;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
-import org.guvnor.ala.runtime.RuntimeId;
 import org.guvnor.ala.runtime.providers.ProviderId;
 import org.guvnor.ala.runtime.providers.ProviderType;
 
@@ -34,26 +33,20 @@ public class PipelineExecutorTaskDefImpl
 
     private ProviderType providerType;
 
-    private RuntimeId runtimeId;
-
-    public PipelineExecutorTaskDefImpl(Pipeline pipeline,
-                                       Input input,
-                                       ProviderId providerId,
-                                       RuntimeId runtimeId) {
+    public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
+                                       final Input input,
+                                       final ProviderId providerId) {
         this.pipeline = pipeline;
         this.input = input;
         this.providerId = providerId;
-        this.runtimeId = runtimeId;
     }
 
-    public PipelineExecutorTaskDefImpl(Pipeline pipeline,
-                                       Input input,
-                                       ProviderType providerType,
-                                       RuntimeId runtimeId) {
+    public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
+                                       final Input input,
+                                       final ProviderType providerType) {
         this.pipeline = pipeline;
         this.input = input;
         this.providerType = providerType;
-        this.runtimeId = runtimeId;
     }
 
     @Override
@@ -74,10 +67,5 @@ public class PipelineExecutorTaskDefImpl
     @Override
     public ProviderType getProviderType() {
         return providerId != null ? providerId.getProviderType() : providerType;
-    }
-
-    @Override
-    public RuntimeId getRuntimeId() {
-        return runtimeId;
     }
 }

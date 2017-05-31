@@ -19,17 +19,19 @@ package org.guvnor.ala.registry;
 import java.util.Collection;
 
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
-import org.guvnor.ala.runtime.RuntimeId;
 
+/**
+ * Registry for storing the pipeline execution traces produced by pipelines launched by the PipelineExecutorTaskManager.
+ */
 public interface PipelineExecutorRegistry {
 
-    void register(PipelineExecutorTrace record);
+    void register(final PipelineExecutorTrace record);
 
-    PipelineExecutorTrace getExecutorTrace(RuntimeId runtimeId);
+    void deregister(final String taskId);
 
     PipelineExecutorTrace getExecutorTrace(String pipelineExecutionId);
 
     Collection<PipelineExecutorTrace> getExecutorTraces();
 
-    Collection<PipelineExecutorTrace> getExecutorTraces(String pipelineId);
+    Collection<PipelineExecutorTrace> getExecutorTraces(final String pipelineId);
 }

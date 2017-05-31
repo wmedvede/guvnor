@@ -19,7 +19,6 @@ package org.guvnor.ala.pipeline.execution;
 import java.util.Optional;
 
 import org.guvnor.ala.pipeline.Stage;
-import org.guvnor.ala.runtime.RuntimeId;
 
 /**
  * This class represents a pipeline execution task.

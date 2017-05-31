@@ -28,7 +28,6 @@ import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.model.ITestConnectionResult;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.model.WF10ProviderConfigParams;
 import org.guvnor.ala.ui.service.IProvisioningService;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
@@ -44,8 +43,17 @@ import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
 @Dependent
 public class WF10ProviderConfigPresenter
         extends AbstractHasContentChangeHandlers
-        implements ProviderConfigurationForm,
-                   WF10ProviderConfigParams {
+        implements ProviderConfigurationForm {
+
+    private static final String HOST = "host";
+
+    private static final String PORT = "port";
+
+    private static final String MANAGEMENT_PORT = "management-port";
+
+    private static final String USER = "wildfly-user";
+
+    private static final String PASSWORD = "wildfly-password";
 
     public interface View
             extends UberElement<WF10ProviderConfigPresenter> {

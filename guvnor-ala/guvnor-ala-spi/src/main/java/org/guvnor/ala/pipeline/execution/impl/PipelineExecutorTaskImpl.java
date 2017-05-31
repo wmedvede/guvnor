@@ -94,15 +94,6 @@ public class PipelineExecutorTaskImpl
         return stageStatus.get(stage);
     }
 
-    public Status getStageStatus(String name) {
-        return stageStatus.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().getName().equals(name))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
-    }
-
     public void setStageError(Stage stage,
                               Throwable error) {
         stageError.put(stage,
@@ -128,5 +119,10 @@ public class PipelineExecutorTaskImpl
 
     public void setOutput(Object obj) {
         this.output = Optional.ofNullable(obj);
+    }
+
+    public void clearErrors() {
+        stageError.clear();
+        pipelineError = null;
     }
 }

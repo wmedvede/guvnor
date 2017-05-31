@@ -135,9 +135,9 @@ public class RestPipelineServiceImpl implements PipelineService {
     @Override
     public String runPipeline(final String name,
                               final Input input) throws BusinessException {
-        final Pipeline pipe = pipelineRegistry.getPipelineByName(name);
-        if (pipe == null) {
-            throw new BusinessException("Pipeline: " + pipe + " was not found.");
+        final Pipeline pipeline = pipelineRegistry.getPipelineByName(name);
+        if (pipeline == null) {
+            throw new BusinessException("Pipeline: " + pipeline + " was not found.");
         }
         String providerName = input.get(ProviderConfig.PROVIDER_NAME);
         Provider provider = null;
@@ -148,15 +148,13 @@ public class RestPipelineServiceImpl implements PipelineService {
         }
         if (provider == null) {
             providerType = pipelineRegistry.getProviderType(name);
-            taskDef = new PipelineExecutorTaskDefImpl(pipe,
+            taskDef = new PipelineExecutorTaskDefImpl(pipeline,
                                                       input,
-                                                      providerType,
-                                                      null);
+                                                      providerType);
         } else {
-            taskDef = new PipelineExecutorTaskDefImpl(pipe,
+            taskDef = new PipelineExecutorTaskDefImpl(pipeline,
                                                       input,
-                                                      provider,
-                                                      null);
+                                                      provider);
         }
 
         return executorTaskManager.execute(taskDef,

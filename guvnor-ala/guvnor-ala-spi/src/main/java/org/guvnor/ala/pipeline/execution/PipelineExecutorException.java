@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.model;
+package org.guvnor.ala.pipeline.execution;
 
-public interface WF10ProviderConfigParams {
+/**
+ * Base class for exceptions related to the pipeline execution.
+ */
+public class PipelineExecutorException
+        extends Exception {
 
-    String PROVIDER_NAME = "provider-name";
+    public PipelineExecutorException(String message) {
+        super(message);
+    }
 
-    String HOST = "host";
+    public PipelineExecutorException(String message,
+                                     Throwable cause) {
+        super(message,
+              cause);
+    }
 
-    String PORT = "port";
-
-    String MANAGEMENT_PORT = "management-port";
-
-    String MANAGEMENT_REALM = "wildfly-realm";
-
-    String USER = "wildfly-user";
-
-    String PASSWORD = "wildfly-password";
+    public PipelineExecutorException(Throwable cause) {
+        super(cause);
+    }
 }

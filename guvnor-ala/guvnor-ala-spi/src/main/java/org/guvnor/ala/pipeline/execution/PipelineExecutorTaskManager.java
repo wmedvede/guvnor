@@ -31,7 +31,28 @@ public interface PipelineExecutorTaskManager {
      * @param taskDef a task definition to be executed.
      * @param executionMode indicates if the task should be executed in synchronous or asynchronous mode.
      * @return returns uuid of the created task.
+     * @see PipelineExecutorTaskDef
      */
-    String execute(PipelineExecutorTaskDef taskDef,
-                   ExecutionMode executionMode);
+    String execute(final PipelineExecutorTaskDef taskDef,
+                   final ExecutionMode executionMode);
+
+    /**
+     * Destroys a pipeline executor task.
+     * @param taskId the id of the task to be destroyed.
+     * @throws PipelineExecutorException
+     */
+    void destroy(final String taskId) throws PipelineExecutorException;
+
+    /**
+     * Stops a pipeline executor task.
+     * @param taskId the id of the task to stop.
+     * @throws PipelineExecutorException
+     */
+    void stop(final String taskId) throws PipelineExecutorException;
+
+    /**
+     * @param taskId
+     * @throws PipelineExecutorException
+     */
+    void restart(final String taskId) throws PipelineExecutorException;
 }

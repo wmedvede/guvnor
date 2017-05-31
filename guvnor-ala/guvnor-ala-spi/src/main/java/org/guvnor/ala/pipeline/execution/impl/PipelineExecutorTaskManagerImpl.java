@@ -19,11 +19,14 @@ package org.guvnor.ala.pipeline.execution.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -40,6 +43,7 @@ import org.guvnor.ala.pipeline.events.PipelineEvent;
 import org.guvnor.ala.pipeline.events.PipelineEventListener;
 import org.guvnor.ala.pipeline.execution.ExecutionIdGenerator;
 import org.guvnor.ala.pipeline.execution.PipelineExecutor;
+import org.guvnor.ala.pipeline.execution.PipelineExecutorException;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskManager;
@@ -53,8 +57,11 @@ public class PipelineExecutorTaskManagerImpl
 
     private static final Logger logger = LoggerFactory.getLogger(PipelineExecutorTaskManagerImpl.class);
 
-    //TODO set the proper executor configuration.
-    private ExecutorService executor = Executors.newFixedThreadPool(5);
+    private static final int DEFAULT_THREAD_POOL_SIZE = 10;
+
+    private static final String THREAD_POOL_SIZE_PROPERTY_NAME = "org.guvnor.ala.pipeline.execution.threadPoolSize";
+
+    private ExecutorService executor;
 
     private Instance<ConfigExecutor> configExecutors;
 
@@ -69,6 +76,38 @@ public class PipelineExecutorTaskManagerImpl
     private PipelineExecutorRegistry pipelineExecutorRegistry;
 
     private PipelineEventListener localListener;
+
+    /**
+     * Set of pipeline execution status that admits the destroy operation.
+     */
+    private static final Set<PipelineExecutorTask.Status> destroyEnabledStatus = new HashSet<PipelineExecutorTask.Status>() {
+        {
+            add(PipelineExecutorTask.Status.ERROR);
+            add(PipelineExecutorTask.Status.FINISHED);
+            add(PipelineExecutorTask.Status.STOPPED);
+        }
+    };
+
+    /**
+     * Set of pipeline execution status that admits the stop operation.
+     */
+    private static final Set<PipelineExecutorTask.Status> stopEnabledStatus = new HashSet<PipelineExecutorTask.Status>() {
+        {
+            add(PipelineExecutorTask.Status.RUNNING);
+            add(PipelineExecutorTask.Status.SCHEDULED);
+        }
+    };
+
+    /**
+     * Set of pipeline execution that admits the restart operation.
+     */
+    private static final Set<PipelineExecutorTask.Status> restartEnabledStatus = new HashSet<PipelineExecutorTask.Status>() {
+        {
+            add(PipelineExecutorTask.Status.STOPPED);
+            add(PipelineExecutorTask.Status.ERROR);
+            add(PipelineExecutorTask.Status.FINISHED);
+        }
+    };
 
     public PipelineExecutorTaskManagerImpl() {
         //Empty constructor for Weld proxying
@@ -85,8 +124,45 @@ public class PipelineExecutorTaskManagerImpl
 
     @PostConstruct
     protected void init() {
+        initExecutor();
         initPipelineExecutor();
         initLocalListener();
+    }
+
+    @PreDestroy
+    protected void destroy() {
+        try {
+            if (executor != null) {
+                executor.shutdown();
+            }
+        } catch (Exception e) {
+            logger.error("executor shutdown failed. " + e.getMessage(),
+                         e);
+        }
+    }
+
+    private void initExecutor() {
+        final String threadPoolSizeValue = System.getProperties().getProperty(THREAD_POOL_SIZE_PROPERTY_NAME);
+        int threadPoolSize;
+        if (threadPoolSizeValue == null) {
+            threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+            logger.debug(THREAD_POOL_SIZE_PROPERTY_NAME + " property was not set, by default value will be used: " + DEFAULT_THREAD_POOL_SIZE);
+        } else {
+            try {
+                threadPoolSize = Integer.parseInt(threadPoolSizeValue);
+                if (threadPoolSize <= 0) {
+                    threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+                    logger.error(THREAD_POOL_SIZE_PROPERTY_NAME + " property must be greater than 0, by default value will be used: " + DEFAULT_THREAD_POOL_SIZE);
+                } else {
+                    logger.debug(THREAD_POOL_SIZE_PROPERTY_NAME + " property will be set to: " + threadPoolSize);
+                }
+            } catch (Exception e) {
+                threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+                logger.error(THREAD_POOL_SIZE_PROPERTY_NAME + " property was set to a wrong value, by default value will be used: " + DEFAULT_THREAD_POOL_SIZE,
+                             e);
+            }
+        }
+        executor = Executors.newFixedThreadPool(threadPoolSize);
     }
 
     private void initPipelineExecutor() {
@@ -148,8 +224,8 @@ public class PipelineExecutorTaskManagerImpl
     }
 
     @Override
-    public String execute(PipelineExecutorTaskDef taskDef,
-                          ExecutionMode executionMode) {
+    public String execute(final PipelineExecutorTaskDef taskDef,
+                          final ExecutionMode executionMode) {
         if (executionMode == ExecutionMode.ASYNCHRONOUS) {
             return executeAsync(taskDef);
         } else {
@@ -157,20 +233,40 @@ public class PipelineExecutorTaskManagerImpl
         }
     }
 
-    private synchronized String executeAsync(PipelineExecutorTaskDef taskDef) {
-        PipelineExecutorTask task = prepareTask(taskDef);
-        Future<?> future = executor.submit(() -> pipelineExecutor.execute(taskDef.getInput(),
-                                                                          taskDef.getPipeline(),
-                                                                          output -> processPipelineOutput(task,
-                                                                                                          output),
-                                                                          localListener));
-        storeFutureTask(task,
+    /**
+     * Executes the task definition in asynchronous mode.
+     * @param taskDef task definition for executing.
+     * @return the taskId assigned to the running task.
+     * @see PipelineExecutorTaskDef
+     */
+    private synchronized String executeAsync(final PipelineExecutorTaskDef taskDef) {
+        final PipelineExecutorTask task = prepareTask(taskDef);
+        return executeAsync(task);
+    }
+
+    /**
+     * Executes a task in asynchronous mode.
+     * @param task the task for execute.
+     * @return the taskId for of the task.
+     */
+    private synchronized String executeAsync(final PipelineExecutorTask task) {
+        final Future<?> future = executor.submit(() -> pipelineExecutor.execute(task.getTaskDef().getInput(),
+                                                                                task.getTaskDef().getPipeline(),
+                                                                                output -> processPipelineOutput(task,
+                                                                                                                output),
+                                                                                localListener));
+        storeFutureTask(task.getId(),
                         future);
         return task.getId();
     }
 
-    private String executeSync(PipelineExecutorTaskDef taskDef) {
-        PipelineExecutorTask task = prepareTask(taskDef);
+    /**
+     * Executes a task definition in synchronous mode.
+     * @param taskDef task definition for executing.
+     * @return the taskId assigned to the executed task.
+     */
+    private String executeSync(final PipelineExecutorTaskDef taskDef) {
+        final PipelineExecutorTask task = prepareTask(taskDef);
         pipelineExecutor.execute(taskDef.getInput(),
                                  taskDef.getPipeline(),
                                  output -> processPipelineOutput(task,
@@ -179,26 +275,71 @@ public class PipelineExecutorTaskManagerImpl
         return task.getId();
     }
 
-    private void processPipelineOutput(PipelineExecutorTask task,
-                                       Object output) {
+    private void processPipelineOutput(final PipelineExecutorTask task,
+                                       final Object output) {
         ((PipelineExecutorTaskImpl) task).setOutput(output);
     }
 
-    protected void beforePipelineExecution(BeforePipelineExecutionEvent bpee) {
+    @Override
+    public void destroy(final String taskId) throws PipelineExecutorException {
+        final PipelineExecutorTask task = getSafeTask(taskId);
+        final PipelineExecutorTask.Status currentStatus = task.getPipelineStatus();
+        if (!destroyEnabledStatus.contains(currentStatus)) {
+            throw new PipelineExecutorException("A PipelineExecutorTask in status: " + currentStatus.name() + " can not" +
+                                                        " be destroyed. Destroy operation is available for the following status set: " + destroyEnabledStatus);
+        }
+        pipelineExecutorRegistry.deregister(taskId);
+        pipelineExecutionTaskMap.remove(taskId);
+        destroyFutureTask(taskId);
+    }
+
+    @Override
+    public void stop(final String taskId) throws PipelineExecutorException {
+        final PipelineExecutorTaskImpl task = getSafeTask(taskId);
+        final PipelineExecutorTask.Status currentStatus = task.getPipelineStatus();
+        if (!stopEnabledStatus.contains(currentStatus)) {
+            throw new PipelineExecutorException("A PipelineExecutorTask in status: " + currentStatus.name() + " can not" +
+                                                        " be stopped. Stop operation is available for the following status set: " + stopEnabledStatus);
+        }
+        destroyFutureTask(taskId);
+        pipelineExecutorRegistry.deregister(taskId);
+        task.setPipelineStatus(PipelineExecutorTask.Status.STOPPED);
+        task.getTaskDef().getPipeline().getStages().forEach(stage -> task.setStageStatus(stage,
+                                                                                         PipelineExecutorTask.Status.STOPPED));
+        task.setOutput(null);
+        task.clearErrors();
+        pipelineExecutorRegistry.register(new PipelineExecutorTraceImpl(task));
+    }
+
+    @Override
+    public void restart(final String taskId) throws PipelineExecutorException {
+        final PipelineExecutorTask task = getSafeTask(taskId);
+        final PipelineExecutorTask.Status currentStatus = task.getPipelineStatus();
+        if (!restartEnabledStatus.contains(currentStatus)) {
+            throw new PipelineExecutorException("A PipelineExecutorTask in status: " + currentStatus.name() + " can not" +
+                                                        " be restarted. Restart operation is available for the following status set: " + restartEnabledStatus);
+        }
+        destroyFutureTask(taskId);
+        final PipelineExecutorTask newTask = prepareTask(task.getTaskDef(),
+                                                         taskId);
+        executeAsync(newTask);
+    }
+
+    protected void beforePipelineExecution(final BeforePipelineExecutionEvent bpee) {
         PipelineExecutorTaskImpl task = getTask(bpee);
         if (task != null) {
             task.setPipelineStatus(PipelineExecutorTask.Status.RUNNING);
         }
     }
 
-    protected void afterPipelineExecution(AfterPipelineExecutionEvent apee) {
+    protected void afterPipelineExecution(final AfterPipelineExecutionEvent apee) {
         PipelineExecutorTaskImpl task = getTask(apee);
         if (task != null) {
             task.setPipelineStatus(PipelineExecutorTask.Status.FINISHED);
         }
     }
 
-    protected void beforeStageExecution(BeforeStageExecutionEvent bsee) {
+    protected void beforeStageExecution(final BeforeStageExecutionEvent bsee) {
         PipelineExecutorTaskImpl task = getTask(bsee);
         if (task != null) {
             task.setStageStatus(bsee.getStage(),
@@ -206,7 +347,7 @@ public class PipelineExecutorTaskManagerImpl
         }
     }
 
-    protected void onStageError(OnErrorStageExecutionEvent oesee) {
+    protected void onStageError(final OnErrorStageExecutionEvent oesee) {
         PipelineExecutorTaskImpl task = getTask(oesee);
         if (task != null) {
             task.setStageStatus(oesee.getStage(),
@@ -216,7 +357,7 @@ public class PipelineExecutorTaskManagerImpl
         }
     }
 
-    protected void afterStageExecution(AfterStageExecutionEvent asee) {
+    protected void afterStageExecution(final AfterStageExecutionEvent asee) {
         PipelineExecutorTaskImpl task = getTask(asee);
         if (task != null) {
             task.setStageStatus(asee.getStage(),
@@ -224,7 +365,7 @@ public class PipelineExecutorTaskManagerImpl
         }
     }
 
-    protected void onPipelineError(OnErrorPipelineExecutionEvent oepee) {
+    protected void onPipelineError(final OnErrorPipelineExecutionEvent oepee) {
         PipelineExecutorTaskImpl task = getTask(oepee);
         if (task != null) {
             task.setPipelineStatus(PipelineExecutorTask.Status.ERROR);
@@ -232,12 +373,30 @@ public class PipelineExecutorTaskManagerImpl
         }
     }
 
-    private synchronized PipelineExecutorTaskImpl getTask(PipelineEvent event) {
-        return (PipelineExecutorTaskImpl) pipelineExecutionTaskMap.get(event.getExecutionId());
+    private PipelineExecutorTaskImpl getTask(final PipelineEvent event) {
+        return getTask(event.getExecutionId());
     }
 
-    private synchronized PipelineExecutorTask prepareTask(PipelineExecutorTaskDef taskDef) {
+    private synchronized PipelineExecutorTaskImpl getTask(final String taskId) {
+        return (PipelineExecutorTaskImpl) pipelineExecutionTaskMap.get(taskId);
+    }
+
+    private PipelineExecutorTaskImpl getSafeTask(final String taskId) throws PipelineExecutorException {
+        final PipelineExecutorTaskImpl task = getTask(taskId);
+        if (task == null) {
+            throw new PipelineExecutorException("No PipelineExecutorTask was not found for taskId: " + taskId);
+        }
+        return task;
+    }
+
+    private synchronized PipelineExecutorTask prepareTask(final PipelineExecutorTaskDef taskDef) {
         String executionId = ExecutionIdGenerator.generateExecutionId();
+        return prepareTask(taskDef,
+                           executionId);
+    }
+
+    private synchronized PipelineExecutorTask prepareTask(final PipelineExecutorTaskDef taskDef,
+                                                          final String executionId) {
         PipelineExecutorTask task = new PipelineExecutorTaskImpl(taskDef,
                                                                  executionId);
         pipelineExecutionTaskMap.put(task.getId(),
@@ -246,10 +405,29 @@ public class PipelineExecutorTaskManagerImpl
         return task;
     }
 
-    private synchronized void storeFutureTask(PipelineExecutorTask task,
-                                              Future future) {
-        futureTaskMap.put(task.getId(),
+    private synchronized void storeFutureTask(final String taskId,
+                                              final Future future) {
+        futureTaskMap.put(taskId,
                           future);
+    }
+
+    /**
+     * Safe method for destroying a Future task. Used only internally.
+     * @param taskId the task id to be destroyed.
+     * @return true if the task was destroyed with no errors, false in any other case.
+     */
+    private synchronized boolean destroyFutureTask(final String taskId) {
+        final Future future = futureTaskMap.remove(taskId);
+        if (future != null && !future.isCancelled() && !future.isDone()) {
+            try {
+                future.cancel(true);
+            } catch (Exception e) {
+                logger.error("Cancellation of Future task: " + taskId + " failed. " + e.getMessage(),
+                             e);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -257,11 +435,11 @@ public class PipelineExecutorTaskManagerImpl
      * @return true if the event comes from one of the pipeline executions launched by the task manager, false in any
      * other case.
      */
-    private boolean isInternal(PipelineEvent event) {
+    private boolean isInternal(final PipelineEvent event) {
         return getTask(event) != null;
     }
 
-    private void notifyExternalListeners(PipelineEvent event) {
+    private void notifyExternalListeners(final PipelineEvent event) {
         eventListeners.forEach(listener -> {
             try {
                 if (event instanceof BeforePipelineExecutionEvent) {

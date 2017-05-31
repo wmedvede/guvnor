@@ -18,7 +18,6 @@ package org.guvnor.ala.pipeline.execution;
 
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
-import org.guvnor.ala.runtime.RuntimeId;
 import org.guvnor.ala.runtime.providers.ProviderId;
 import org.guvnor.ala.runtime.providers.ProviderType;
 
@@ -49,10 +48,4 @@ public interface PipelineExecutorTaskDef {
      * any other case.
      */
     ProviderType getProviderType();
-
-    //TODO REMOVE this field.????
-    /**
-     * @return The runtime id that will be used for the provisioned Runtime.
-     */
-    RuntimeId getRuntimeId();
 }

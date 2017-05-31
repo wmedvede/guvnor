@@ -49,7 +49,8 @@ import org.uberfire.commons.services.cdi.StartupType;
 import static org.guvnor.ala.pipeline.StageUtil.config;
 
 /**
- * Temporal component for having some pipelines initialized for development purposes.
+ * TODO:
+ * Auxiliary component for having some pre initialized pipelines for development purposes.
  */
 @ApplicationScoped
 @Startup(StartupType.BOOTSTRAP)
@@ -75,7 +76,12 @@ public class UIAppSetup {
 
         // Create Wildfly Pipeline Configuration
         final GitConfig gitConfig = new GitConfig() {
+            @Override
+            public String toString() {
+                return "Git Config";
+            }
         };
+
         final Stage<Input, SourceConfig> sourceConfigStage = config("Git Source", f -> gitConfig);
 
         final MavenProjectConfig projectConfig = new MavenProjectConfig() {
