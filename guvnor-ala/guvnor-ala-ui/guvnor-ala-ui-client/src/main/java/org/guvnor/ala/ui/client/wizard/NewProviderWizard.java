@@ -38,8 +38,12 @@ import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateSuccessMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_title;
 
+/**
+ * Wizard for creating a provicer.
+ */
 @ApplicationScoped
 public class NewProviderWizard
         extends AbstractMultiPageWizard {
@@ -72,7 +76,7 @@ public class NewProviderWizard
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         pages.add(providerConfigurationPage);
     }
 
@@ -87,8 +91,10 @@ public class NewProviderWizard
     @Override
     public void start() {
         if (providerConfigurationForm == null) {
-            //uncommon case
-            popupsUtil.showErrorPopup("Provider type: " + (providerType != null ? providerType.getName() : null) + " is not properly setup.");
+            //uncommon case, will next never occur.
+            popupsUtil.showErrorPopup(translationService.format(
+                    NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage,
+                    (providerType != null ? providerType.getName() : null)));
         } else {
             clear();
             super.start();

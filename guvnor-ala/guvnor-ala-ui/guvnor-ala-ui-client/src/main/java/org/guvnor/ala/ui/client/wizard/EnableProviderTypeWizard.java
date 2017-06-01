@@ -17,7 +17,7 @@
 package org.guvnor.ala.ui.client.wizard;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -30,12 +30,17 @@ import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
+import org.uberfire.commons.data.Pair;
 import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_title;
 
+/**
+ * Wizard for enabling the desired provider types on the system. Enabled provider types will be available for defining
+ * providers.
+ */
 @ApplicationScoped
 public class EnableProviderTypeWizard
         extends AbstractMultiPageWizard {
@@ -59,11 +64,11 @@ public class EnableProviderTypeWizard
     }
 
     @PostConstruct
-    private void init() {
+    protected void init() {
         pages.add(enableProviderTypePage);
     }
 
-    public void setup(final Map<ProviderType, ProviderTypeStatus> providerTypeStatus) {
+    public void setup(final List<Pair<ProviderType, ProviderTypeStatus>> providerTypeStatus) {
         enableProviderTypePage.setup(providerTypeStatus);
     }
 

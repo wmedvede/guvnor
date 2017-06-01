@@ -18,7 +18,7 @@ package org.guvnor.ala.ui.client.wizard.providertype;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -33,6 +33,7 @@ import org.jboss.errai.common.client.ui.ElementWrapperWidget;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
+import org.uberfire.commons.data.Pair;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 
@@ -68,21 +69,21 @@ public class EnableProviderTypePagePresenter
         view.init(this);
     }
 
-    public void setup(final Map<ProviderType, ProviderTypeStatus> providerTypeStatus) {
+    public void setup(final List<Pair<ProviderType, ProviderTypeStatus>> providerTypeStatus) {
         view.clear();
         clearProviderTypes();
 
         final ContentChangeHandler contentChangeHandler = this::onProviderTypeSelectionChange;
 
-        for (final Map.Entry<ProviderType, ProviderTypeStatus> entry : providerTypeStatus.entrySet()) {
+        providerTypeStatus.forEach(pair -> {
             final ProviderTypeItemPresenter presenter = newProviderTypeItemPresenter();
-            presenter.setup(entry.getKey(),
-                            entry.getValue());
+            presenter.setup(pair.getK1(),
+                            pair.getK2());
             presenter.addContentChangeHandler(contentChangeHandler);
 
             providerTypes.add(presenter);
             view.addProviderType(presenter.getView());
-        }
+        });
     }
 
     @Override
@@ -129,7 +130,7 @@ public class EnableProviderTypePagePresenter
         wizardPageStatusChangeEvent.fire(new WizardPageStatusChangeEvent(EnableProviderTypePagePresenter.this));
     }
 
-    private ProviderTypeItemPresenter newProviderTypeItemPresenter() {
+    protected ProviderTypeItemPresenter newProviderTypeItemPresenter() {
         return providerTypeItemPresenterInstance.get();
     }
 

@@ -37,7 +37,7 @@ public abstract class AbstractHasContentChangeHandlers
                                            changeHandler));
     }
 
-    protected void fireChangeHandlers() {
+    public void fireChangeHandlers() {
         changeHandlers.forEach(ContentChangeHandler::onContentChange);
     }
 }

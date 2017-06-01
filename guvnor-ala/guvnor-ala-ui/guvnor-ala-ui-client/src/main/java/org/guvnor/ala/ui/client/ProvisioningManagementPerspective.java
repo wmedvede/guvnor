@@ -17,7 +17,9 @@
 package org.guvnor.ala.ui.client;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -36,6 +38,7 @@ import org.jboss.errai.common.client.api.Caller;
 import org.uberfire.client.annotations.Perspective;
 import org.uberfire.client.annotations.WorkbenchPerspective;
 import org.uberfire.client.workbench.panels.impl.StaticWorkbenchPanelPresenter;
+import org.uberfire.commons.data.Pair;
 import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.workbench.model.PerspectiveDefinition;
@@ -79,7 +82,7 @@ public class ProvisioningManagementPerspective {
 
     protected void onAddNewProviderType(@Observes final AddNewProviderTypeEvent event) {
         providerTypeService.call((Map<ProviderType, ProviderTypeStatus> result) -> {
-                                     enableProviderTypeWizard.setup(result);
+                                     enableProviderTypeWizard.setup(buildProviderStatusList(result));
                                      enableProviderTypeWizard.start();
                                  },
                                  new DefaultErrorCallback()).getProviderTypesStatus();
@@ -99,5 +102,14 @@ public class ProvisioningManagementPerspective {
                                 newDeployWizard.start();
                             },
                             new DefaultErrorCallback()).getPipelines(event.getProvider().getKey().getProviderTypeKey());
+    }
+
+    protected List<Pair<ProviderType, ProviderTypeStatus>> buildProviderStatusList(final Map<ProviderType, ProviderTypeStatus> statusMap) {
+        return statusMap.entrySet()
+                .stream()
+                .map(entry -> new Pair<>(entry.getKey(),
+                                         entry.getValue()))
+                .sorted((o1, o2) -> o1.getK1().getName().compareTo(o2.getK1().getName()))
+                .collect(Collectors.toList());
     }
 }

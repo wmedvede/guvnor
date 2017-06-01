@@ -40,4 +40,30 @@ public class ProviderTypeSelectedEvent {
     public String getProviderId() {
         return providerId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ProviderTypeSelectedEvent that = (ProviderTypeSelectedEvent) o;
+
+        if (providerTypeKey != null ? !providerTypeKey.equals(that.providerTypeKey) : that.providerTypeKey != null) {
+            return false;
+        }
+        return providerId != null ? providerId.equals(that.providerId) : that.providerId == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = providerTypeKey != null ? providerTypeKey.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (providerId != null ? providerId.hashCode() : 0);
+        result = ~~result;
+        return result;
+    }
 }

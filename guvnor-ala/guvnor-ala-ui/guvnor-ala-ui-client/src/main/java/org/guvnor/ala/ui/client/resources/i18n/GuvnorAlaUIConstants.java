@@ -45,6 +45,9 @@ public class GuvnorAlaUIConstants {
     public static final String NewProviderWizard_ProviderCreateErrorMessage = "NewProviderWizard.ProviderCreateErrorMessage";
 
     @TranslationKey(defaultValue = "")
+    public static final String NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage = "NewProviderWizard.ProviderNotProperlyConfiguredInSystemErrorMessage";
+
+    @TranslationKey(defaultValue = "")
     public static final String NewDeployWizard_title = "NewDeployWizard.title";
 
     @TranslationKey(defaultValue = "")
