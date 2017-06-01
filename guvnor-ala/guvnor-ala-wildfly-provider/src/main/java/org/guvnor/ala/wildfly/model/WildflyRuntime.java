@@ -31,9 +31,9 @@ public class WildflyRuntime extends BaseRuntime {
     public WildflyRuntime() {
     }
 
-    public WildflyRuntime( String id, RuntimeConfig config, ProviderId providerId,
+    public WildflyRuntime( String id, String name, RuntimeConfig config, ProviderId providerId,
             RuntimeEndpoint endpoint, RuntimeInfo info, RuntimeState state ) {
-        super( id, config, providerId, endpoint, info, state );
+        super( id, name, config, providerId, endpoint, info, state );
     }
 
     @Override

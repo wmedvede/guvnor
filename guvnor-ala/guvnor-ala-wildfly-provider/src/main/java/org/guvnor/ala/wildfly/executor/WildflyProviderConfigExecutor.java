@@ -22,8 +22,10 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.config.Config;
 import org.guvnor.ala.config.ProviderConfig;
+import org.guvnor.ala.exceptions.ProvisioningException;
 import org.guvnor.ala.pipeline.FunctionConfigExecutor;
 import org.guvnor.ala.registry.RuntimeRegistry;
+import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderBuilder;
 import org.guvnor.ala.runtime.providers.ProviderDestroyer;
 import org.guvnor.ala.runtime.providers.ProviderId;
@@ -43,12 +45,32 @@ public class WildflyProviderConfigExecutor implements ProviderBuilder<WildflyPro
     }
 
     @Override
-    public Optional<WildflyProvider> apply( final WildflyProviderConfig wildflyProviderConfig ) {
-        final WildflyProvider provider = new WildflyProviderImpl( wildflyProviderConfig.getName(), wildflyProviderConfig.getHostIp(),
-                                                                  wildflyProviderConfig.getPort(), wildflyProviderConfig.getManagementPort(),
-                                                                  wildflyProviderConfig.getUser(), wildflyProviderConfig.getPassword() );
-        runtimeRegistry.registerProvider( provider );
-        return Optional.of( provider );
+    public Optional<WildflyProvider> apply(final WildflyProviderConfig wildflyProviderConfig) {
+        if (wildflyProviderConfig.getName() == null || wildflyProviderConfig.getName().isEmpty()) {
+            throw new ProvisioningException("No name was provided for the WildflyProviderConfig.getName() " +
+                                                    "configuration parameter. You might probably have to properly set " +
+                                                    "the pipeline input parameter: " + ProviderConfig.PROVIDER_NAME);
+        }
+        Provider provider = runtimeRegistry.getProvider(wildflyProviderConfig.getName());
+        WildflyProvider wildflyProvider;
+        if (provider != null) {
+            if (!(provider instanceof WildflyProvider)) {
+                throw new ProvisioningException("The provider: " + wildflyProviderConfig.getName() +
+                                                        " must be an instance of " + WildflyProviderConfig.class +
+                                                        " but is: " + provider.getClass());
+            } else {
+                wildflyProvider = (WildflyProvider) provider;
+            }
+        } else {
+            wildflyProvider = new WildflyProviderImpl(wildflyProviderConfig.getName(),
+                                                      wildflyProviderConfig.getHostIp(),
+                                                      wildflyProviderConfig.getPort(),
+                                                      wildflyProviderConfig.getManagementPort(),
+                                                      wildflyProviderConfig.getUser(),
+                                                      wildflyProviderConfig.getPassword());
+            runtimeRegistry.registerProvider(wildflyProvider);
+        }
+        return Optional.of(wildflyProvider);
     }
 
     @Override

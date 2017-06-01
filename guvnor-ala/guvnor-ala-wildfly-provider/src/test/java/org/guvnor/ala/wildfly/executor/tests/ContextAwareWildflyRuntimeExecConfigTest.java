@@ -34,9 +34,26 @@ import static org.guvnor.ala.util.VariableInterpolation.interpolate;
 
 public class ContextAwareWildflyRuntimeExecConfigTest {
 
+    public static final String WAR_PATH_DEFAULT_EXPRESSION = "${input." + WildflyRuntimeExecConfig.WAR_PATH + "}";
+
+    public static final String REDEPLOY_STRATEGY_DEFAULT_EXPRESSION = "${input." + WildflyRuntimeExecConfig.REDEPLOY_STRATEGY + "}";
+
+    public static final String RUNTIME_NAME_DEFAULT_EXPRESSION = "${input." + WildflyRuntimeExecConfig.RUNTIME_NAME + "}";
+
+    public static final String FILE_PATH = "/path/to/file.war";
+
+    public static final String REDEPLOY_OPTION = "none";
+
+    public static final String RUNTIME_NAME = "runtimeNameValue";
+
     @Test
     public void testDefaultExpression() {
-        assertEquals("${input.war-path}", new ContextAwareWildflyRuntimeExecConfig().getWarPath());
+        assertEquals(WAR_PATH_DEFAULT_EXPRESSION,
+                     new ContextAwareWildflyRuntimeExecConfig().getWarPath());
+        assertEquals(REDEPLOY_STRATEGY_DEFAULT_EXPRESSION,
+                     new ContextAwareWildflyRuntimeExecConfig().getRedeployStrategy());
+        assertEquals(RUNTIME_NAME_DEFAULT_EXPRESSION,
+                     new ContextAwareWildflyRuntimeExecConfig().getRuntimeName());
     }
 
     @Test
@@ -44,53 +61,69 @@ public class ContextAwareWildflyRuntimeExecConfigTest {
         final ContextAwareWildflyRuntimeExecConfig config = new ContextAwareWildflyRuntimeExecConfig();
         final Map<String, Object> context = new HashMap<>();
         final WildflyProvider provider = mock(WildflyProvider.class);
-        context.put("wildfly-provider", provider);
+        context.put("wildfly-provider",
+                    provider);
         final MavenBinary binary = mock(MavenBinary.class);
         final Path path = mock(Path.class);
         when(binary.getPath()).thenReturn(path);
-        final String filePath = "/path/to/file.war";
-        when(path.toString()).thenReturn(filePath);
-        context.put("binary", binary);
+        when(path.toString()).thenReturn(FILE_PATH);
+        context.put("binary",
+                    binary);
 
         config.setContext(context);
 
-        assertEquals(provider, config.getProviderId());
-        assertEquals(filePath, config.getWarPath());
+        assertEquals(provider,
+                     config.getProviderId());
+        assertEquals(FILE_PATH,
+                     config.getWarPath());
 
         final WildflyRuntimeExecConfig configClone = config.asNewClone(config);
-        assertEquals(provider, configClone.getProviderId());
-        assertEquals(filePath, configClone.getWarPath());
+        assertEquals(provider,
+                     configClone.getProviderId());
+        assertEquals(FILE_PATH,
+                     configClone.getWarPath());
     }
 
     @Test
     public void testContextUsingPath() {
         final ContextAwareWildflyRuntimeExecConfig config = new ContextAwareWildflyRuntimeExecConfig();
         final WildflyProvider provider = mock(WildflyProvider.class);
-        final Map<String, Object> context = singletonMap("wildfly-provider", provider);
+        final Map<String, Object> context = singletonMap("wildfly-provider",
+                                                         provider);
 
         config.setContext(context);
 
-        assertEquals(provider, config.getProviderId());
-        assertEquals("${input.war-path}", config.getWarPath());
+        assertEquals(provider,
+                     config.getProviderId());
+        assertEquals(WAR_PATH_DEFAULT_EXPRESSION,
+                     config.getWarPath());
 
         final WildflyRuntimeExecConfig configClone = config.asNewClone(config);
-        assertEquals(provider, configClone.getProviderId());
-        assertEquals("${input.war-path}", configClone.getWarPath());
+        assertEquals(provider,
+                     configClone.getProviderId());
+        assertEquals(WAR_PATH_DEFAULT_EXPRESSION,
+                     configClone.getWarPath());
     }
 
     @Test
     public void testVariablesResolution() {
-        final String filePath = "/path/to/file.war";
-        final String redeploy = "none";
-
         Map<String, String> values = new HashMap<>();
-        values.put("war-path", filePath);
-        values.put("redeploy", redeploy);
+        values.put(ContextAwareWildflyRuntimeExecConfig.WAR_PATH,
+                   FILE_PATH);
+        values.put(ContextAwareWildflyRuntimeExecConfig.REDEPLOY_STRATEGY,
+                   REDEPLOY_OPTION);
+        values.put(ContextAwareWildflyRuntimeExecConfig.RUNTIME_NAME,
+                   RUNTIME_NAME);
 
         final ContextAwareWildflyRuntimeExecConfig config = new ContextAwareWildflyRuntimeExecConfig();
-        final ContextAwareWildflyRuntimeExecConfig varConfig = interpolate(singletonMap("input", values), config);
-        assertEquals(filePath, varConfig.getWarPath());
-        assertEquals(redeploy, varConfig.getRedeployStrategy());
+        final ContextAwareWildflyRuntimeExecConfig varConfig = interpolate(singletonMap("input",
+                                                                                        values),
+                                                                           config);
+        assertEquals(FILE_PATH,
+                     varConfig.getWarPath());
+        assertEquals(REDEPLOY_OPTION,
+                     varConfig.getRedeployStrategy());
+        assertEquals(RUNTIME_NAME,
+                     varConfig.getRuntimeName());
     }
-
 }

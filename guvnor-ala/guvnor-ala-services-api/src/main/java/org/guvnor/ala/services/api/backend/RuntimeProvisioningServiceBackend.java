@@ -17,8 +17,13 @@
 package org.guvnor.ala.services.api.backend;
 
 import java.util.List;
+import javax.validation.constraints.NotNull;
+
 import org.guvnor.ala.config.ProviderConfig;
 
+import org.guvnor.ala.services.api.RuntimeQuery;
+import org.guvnor.ala.services.api.RuntimeQueryResultItem;
+import org.guvnor.ala.services.api.itemlist.RuntimeQueryResultItemList;
 import org.jboss.errai.bus.server.annotations.Remote;
 import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.runtime.Runtime;
@@ -108,5 +113,8 @@ public interface RuntimeProvisioningServiceBackend {
      * @throw BusinessException in case of an internal exception
      */
     void restartRuntime( final String runtimeId ) throws BusinessException;
+
+
+    List<RuntimeQueryResultItem> executeQuery( final RuntimeQuery query) throws BusinessException;
 
 }

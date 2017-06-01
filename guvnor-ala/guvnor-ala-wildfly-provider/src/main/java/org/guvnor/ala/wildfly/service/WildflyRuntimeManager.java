@@ -93,7 +93,7 @@ public class WildflyRuntimeManager implements RuntimeManager {
         WildflyRuntime runtime = ( WildflyRuntime ) runtimeRegistry.getRuntimeById( runtimeId.getId() );
         try {
             WildflyAppState appState = wildfly.getWildflyClient( runtime.getProviderId() ).getAppState( runtime.getId() );
-            WildflyRuntime newRuntime = new WildflyRuntime( runtime.getId(), runtime.getConfig(), runtime.getProviderId(),
+            WildflyRuntime newRuntime = new WildflyRuntime( runtime.getId(),runtime.getName(), runtime.getConfig(), runtime.getProviderId(),
                     runtime.getEndpoint(), runtime.getInfo(), new WildflyRuntimeState( appState.getState(), appState.getStartedAt().toString() ) );
             runtimeRegistry.registerRuntime( newRuntime );
             
