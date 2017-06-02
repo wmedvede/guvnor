@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
+import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.ErrorCallback;
+import org.jboss.errai.common.client.api.RemoteCallback;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.uberfire.client.callbacks.Callback;
 import org.uberfire.commons.data.Pair;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class ProvisioningManagementTestCommons {
@@ -46,6 +46,14 @@ public class ProvisioningManagementTestCommons {
     public static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
 
     public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
+
+    public static final String SERVICE_CALLER_ERROR_MESSAGE = "SERVICE_ERROR_MESSAGE";
+
+    public static final String SERVICE_CALLER_EXCEPTION_MESSAGE = "SERVICE_CALLER_EXCEPTION_MESSAGE";
+
+    public static final String PIPELINE1 = "PIPELINE1";
+
+    public static final String PIPELINE2 = "PIPELINE2";
 
     public static List<ProviderType> mockProviderTypeList(int count) {
         List<ProviderType> providerTypes = new ArrayList<>();
@@ -75,13 +83,16 @@ public class ProvisioningManagementTestCommons {
     }
 
     @SuppressWarnings("unchecked")
-    public static void preparePageCompletion(WizardPage page) {
-        doAnswer(new Answer<Void>() {
-            public Void answer(InvocationOnMock invocation) {
-                Callback callback = (Callback) invocation.getArguments()[0];
-                callback.callback(true);
-                return null;
+    public static <T> void prepareServiceCallerError(T service,
+                                                     Caller<T> serviceCaller) {
+        doAnswer(new Answer<T>() {
+            public T answer(InvocationOnMock invocation) {
+                ErrorCallback callback = (ErrorCallback) invocation.getArguments()[1];
+                callback.error(SERVICE_CALLER_ERROR_MESSAGE,
+                               new Throwable(SERVICE_CALLER_EXCEPTION_MESSAGE));
+                return service;
             }
-        }).when(page).isComplete(any(Callback.class));
+        }).when(serviceCaller).call(any(RemoteCallback.class),
+                                    any(ErrorCallback.class));
     }
 }

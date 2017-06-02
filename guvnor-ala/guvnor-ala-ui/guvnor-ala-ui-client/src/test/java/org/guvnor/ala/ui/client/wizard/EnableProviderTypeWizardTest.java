@@ -25,12 +25,13 @@ import org.guvnor.ala.ui.client.wizard.providertype.EnableProviderTypePagePresen
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
+import org.jboss.errai.common.client.api.Caller;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.uberfire.commons.data.Pair;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.workbench.events.NotificationEvent;
@@ -39,7 +40,7 @@ import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.ERROR_M
 import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
 import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.buildProviderTypeStatusList;
 import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeList;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.preparePageCompletion;
+import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.prepareServiceCallerError;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage;
 import static org.mockito.Mockito.*;
@@ -54,6 +55,8 @@ public class EnableProviderTypeWizardTest
     @Mock
     private ProviderTypeService providerTypeService;
 
+    private Caller<ProviderTypeService> providerTypeServiceCaller;
+
     @Mock
     private EventSourceMock<ProviderTypeListRefreshEvent> providerTypeListRefreshEvent;
 
@@ -62,6 +65,8 @@ public class EnableProviderTypeWizardTest
     private List<ProviderType> providerTypes;
 
     private List<Pair<ProviderType, ProviderTypeStatus>> providerTypeStatus;
+
+    private List<ProviderType> selectedProviders;
 
     @Before
     public void setUp() {
@@ -76,9 +81,10 @@ public class EnableProviderTypeWizardTest
         when(translationService.getTranslation(EnableProviderTypeWizard_ProviderTypeEnableErrorMessage))
                 .thenReturn(ERROR_MESSAGE);
 
+        providerTypeServiceCaller = spy(new CallerMock<>(providerTypeService));
         wizard = new EnableProviderTypeWizard(enableProviderTypePage,
                                               translationService,
-                                              new CallerMock<>(providerTypeService),
+                                              providerTypeServiceCaller,
                                               notification,
                                               providerTypeListRefreshEvent) {
             {
@@ -89,21 +95,13 @@ public class EnableProviderTypeWizardTest
     }
 
     @Test
-    public void testEnableProvider() {
+    public void testEnableProviderSuccess() {
         //initialize and start the wizard.
         wizard.setup(providerTypeStatus);
         wizard.start();
 
-        //select a couple of providers and emulate page completion.
-        int selectedIndex1 = 1;
-        int selectedIndex2 = 2;
-        List<ProviderType> selectedProviders = new ArrayList<>();
-        selectedProviders.add(providerTypes.get(selectedIndex1));
-        selectedProviders.add(providerTypes.get(selectedIndex2));
-        when(enableProviderTypePage.getSelectedProviderTypes()).thenReturn(selectedProviders);
-
-        preparePageCompletion(enableProviderTypePage);
-        wizard.onStatusChange(new WizardPageStatusChangeEvent(enableProviderTypePage));
+        //emulate the user completing the wizard.
+        preCompleteWizard();
 
         //emulates the user pressing the finish button
         wizard.complete();
@@ -117,5 +115,39 @@ public class EnableProviderTypeWizardTest
 
         verify(providerTypeListRefreshEvent,
                times(1)).fire(new ProviderTypeListRefreshEvent(selectedProviders.get(0).getKey()));
+    }
+
+    @Test
+    public void testEnableProviderFailure() {
+        //initialize and start the wizard.
+        wizard.setup(providerTypeStatus);
+        wizard.start();
+
+        //emulate the user completing the wizard.
+        preCompleteWizard();
+
+        prepareServiceCallerError(providerTypeService,
+                                  providerTypeServiceCaller);
+        //emulates the user pressing the finish button
+        wizard.complete();
+
+        verify(providerTypeService,
+               times(1)).enableProviderTypes(selectedProviders);
+        verify(notification,
+               times(1)).fire(new NotificationEvent(ERROR_MESSAGE,
+                                                    NotificationEvent.NotificationType.ERROR));
+    }
+
+    private void preCompleteWizard() {
+        //select a couple of providers and emulate page completion.
+        int selectedIndex1 = 1;
+        int selectedIndex2 = 2;
+        selectedProviders = new ArrayList<>();
+        selectedProviders.add(providerTypes.get(selectedIndex1));
+        selectedProviders.add(providerTypes.get(selectedIndex2));
+        when(enableProviderTypePage.getSelectedProviderTypes()).thenReturn(selectedProviders);
+
+        preparePageCompletion(enableProviderTypePage);
+        wizard.isComplete(Assert::assertTrue);
     }
 }

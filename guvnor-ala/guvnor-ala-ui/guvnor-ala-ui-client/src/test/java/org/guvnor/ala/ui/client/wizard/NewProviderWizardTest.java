@@ -27,11 +27,12 @@ import org.guvnor.ala.ui.client.wizard.provider.ProviderConfigurationPagePresent
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.service.ProviderService;
+import org.jboss.errai.common.client.api.Caller;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.workbench.events.NotificationEvent;
@@ -39,7 +40,7 @@ import org.uberfire.workbench.events.NotificationEvent;
 import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.ERROR_MESSAGE;
 import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
 import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderType;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.preparePageCompletion;
+import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.prepareServiceCallerError;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage;
@@ -60,6 +61,8 @@ public class NewProviderWizardTest
 
     @Mock
     private ProviderService providerService;
+
+    private Caller<ProviderService> providerServiceCaller;
 
     @Mock
     private EventSourceMock<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
@@ -82,11 +85,12 @@ public class NewProviderWizardTest
 
     @Before
     public void setUp() {
+        providerServiceCaller = spy(new CallerMock<>(providerService));
         wizard = new NewProviderWizard(configurationPage,
                                        handlerRegistry,
                                        popupsUtil,
                                        translationService,
-                                       new CallerMock<>(providerService),
+                                       providerServiceCaller,
                                        notification,
                                        providerTypeSelectedEvent) {
             {
@@ -143,16 +147,13 @@ public class NewProviderWizardTest
     }
 
     @Test
-    public void testCreateProvider() {
+    public void testCreateProviderSuccess() {
         //initialize and start the wizard.
         wizard.setup(providerType);
         wizard.start();
 
-        //emulate that the page was completed.
-        when(configurationPage.buildProviderConfiguration()).thenReturn(providerConfiguration);
-
-        preparePageCompletion(configurationPage);
-        wizard.onStatusChange(new WizardPageStatusChangeEvent(configurationPage));
+        //emulate the user completing the wizard.
+        preCompleteWizard();
 
         //emulate the user pressing the finish button.
         wizard.complete();
@@ -167,5 +168,38 @@ public class NewProviderWizardTest
         verify(providerTypeSelectedEvent,
                times(1)).fire(new ProviderTypeSelectedEvent(providerType.getKey(),
                                                             providerConfiguration.getId()));
+    }
+
+    @Test
+    public void testCreateProviderFailure() {
+        //initialize and start the wizard.
+        wizard.setup(providerType);
+        wizard.start();
+
+        //emulate the user completing the wizard.
+        preCompleteWizard();
+
+        prepareServiceCallerError(providerService,
+                                  providerServiceCaller);
+
+        //emulate the user pressing the finish button.
+        wizard.complete();
+
+        verify(providerService,
+               times(1)).createProvider(providerType,
+                                        providerConfiguration);
+        verify(notification,
+               times(1)).fire(new NotificationEvent(ERROR_MESSAGE,
+                                                    NotificationEvent.NotificationType.ERROR));
+        verify(providerTypeSelectedEvent,
+               never()).fire(any(ProviderTypeSelectedEvent.class));
+    }
+
+    private void preCompleteWizard() {
+        //emulate that the page was completed.
+        when(configurationPage.buildProviderConfiguration()).thenReturn(providerConfiguration);
+
+        preparePageCompletion(configurationPage);
+        wizard.isComplete(Assert::assertTrue);
     }
 }

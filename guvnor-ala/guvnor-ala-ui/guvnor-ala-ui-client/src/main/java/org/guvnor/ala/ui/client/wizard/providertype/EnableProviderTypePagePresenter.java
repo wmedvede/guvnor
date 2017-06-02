@@ -53,7 +53,7 @@ public class EnableProviderTypePagePresenter
     private final Event<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
     private final ManagedInstance<ProviderTypeItemPresenter> providerTypeItemPresenterInstance;
 
-    private Collection<ProviderTypeItemPresenter> providerTypes = new ArrayList<>();
+    private List<ProviderTypeItemPresenter> itemPresenters = new ArrayList<>();
 
     @Inject
     public EnableProviderTypePagePresenter(final View view,
@@ -81,7 +81,7 @@ public class EnableProviderTypePagePresenter
                             pair.getK2());
             presenter.addContentChangeHandler(contentChangeHandler);
 
-            providerTypes.add(presenter);
+            itemPresenters.add(presenter);
             view.addProviderType(presenter.getView());
         });
     }
@@ -97,7 +97,7 @@ public class EnableProviderTypePagePresenter
 
     @Override
     public void isComplete(final Callback<Boolean> callback) {
-        for (ProviderTypeItemPresenter providerType : providerTypes) {
+        for (ProviderTypeItemPresenter providerType : itemPresenters) {
             if (providerType.isSelected()) {
                 callback.callback(true);
                 return;
@@ -118,7 +118,7 @@ public class EnableProviderTypePagePresenter
 
     public Collection<ProviderType> getSelectedProviderTypes() {
         final Collection<ProviderType> result = new ArrayList<>();
-        for (ProviderTypeItemPresenter providerType : providerTypes) {
+        for (ProviderTypeItemPresenter providerType : itemPresenters) {
             if (providerType.isSelected()) {
                 result.add(providerType.getProviderType());
             }
@@ -134,8 +134,15 @@ public class EnableProviderTypePagePresenter
         return providerTypeItemPresenterInstance.get();
     }
 
+    /**
+     * suited for testing purposes.
+     */
+    protected List<ProviderTypeItemPresenter> getItemPresenters() {
+        return itemPresenters;
+    }
+
     private void clearProviderTypes() {
-        providerTypes.forEach(providerTypeItemPresenterInstance::destroy);
-        providerTypes.clear();
+        itemPresenters.forEach(providerTypeItemPresenterInstance::destroy);
+        itemPresenters.clear();
     }
 }

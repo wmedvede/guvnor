@@ -65,7 +65,7 @@ public class NewDeployWizard
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         pages.add(selectPipelinePage);
         pages.add(sourceConfigPage);
     }

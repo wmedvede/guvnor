@@ -16,7 +16,6 @@
 
 package org.guvnor.ala.ui.client.wizard.providertype;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -60,16 +59,15 @@ public class EnableProviderTypePagePresenterTest {
 
     private List<Pair<ProviderType, ProviderTypeStatus>> providerTypeStatus;
 
-    private List<ProviderTypeItemPresenter> itemPresenters;
+    private static int PROVIDERS_COUNT = 3;
 
     @Before
     public void setUp() {
 
         //mock an arbitrary set of provider types.
-        providerTypes = mockProviderTypeList(3);
+        providerTypes = mockProviderTypeList(PROVIDERS_COUNT);
         providerTypeStatus = buildProviderTypeStatusList(providerTypes,
                                                          ProviderTypeStatus.DISABLED);
-        itemPresenters = new ArrayList<>();
         presenter = new EnableProviderTypePagePresenter(view,
                                                         wizardPageStatusChangeEvent,
                                                         providerTypeItemPresenterInstance) {
@@ -77,17 +75,15 @@ public class EnableProviderTypePagePresenterTest {
             protected ProviderTypeItemPresenter newProviderTypeItemPresenter() {
                 ProviderTypeItemPresenter itemPresenter = mock(ProviderTypeItemPresenter.class);
                 when(itemPresenter.getView()).thenReturn(mock(IsElement.class));
-                itemPresenters.add(itemPresenter);
                 when(providerTypeItemPresenterInstance.get()).thenReturn(itemPresenter);
                 return super.newProviderTypeItemPresenter();
             }
         };
         presenter.init();
+        verify(view,
+               times(1)).init(presenter);
     }
 
-    /**
-     * Tests the presenter setup.
-     */
     @Test
     public void testSetup() {
         presenter.setup(providerTypeStatus);
@@ -95,9 +91,9 @@ public class EnableProviderTypePagePresenterTest {
         verify(view,
                times(1)).clear();
         assertEquals(providerTypeStatus.size(),
-                     itemPresenters.size());
-        for (int i = 0; i < itemPresenters.size(); i++) {
-            ProviderTypeItemPresenter itemPresenter = itemPresenters.get(i);
+                     presenter.getItemPresenters().size());
+        for (int i = 0; i < presenter.getItemPresenters().size(); i++) {
+            ProviderTypeItemPresenter itemPresenter = presenter.getItemPresenters().get(i);
             Pair<ProviderType, ProviderTypeStatus> pair = providerTypeStatus.get(i);
             verify(itemPresenter,
                    times(1)).setup(pair.getK1(),
@@ -114,25 +110,25 @@ public class EnableProviderTypePagePresenterTest {
     @Test
     public void testPageNotCompleted() {
         presenter.setup(providerTypeStatus);
-        itemPresenters.forEach(itemPresenter -> when(itemPresenter.isSelected()).thenReturn(false));
-        //no item selected
+        presenter.getItemPresenters().forEach(itemPresenter -> when(itemPresenter.isSelected()).thenReturn(false));
+        //no item is selected
         presenter.isComplete(Assert::assertFalse);
     }
 
     @Test
     public void testPageCompleted() {
         presenter.setup(providerTypeStatus);
-        itemPresenters.forEach(itemPresenter -> when(itemPresenter.isSelected()).thenReturn(false));
+        presenter.getItemPresenters().forEach(itemPresenter -> when(itemPresenter.isSelected()).thenReturn(false));
         //select some items.
         int selected1 = 0;
         int selected2 = 2;
-        when(itemPresenters.get(selected1).isSelected()).thenReturn(true);
-        when(itemPresenters.get(selected1).getProviderType()).thenReturn(providerTypes.get(selected1));
+        when(presenter.getItemPresenters().get(selected1).isSelected()).thenReturn(true);
+        when(presenter.getItemPresenters().get(selected1).getProviderType()).thenReturn(providerTypes.get(selected1));
 
-        when(itemPresenters.get(selected2).isSelected()).thenReturn(true);
-        when(itemPresenters.get(selected2).getProviderType()).thenReturn(providerTypes.get(selected2));
+        when(presenter.getItemPresenters().get(selected2).isSelected()).thenReturn(true);
+        when(presenter.getItemPresenters().get(selected2).getProviderType()).thenReturn(providerTypes.get(selected2));
 
-        //no item selected
+        //there are selected items, the page must be completed.
         presenter.isComplete(Assert::assertTrue);
 
         Collection<ProviderType> selectedItems = presenter.getSelectedProviderTypes();

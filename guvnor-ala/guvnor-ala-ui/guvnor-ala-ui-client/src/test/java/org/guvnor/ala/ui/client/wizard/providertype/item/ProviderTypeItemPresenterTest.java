@@ -69,6 +69,8 @@ public class ProviderTypeItemPresenterTest {
         presenter = new ProviderTypeItemPresenter(view,
                                                   handlerRegistry);
         presenter.init();
+        verify(view,
+               times(1)).init(presenter);
     }
 
     @Test

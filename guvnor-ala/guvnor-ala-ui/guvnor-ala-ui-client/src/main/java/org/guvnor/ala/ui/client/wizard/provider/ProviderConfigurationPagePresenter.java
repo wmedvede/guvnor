@@ -33,7 +33,8 @@ import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 public class ProviderConfigurationPagePresenter
         implements WizardPage {
 
-    public interface View extends UberElement<ProviderConfigurationPagePresenter> {
+    public interface View
+            extends UberElement<ProviderConfigurationPagePresenter> {
 
         void setForm(final IsElement element);
     }
@@ -95,7 +96,7 @@ public class ProviderConfigurationPagePresenter
         return providerConfigurationForm.buildProviderConfiguration();
     }
 
-    private void onContentChanged() {
+    protected void onContentChanged() {
         wizardPageStatusChangeEvent.fire(new WizardPageStatusChangeEvent(ProviderConfigurationPagePresenter.this));
     }
 }

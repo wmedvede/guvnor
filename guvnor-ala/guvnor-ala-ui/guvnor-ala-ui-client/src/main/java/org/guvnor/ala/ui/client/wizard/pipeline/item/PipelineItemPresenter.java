@@ -24,7 +24,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
-import org.guvnor.ala.ui.client.util.HasContentChangeHandlers;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.mvp.UberElement;
 
@@ -32,8 +31,8 @@ import org.uberfire.client.mvp.UberElement;
 public class PipelineItemPresenter
         extends AbstractHasContentChangeHandlers {
 
-    public interface View extends UberElement<PipelineItemPresenter>,
-                                  HasContentChangeHandlers {
+    public interface View
+            extends UberElement<PipelineItemPresenter> {
 
         boolean isSelected();
 
@@ -53,13 +52,8 @@ public class PipelineItemPresenter
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         view.init(this);
-        view.addContentChangeHandler(this::onContentChange);
-    }
-
-    public String getPipeline() {
-        return pipeline;
     }
 
     public void setup(final String pipeline) {
@@ -67,12 +61,8 @@ public class PipelineItemPresenter
         view.setPipelineName(pipeline);
     }
 
-    public void unSelectOthers() {
-        others.forEach(PipelineItemPresenter::unSelect);
-    }
-
-    private void unSelect() {
-        view.unSelect();
+    public String getPipeline() {
+        return pipeline;
     }
 
     public void addOthers(final Collection<PipelineItemPresenter> items) {
@@ -90,10 +80,18 @@ public class PipelineItemPresenter
         return view;
     }
 
-    private void onContentChange() {
+    public void onContentChange() {
         if (view.isSelected()) {
             unSelectOthers();
         }
         fireChangeHandlers();
+    }
+
+    private void unSelectOthers() {
+        others.forEach(PipelineItemPresenter::unSelect);
+    }
+
+    private void unSelect() {
+        view.unSelect();
     }
 }

@@ -18,9 +18,16 @@ package org.guvnor.ala.ui.client.wizard;
 
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.uberfire.client.callbacks.Callback;
+import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardView;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.workbench.events.NotificationEvent;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
 
 public class WizardBaseTest {
 
@@ -32,4 +39,15 @@ public class WizardBaseTest {
 
     @Mock
     protected WizardView wizardView;
+
+    @SuppressWarnings("unchecked")
+    public void preparePageCompletion(WizardPage page) {
+        doAnswer(new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
+                Callback callback = (Callback) invocation.getArguments()[0];
+                callback.callback(true);
+                return null;
+            }
+        }).when(page).isComplete(any(Callback.class));
+    }
 }

@@ -20,7 +20,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
 import org.jboss.errai.common.client.dom.HTMLElement;
@@ -35,7 +34,6 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 @Dependent
 @Templated
 public class PipelineItemView
-        extends AbstractHasContentChangeHandlers
         implements IsElement,
                    PipelineItemPresenter.View {
 
@@ -76,7 +74,7 @@ public class PipelineItemView
             } else {
                 addOpacity();
             }
-            fireChangeHandlers();
+            presenter.onContentChange();
         }
     }
 
