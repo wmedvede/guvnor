@@ -62,14 +62,13 @@ public class GuvnorAlaUIConstants {
     @TranslationKey(defaultValue = "")
     public static final String SourceConfigurationPageView_title = "SourceConfigurationPageView.title";
 
+    @TranslationKey(defaultValue = "")
+    public static final String SourceConfigurationPageView_SelectOption_placeholder = "SourceConfigurationPageView.SelectOption-placeholder";
+
     ////Not yet reviewed
 
     @TranslationKey(defaultValue = "")
-    public static final String ProviderView_RemoveProviderSuccessMessage;
-
-    static {
-        ProviderView_RemoveProviderSuccessMessage = "ProviderView.RemoveProviderSuccessMessage";
-    }
+    public static final String ProviderView_RemoveProviderSuccessMessage = "ProviderView.RemoveProviderSuccessMessage";
 
     @TranslationKey(defaultValue = "")
     public static final String ProviderView_RemoveProviderErrorMessage = "ProviderView.RemoveProviderErrorMessage";

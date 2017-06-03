@@ -17,8 +17,8 @@
 package org.guvnor.ala.ui.backend.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -30,8 +30,9 @@ import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
 import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.repositories.RepositoryService;
 import org.jboss.errai.bus.server.annotations.Service;
-
-import static java.util.stream.Collectors.toCollection;
+import org.jboss.errai.security.shared.api.identity.User;
+import org.uberfire.commons.validation.PortablePreconditions;
+import org.uberfire.security.authz.AuthorizationManager;
 
 @Service
 @ApplicationScoped
@@ -45,39 +46,64 @@ public class SourceServiceImpl
     private RepositoryService repositoryService;
 
     @Inject
-    private ProjectService< ? extends Project > projectService;
+    private ProjectService<? extends Project> projectService;
+
+    @Inject
+    private AuthorizationManager authorizationManager;
+
+    @Inject
+    private User identity;
 
     public SourceServiceImpl() {
         //Empty constructor for Weld proxying
     }
 
     @Override
-    public Collection< String > getOrganizationUnits() {
+    public Collection<String> getOrganizationUnits() {
         return organizationalUnitService.getOrganizationalUnits().stream()
                 .map(OrganizationalUnit::getName)
-                .collect(toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Collection< String > getRepositories(final String organizationUnit) {
-        return organizationalUnitService.getOrganizationalUnit(organizationUnit)
-                .getRepositories()
-                .stream()
-                .map(Repository::getAlias)
-                .collect(toCollection(ArrayList::new));
+    public Collection<String> getRepositories(final String organizationalUnit) {
+        PortablePreconditions.checkNotNull("organizationalUnit",
+                                           organizationalUnit);
+        OrganizationalUnit ou = organizationalUnitService.getOrganizationalUnit(organizationalUnit);
+        if (ou == null) {
+            return new ArrayList<>();
+        } else {
+            return organizationalUnitService.getOrganizationalUnit(organizationalUnit)
+                    .getRepositories()
+                    .stream()
+                    .filter(repository -> authorizationManager.authorize(repository,
+                                                                         identity))
+                    .map(Repository::getAlias)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
-    public Collection< String > getBranches(final String repository) {
-        //TODO load all branches.
-        return Arrays.asList("master");
+    public Collection<String> getBranches(final String repository) {
+        PortablePreconditions.checkNotNull("repository",
+                                           repository);
+        final Repository repo = repositoryService.getRepository(repository);
+        return repo != null ? repo.getBranches() : new ArrayList<>();
     }
 
     @Override
-    public Collection< Project > getProjects(final String repositoryAlias,
-                                             final String branch) {
-        Repository repo = repositoryService.getRepository(repositoryAlias);
-        return projectService.getProjects(repo,
-                                          branch);
+    public Collection<Project> getProjects(final String repositoryAlias,
+                                           final String branch) {
+        PortablePreconditions.checkNotNull("repositoryAlias",
+                                           repositoryAlias);
+        PortablePreconditions.checkNotNull("branch",
+                                           branch);
+        final Repository repo = repositoryService.getRepository(repositoryAlias);
+        if (repo == null) {
+            return new ArrayList<>();
+        } else {
+            return projectService.getProjects(repo,
+                                              branch);
+        }
     }
 }

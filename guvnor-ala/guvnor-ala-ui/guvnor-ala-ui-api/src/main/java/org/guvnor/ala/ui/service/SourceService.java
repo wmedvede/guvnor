@@ -21,15 +21,38 @@ import java.util.Collection;
 import org.guvnor.common.services.project.model.Project;
 import org.jboss.errai.bus.server.annotations.Remote;
 
+/**
+ * Service for establishing/selecting the source configuration parameters to be used for launching a pipeline, etc.
+ */
 @Remote
 public interface SourceService {
 
-    Collection< String > getOrganizationUnits();
+    /**
+     * Gets the list of organizational unit names accessible by current user.
+     * @return a list of organizational unit names.
+     */
+    Collection<String> getOrganizationUnits();
 
-    Collection< String > getRepositories(final String organizationUnit);
+    /**
+     * Gets the list of repositories accessible by current user in a given organizational unit.
+     * @param organizationalUnit a desired organizational unit name.
+     * @return a list of repository names.
+     */
+    Collection<String> getRepositories(final String organizationalUnit);
 
-    Collection< String > getBranches(final String repository);
+    /**
+     * Gets the list of branch names in a given repository.
+     * @param repository a repository name.
+     * @return a list of branch names.
+     */
+    Collection<String> getBranches(final String repository);
 
-    Collection< Project > getProjects(final String repositoryAlias,
-                                      final String branch);
+    /**
+     * Gets the list of projects accessible by current user in a given repository and branch.
+     * @param repositoryAlias a repository name.
+     * @param branch a branch name.
+     * @return a list of projects.
+     */
+    Collection<Project> getProjects(final String repositoryAlias,
+                                    final String branch);
 }

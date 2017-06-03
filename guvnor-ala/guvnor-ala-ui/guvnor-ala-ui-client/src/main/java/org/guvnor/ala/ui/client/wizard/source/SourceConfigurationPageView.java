@@ -34,6 +34,7 @@ import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_SelectOption_placeholder;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_title;
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
@@ -296,11 +297,11 @@ public class SourceConfigurationPageView
                             "");
         option.setAttribute("selected",
                             "");
-        option.setTextContent("-- select an option --");
+        option.setTextContent(translationService.getTranslation(SourceConfigurationPageView_SelectOption_placeholder));
         return option;
     }
 
-    private void clear(Select select) {
+    private void clear(final Select select) {
         for (int i = 0; i < select.getOptions().getLength() + 1; i++) {
             select.remove(i);
         }

@@ -144,14 +144,6 @@ public class SourceConfigurationPagePresenter
         loadOUs();
     }
 
-    public boolean isValid() {
-        return !getRuntime().trim().isEmpty() &&
-                !getOU().isEmpty() &&
-                !getRepository().isEmpty() &&
-                !getBranch().isEmpty() &&
-                !getProject().isEmpty();
-    }
-
     public String getRuntime() {
         return view.getRuntimeName();
     }
@@ -170,6 +162,14 @@ public class SourceConfigurationPagePresenter
 
     private String getProject() {
         return view.getProject();
+    }
+
+    private boolean isValid() {
+        return !getRuntime().trim().isEmpty() &&
+                !getOU().isEmpty() &&
+                !getRepository().isEmpty() &&
+                !getBranch().isEmpty() &&
+                !getProject().isEmpty();
     }
 
     public void disable() {
@@ -234,7 +234,7 @@ public class SourceConfigurationPagePresenter
     private void loadOUs() {
         sourceService.call((Collection<String> ous) -> {
                                view.clearOrganizationUnits();
-                               ous.forEach(ou -> view.addOrganizationUnit(ou));
+                               ous.forEach(view::addOrganizationUnit);
                                view.clearRepositories();
                                view.clearBranches();
                                view.clearProjects();
@@ -246,7 +246,7 @@ public class SourceConfigurationPagePresenter
     private void loadRepositories(final String ou) {
         sourceService.call((Collection<String> repos) -> {
                                view.clearRepositories();
-                               repos.forEach(repo -> view.addRepository(repo));
+                               repos.forEach(view::addRepository);
                                view.clearBranches();
                                view.clearProjects();
                            },
@@ -257,7 +257,7 @@ public class SourceConfigurationPagePresenter
     private void loadBranches(final String repository) {
         sourceService.call((Collection<String> branches) -> {
                                view.clearBranches();
-                               branches.forEach(branch -> view.addBranch(branch));
+                               branches.forEach(view::addBranch);
                                view.clearProjects();
                            },
                            new DefaultErrorCallback()
