@@ -99,9 +99,8 @@ public class ProviderTypeNavigationPresenter {
                              () -> select(providerType));
     }
 
-    private void onSelect(@Observes final ProviderTypeSelectedEvent event) {
+    protected void onSelect(@Observes final ProviderTypeSelectedEvent event) {
         if (event.getProviderTypeKey() != null &&
-                event.getProviderTypeKey().getId() != null &&
                 providerTypes.containsKey(event.getProviderTypeKey())) {
             view.select(event.getProviderTypeKey());
         }

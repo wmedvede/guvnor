@@ -104,7 +104,11 @@ public class ProviderTypePresenter {
     private void addProvider(final ProviderKey providerKey) {
         view.addProvider(providerKey.getId(),
                          providerKey.getId(),
-                         () -> providerSelectedEvent.fire(new ProviderSelectedEvent(providerKey)));
+                         () -> selectProvider(providerKey));
+    }
+
+    private void selectProvider(ProviderKey providerKey) {
+        providerSelectedEvent.fire(new ProviderSelectedEvent(providerKey));
     }
 
     public void onProviderSelect(@Observes final ProviderSelectedEvent event) {
@@ -121,10 +125,12 @@ public class ProviderTypePresenter {
     }
 
     public void onRemoveProviderType() {
-        view.confirmRemove(
-                () -> providerTypeService.call(
-                        none -> providerTypeListRefreshEvent.fire(new ProviderTypeListRefreshEvent()))
-                        .disableProvider(providerType)
-        );
+        view.confirmRemove(this::removeProviderType);
+    }
+
+    protected void removeProviderType() {
+        providerTypeService.call(
+                aVoid -> providerTypeListRefreshEvent.fire(new ProviderTypeListRefreshEvent())
+        ).disableProvider(providerType);
     }
 }

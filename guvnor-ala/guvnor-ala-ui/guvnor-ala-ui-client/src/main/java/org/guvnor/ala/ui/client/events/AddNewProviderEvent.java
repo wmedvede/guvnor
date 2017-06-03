@@ -29,4 +29,25 @@ public class AddNewProviderEvent {
     public ProviderType getProviderType() {
         return providerType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AddNewProviderEvent that = (AddNewProviderEvent) o;
+
+        return providerType != null ? providerType.equals(that.providerType) : that.providerType == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = providerType != null ? providerType.hashCode() : 0;
+        result = ~~result;
+        return result;
+    }
 }

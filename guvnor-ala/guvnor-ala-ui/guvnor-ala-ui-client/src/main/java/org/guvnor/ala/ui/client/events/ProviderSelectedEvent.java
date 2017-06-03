@@ -22,11 +22,32 @@ public class ProviderSelectedEvent {
 
     private final ProviderKey providerKey;
 
-    public ProviderSelectedEvent(final ProviderKey providerKey ) {
+    public ProviderSelectedEvent(final ProviderKey providerKey) {
         this.providerKey = providerKey;
     }
 
     public ProviderKey getProviderKey() {
         return providerKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ProviderSelectedEvent that = (ProviderSelectedEvent) o;
+
+        return providerKey != null ? providerKey.equals(that.providerKey) : that.providerKey == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = providerKey != null ? providerKey.hashCode() : 0;
+        result = ~~result;
+        return result;
     }
 }

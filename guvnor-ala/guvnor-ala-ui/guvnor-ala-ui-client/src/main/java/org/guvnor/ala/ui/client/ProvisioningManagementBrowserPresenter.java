@@ -54,7 +54,8 @@ public class ProvisioningManagementBrowserPresenter {
 
     public static final String IDENTIFIER = "ProvisioningManagementBrowser";
 
-    public interface View extends UberElement<ProvisioningManagementBrowserPresenter> {
+    public interface View
+            extends UberElement<ProvisioningManagementBrowserPresenter> {
 
         String getTitle();
 
@@ -171,8 +172,8 @@ public class ProvisioningManagementBrowserPresenter {
         }).getProviderType(providerTypeKey);
     }
 
-    public void setupProviderTypes(final Collection<ProviderType> providerTypes,
-                                   final ProviderTypeKey selectProviderTypeKey) {
+    private void setupProviderTypes(final Collection<ProviderType> providerTypes,
+                                    final ProviderTypeKey selectProviderTypeKey) {
         if (providerTypes.isEmpty()) {
             this.view.setEmptyView(providerTypeEmptyPresenter.getView());
             providerTypeNavigationPresenter.clear();

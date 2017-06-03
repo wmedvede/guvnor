@@ -21,6 +21,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.criteria.CriteriaBuilder;
+
+import org.guvnor.ala.ui.model.Provider;
+import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
@@ -64,14 +68,31 @@ public class ProvisioningManagementTestCommons {
         return providerTypes;
     }
 
-    public static final ProviderType mockProviderType(String sufix) {
-        ProviderType providerType = mock(ProviderType.class);
-        ProviderTypeKey providerTypeKey = mock(ProviderTypeKey.class);
-        when(providerType.getName()).thenReturn("ProviderType.name." + sufix);
-        when(providerType.getKey()).thenReturn(providerTypeKey);
-        when(providerTypeKey.getId()).thenReturn("ProviderTypeKey.id." + sufix);
-        when(providerTypeKey.getVersion()).thenReturn("ProviderTypeKey.version." + sufix);
-        return providerType;
+    public static final ProviderType mockProviderType(String suffix) {
+        return new ProviderType(mockProviderTypeKey(suffix),
+                                "ProviderType.name." + suffix);
+    }
+
+    public static final ProviderTypeKey mockProviderTypeKey(String suffix) {
+        return new ProviderTypeKey("ProviderTypeKey.id." + suffix,
+                                   "ProviderTypeKey.version." + suffix);
+    }
+
+    public static final ProviderKey mockProviderKey(ProviderTypeKey providerTypeKey,
+                                                    String suffix) {
+        return new ProviderKey(providerTypeKey,
+                               "ProviderKey.id." + suffix);
+    }
+
+    public static final List<ProviderKey> mockProviderKeyList(ProviderTypeKey providerTypeKey,
+                                                              int count) {
+        List<ProviderKey> providerKeys = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            //mock an arbitrary set for provider keys.
+            providerKeys.add(mockProviderKey(providerTypeKey,
+                                             Integer.toString(i)));
+        }
+        return providerKeys;
     }
 
     public static List<Pair<ProviderType, ProviderTypeStatus>> buildProviderTypeStatusList(Collection<ProviderType> providerTypes,
