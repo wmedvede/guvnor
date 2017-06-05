@@ -29,4 +29,25 @@ public class AddNewRuntimeEvent {
     public Provider getProvider() {
         return provider;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        AddNewRuntimeEvent that = (AddNewRuntimeEvent) o;
+
+        return provider != null ? provider.equals(that.provider) : that.provider == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = provider != null ? provider.hashCode() : 0;
+        result = ~~result;
+        return result;
+    }
 }

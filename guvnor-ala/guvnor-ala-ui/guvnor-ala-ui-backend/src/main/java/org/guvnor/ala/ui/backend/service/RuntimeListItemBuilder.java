@@ -65,9 +65,8 @@ public class RuntimeListItemBuilder {
             pipelineTrace.setPipelineError(item.getPipelineError());
             item.getPipelineStageItems().getItems()
                     .forEach(stage -> {
-                                 pipeline.addStep(new Stage(pipeline.getKey(),
-                                                            stage.getName(),
-                                                            transformToPipelneStatus(stage.getStatus())));
+                                 pipeline.addStage(new Stage(pipeline.getKey(),
+                                                             stage.getName()));
                                  pipelineTrace.setStageStatus(stage.getName(),
                                                               transformToPipelneStatus(stage.getStatus()));
                                  pipelineTrace.setStageError(stage.getName(),

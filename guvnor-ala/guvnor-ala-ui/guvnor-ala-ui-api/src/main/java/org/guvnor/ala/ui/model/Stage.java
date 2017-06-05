@@ -24,14 +24,11 @@ public class Stage {
 
     private PipelineKey pipelineKey;
     private String name;
-    private PipelineStatus status;
 
     public Stage(@MapsTo("pipelineKey") final PipelineKey pipelineKey,
-                 @MapsTo("name") final String name,
-                 @MapsTo("status") final PipelineStatus status) {
+                 @MapsTo("name") final String name) {
         this.pipelineKey = pipelineKey;
         this.name = name;
-        this.status = status;
     }
 
     public PipelineKey getPipelineKey() {
@@ -40,10 +37,6 @@ public class Stage {
 
     public String getName() {
         return name;
-    }
-
-    public PipelineStatus getStatus() {
-        return status;
     }
 
     @Override
@@ -60,10 +53,7 @@ public class Stage {
         if (pipelineKey != null ? !pipelineKey.equals(stage.pipelineKey) : stage.pipelineKey != null) {
             return false;
         }
-        if (name != null ? !name.equals(stage.name) : stage.name != null) {
-            return false;
-        }
-        return status == stage.status;
+        return name != null ? name.equals(stage.name) : stage.name == null;
     }
 
     @Override
@@ -71,8 +61,6 @@ public class Stage {
         int result = pipelineKey != null ? pipelineKey.hashCode() : 0;
         result = ~~result;
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = ~~result;
-        result = 31 * result + (status != null ? status.hashCode() : 0);
         result = ~~result;
         return result;
     }

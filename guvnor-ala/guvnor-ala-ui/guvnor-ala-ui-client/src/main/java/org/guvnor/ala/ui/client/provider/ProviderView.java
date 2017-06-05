@@ -33,6 +33,10 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.uberfire.ext.widgets.common.client.common.popups.YesNoCancelPopup;
 import org.uberfire.mvp.Command;
 
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_ConfirmRemovePopupMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_ConfirmRemovePopupTitle;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_RemoveProviderErrorMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_RemoveProviderSuccessMessage;
 import static org.jboss.errai.common.client.dom.DOMUtil.*;
 
 @Dependent
@@ -89,9 +93,8 @@ public class ProviderView
 
     @Override
     public void confirmRemove(final Command command) {
-        //TODO i18n
-        final YesNoCancelPopup result = YesNoCancelPopup.newYesNoCancelPopup("Remove Provider",
-                                                                             "Are you sure you want remove the current provider?",
+        final YesNoCancelPopup result = YesNoCancelPopup.newYesNoCancelPopup(translationService.getTranslation(ProviderView_ConfirmRemovePopupTitle),
+                                                                             translationService.getTranslation(ProviderView_ConfirmRemovePopupMessage),
                                                                              command,
                                                                              () -> {
                                                                              },
@@ -119,12 +122,12 @@ public class ProviderView
 
     @Override
     public String getRemoveProviderSuccessMessage() {
-        return "Provider deleted.";
+        return translationService.getTranslation(ProviderView_RemoveProviderSuccessMessage);
     }
 
     @Override
     public String getRemoveProviderErrorMessage() {
-        return "Failed to delete the provider.";
+        return translationService.getTranslation(ProviderView_RemoveProviderErrorMessage);
     }
 
     @EventHandler("refresh-provider")
@@ -134,7 +137,7 @@ public class ProviderView
 
     @EventHandler("remove-provider")
     public void onRemove(@ForEvent("click") final Event event) {
-        presenter.removeProvider();
+        presenter.onRemoveProvider();
     }
 
     @EventHandler("deploy")

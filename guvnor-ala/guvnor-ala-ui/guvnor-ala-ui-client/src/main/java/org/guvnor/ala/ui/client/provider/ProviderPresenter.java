@@ -91,8 +91,8 @@ public class ProviderPresenter {
                              final ProviderStatusPresenter providerStatusPresenter,
                              final ProviderConfigEmptyPresenter providerConfigEmptyPresenter,
                              final ClientProviderHandlerRegistry providerHandlerRegistry,
-                             final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent,
                              final Event<NotificationEvent> notification,
+                             final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent,
                              final Event<AddNewRuntimeEvent> addNewRuntimeEvent) {
         this.view = view;
         this.providerService = providerService;
@@ -155,19 +155,23 @@ public class ProviderPresenter {
         load(provider.getKey());
     }
 
-    public void removeProvider() {
-        view.confirmRemove(() -> providerService.call(response -> {
-                                                          notification.fire(new NotificationEvent(view.getRemoveProviderSuccessMessage(),
-                                                                                                  NotificationEvent.NotificationType.SUCCESS));
+    public void onRemoveProvider() {
+        view.confirmRemove(this::removeProvider);
+    }
 
-                                                          providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
-                                                      },
-                                                      (message, throwable) -> {
-                                                          notification.fire(new NotificationEvent(view.getRemoveProviderErrorMessage(),
-                                                                                                  NotificationEvent.NotificationType.ERROR));
-                                                          providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
-                                                          return false;
-                                                      }).deleteProvider(provider.getKey()));
+    public void removeProvider() {
+        providerService.call(response -> {
+                                 notification.fire(new NotificationEvent(view.getRemoveProviderSuccessMessage(),
+                                                                         NotificationEvent.NotificationType.SUCCESS));
+
+                                 providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
+                             },
+                             (message, throwable) -> {
+                                 notification.fire(new NotificationEvent(view.getRemoveProviderErrorMessage(),
+                                                                         NotificationEvent.NotificationType.ERROR));
+                                 providerTypeSelectedEvent.fire(new ProviderTypeSelectedEvent(provider.getKey().getProviderTypeKey()));
+                                 return false;
+                             }).deleteProvider(provider.getKey());
     }
 
     public void deploy() {

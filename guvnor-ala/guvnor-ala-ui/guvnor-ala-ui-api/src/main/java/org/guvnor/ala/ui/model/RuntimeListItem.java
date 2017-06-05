@@ -60,4 +60,8 @@ public class RuntimeListItem {
         return pipelineTrace;
     }
 
+    public boolean isRuntime() {
+        return runtime != null;
+    }
+
 }

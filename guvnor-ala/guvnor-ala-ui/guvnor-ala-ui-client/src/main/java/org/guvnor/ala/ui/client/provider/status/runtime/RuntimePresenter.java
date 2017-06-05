@@ -17,9 +17,7 @@
 package org.guvnor.ala.ui.client.provider.status.runtime;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +28,17 @@ import javax.inject.Inject;
 
 import com.google.gwt.user.client.Window;
 import org.guvnor.ala.ui.client.widget.pipeline.PipelinePresenter;
-import org.guvnor.ala.ui.client.widget.pipeline.stage.State;
 import org.guvnor.ala.ui.client.widget.pipeline.stage.StagePresenter;
+import org.guvnor.ala.ui.client.widget.pipeline.stage.State;
 import org.guvnor.ala.ui.client.widget.pipeline.transition.TransitionPresenter;
 import org.guvnor.ala.ui.events.PipelineStatusChangeEvent;
 import org.guvnor.ala.ui.events.StageStatusChangeEvent;
 import org.guvnor.ala.ui.model.Pipeline;
+import org.guvnor.ala.ui.model.PipelineExecutionTrace;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
+import org.guvnor.ala.ui.model.PipelineStatus;
 import org.guvnor.ala.ui.model.Runtime;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.RuntimeListItemHandler;
-import org.guvnor.ala.ui.model.RuntimeStatus;
-import org.guvnor.ala.ui.model.PipelineStatus;
 import org.guvnor.ala.ui.model.Stage;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
@@ -50,6 +47,8 @@ import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
+
+import static org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenterHelper.buildStyle;
 
 @Dependent
 public class RuntimePresenter {
@@ -76,9 +75,11 @@ public class RuntimePresenter {
         void addExpandedContent(final IsElement element);
     }
 
+    private static final String SYSTEM_PIPELINE_NAME = "<system>";
+
     private final View view;
     private final PipelinePresenter pipelinePresenter;
-    private final ManagedInstance<StagePresenter> stepPresenterInstance;
+    private final ManagedInstance<StagePresenter> stagePresenterInstance;
     private final ManagedInstance<TransitionPresenter> transitionPresenterInstance;
     private final Caller<RuntimeService> runtimeService;
 
@@ -86,17 +87,17 @@ public class RuntimePresenter {
     private final Map<Stage, StagePresenter> stagePresenters = new HashMap<>();
     private final List<TransitionPresenter> currentTransitions = new ArrayList<>();
 
-    private RuntimeListItemHandler itemHandler;
+    private RuntimeListItem item;
 
     @Inject
     public RuntimePresenter(final View view,
                             final PipelinePresenter pipelinePresenter,
-                            final ManagedInstance<StagePresenter> stepPresenterInstance,
+                            final ManagedInstance<StagePresenter> stagePresenterInstance,
                             final ManagedInstance<TransitionPresenter> transitionPresenterInstance,
                             final Caller<RuntimeService> runtimeService) {
         this.view = view;
         this.pipelinePresenter = pipelinePresenter;
-        this.stepPresenterInstance = stepPresenterInstance;
+        this.stagePresenterInstance = stagePresenterInstance;
         this.transitionPresenterInstance = transitionPresenterInstance;
         this.runtimeService = runtimeService;
     }
@@ -107,74 +108,72 @@ public class RuntimePresenter {
     }
 
     public void setup(final RuntimeListItem runtimeListItem) {
-        this.itemHandler = new RuntimeListItemHandler(runtimeListItem);
+        this.item = runtimeListItem;
         clearPipeline();
-        if (itemHandler.isRuntime()) {
-            setupRuntime(itemHandler);
+        if (item.isRuntime()) {
+            setupRuntime(runtimeListItem);
         } else {
-            setupPipelineTrace(itemHandler);
+            setupPipelineTrace(runtimeListItem);
         }
         view.addExpandedContent(pipelinePresenter.getView());
     }
 
-    private void setupRuntime(RuntimeListItemHandler itemHandler) {
-        String itemLabel = itemHandler.getItemLabel();
-        String pipelineName = "<system>";
-        String createdDate = itemHandler.getRuntime().createDate();
+    private void setupRuntime(RuntimeListItem item) {
+        String itemLabel = item.getItemLabel();
+        String pipelineName = SYSTEM_PIPELINE_NAME;
+        String createdDate = item.getRuntime().createDate();
         String endpoint = "";
 
-        if (itemHandler.hasPipeline()) {
-            pipelineName = itemHandler.getPipeline().getKey().getId();
-            setupPipeline(itemHandler.getPipeline());
+        Runtime runtime = item.getRuntime();
+        PipelineExecutionTrace trace = runtime.getPipelineTrace();
+
+        if (trace != null) {
+            pipelineName = trace.getPipeline().getKey().getId();
+            setupPipeline(trace);
         }
         view.setup(itemLabel,
                    createdDate,
                    pipelineName);
-        if (itemHandler.getRuntime().getEndpoint() != null) {
-            endpoint = itemHandler.getRuntime().getEndpoint();
+        if (runtime.getEndpoint() != null) {
+            endpoint = runtime.getEndpoint();
         }
         view.setEndpoint(endpoint);
         //TODO, when a runtime exists we should ideally set the runtime status instead.
-        if (itemHandler.getPipelineTrace() != null) {
-            processPipelineStatus(itemHandler.getPipelineTrace().getPipelineStatus());
+        if (trace != null) {
+            processPipelineStatus(trace.getPipelineStatus());
         }
     }
 
-    private void setupPipelineTrace(RuntimeListItemHandler itemHandler) {
-        String itemLabel = itemHandler.getItemLabel();
-        String pipelineName = itemHandler.getPipeline().getKey().getId();
+    private void setupPipelineTrace(RuntimeListItem item) {
+        PipelineExecutionTrace trace = item.getPipelineTrace();
+        String itemLabel = item.getItemLabel();
+        String pipelineName = trace.getPipeline().getKey().getId();
         String createdDate = "";
-        String endpoint = "";
-
-        if (itemHandler.getRuntime() != null &&
-                itemHandler.getRuntime().getEndpoint() != null &&
-                itemHandler.getPipelineTrace().getPipelineStatus() != PipelineStatus.ERROR) {
-            endpoint = itemHandler.getRuntime().getEndpoint();
-        }
 
         view.setup(itemLabel,
                    createdDate,
                    pipelineName);
-        view.setEndpoint(endpoint);
-        setupPipeline(itemHandler.getPipeline());
-        processPipelineStatus(itemHandler.getPipelineTrace().getPipelineStatus());
+        setupPipeline(trace);
+        processPipelineStatus(trace.getPipelineStatus());
     }
 
-    private void setupPipeline(final Pipeline pipeline) {
+    private void setupPipeline(final PipelineExecutionTrace trace) {
         clearPipeline();
         boolean showStep = true;
+        Pipeline pipeline = trace.getPipeline();
         for (int i = 0; showStep && i < pipeline.getStages().size(); i++) {
             Stage stage = pipeline.getStages().get(i);
-            showStep = showStep(stage);
+            PipelineStatus stageStatus = trace.getStageStatus(stage.getName());
+            showStep = showStage(stageStatus);
             if (showStep) {
                 if (i > 0) {
                     TransitionPresenter transitionPresenter = newTransitionPresenter();
                     currentTransitions.add(transitionPresenter);
                     pipelinePresenter.addStage(transitionPresenter.getView());
                 }
-                final StagePresenter stagePresenter = newStepPresenter();
+                final StagePresenter stagePresenter = newStagePresenter();
                 stagePresenter.setup(stage);
-                stagePresenter.setState(calculateState(stage.getStatus()));
+                stagePresenter.setState(calculateState(stageStatus));
                 pipelinePresenter.addStage(stagePresenter.getView());
                 currentStages.add(stage);
                 stagePresenters.put(stage,
@@ -183,10 +182,10 @@ public class RuntimePresenter {
         }
     }
 
-    private boolean showStep(final Stage stage) {
-        return stage.getStatus() == PipelineStatus.RUNNING ||
-                stage.getStatus() == PipelineStatus.FINISHED ||
-                stage.getStatus() == PipelineStatus.ERROR;
+    private boolean showStage(final PipelineStatus stageStatus) {
+        return stageStatus == PipelineStatus.RUNNING ||
+                stageStatus == PipelineStatus.FINISHED ||
+                stageStatus == PipelineStatus.ERROR;
     }
 
     private State calculateState(final PipelineStatus stageStatus) {
@@ -199,7 +198,7 @@ public class RuntimePresenter {
         }
     }
 
-    private void processStatus(final Runtime runtime) {
+    private void processRuntimeStatus(final Runtime runtime) {
         //TODO set the proper runtime status.
         if (runtime.getStatus() != null) {
             switch (runtime.getStatus()) {
@@ -221,13 +220,13 @@ public class RuntimePresenter {
     }
 
     private void processPipelineStatus(final PipelineStatus status) {
-        //TODO check if we need a particular processing like enabling the start, stop, buttons.
+        //TODO check if we need additinal processing like enabling the start, stop, buttons.
         view.setStatus(buildStyle(status));
     }
 
     public void onStageStatusChange(@Observes StageStatusChangeEvent event) {
         if (isFromCurrentPipeline(event.getPipelineExecutionTraceKey())) {
-
+            PipelineExecutionTrace trace = item.getPipelineTrace();
             Stage currentStage = currentStages.stream().
                     filter(step -> event.getStage().equals(step.getName()))
                     .findFirst()
@@ -237,12 +236,12 @@ public class RuntimePresenter {
                 StagePresenter stagePresenter = stagePresenters.get(currentStage);
                 stagePresenter.setState(calculateState(event.getStatus()));
             } else {
-                Stage stage = new Stage(itemHandler.getPipelineTrace().getPipeline().getKey(),
-                                        event.getStage(),
-                                        event.getStatus());
-                StagePresenter stagePresenter = newStepPresenter();
+                Stage stage = new Stage(item.getPipelineTrace().getPipeline().getKey(),
+                                        event.getStage());
+                PipelineStatus stageStatus = event.getStatus();
+                StagePresenter stagePresenter = newStagePresenter();
                 stagePresenter.setup(stage);
-                stagePresenter.setState(calculateState(stage.getStatus()));
+                stagePresenter.setState(calculateState(stageStatus));
                 if (!currentStages.isEmpty()) {
                     TransitionPresenter transitionPresenter = newTransitionPresenter();
                     currentTransitions.add(transitionPresenter);
@@ -254,6 +253,8 @@ public class RuntimePresenter {
                 stagePresenters.put(stage,
                                     stagePresenter);
             }
+            trace.setStageStatus(event.getStage(),
+                                 event.getStatus());
         }
     }
 
@@ -261,7 +262,7 @@ public class RuntimePresenter {
         if (isFromCurrentPipeline(event.getPipelineExecutionTraceKey())) {
             processPipelineStatus(event.getStatus());
             if (PipelineStatus.FINISHED.equals(event.getStatus()) &&
-                    !PipelineStatus.FINISHED.equals(itemHandler.getPipelineTrace().getPipelineStatus())) {
+                    !PipelineStatus.FINISHED.equals(item.getPipelineTrace().getPipelineStatus())) {
                 refresh(event.getPipelineExecutionTraceKey());
             }
         }
@@ -278,64 +279,6 @@ public class RuntimePresenter {
                 setup(runtimeListItem);
             }
         };
-    }
-
-    private Collection<String> buildStyle(final PipelineStatus status) {
-        if (status == null) {
-            return Collections.emptyList();
-        }
-        switch (status) {
-            case FINISHED:
-                return Arrays.asList("pficon",
-                                     "list-view-pf-icon-md",
-                                     "pficon-ok",
-                                     "list-view-pf-icon-success");
-            case SCHEDULED:
-            case RUNNING:
-                return Arrays.asList("fa",
-                                     "list-view-pf-icon-md",
-                                     "fa-circle-o-notch",
-                                     "fa-spin");
-            case ERROR:
-                return Arrays.asList("pficon",
-                                     "list-view-pf-icon-md",
-                                     "pficon-error-circle-o",
-                                     "list-view-pf-icon-danger");
-        }
-
-        return Collections.emptyList();
-    }
-
-    private Collection<String> buildStyle(final RuntimeStatus status) {
-        switch (status) {
-            case STARTED:
-                return Arrays.asList("pficon",
-                                     "list-view-pf-icon-md",
-                                     "pficon-ok",
-                                     "list-view-pf-icon-success");
-            case LOADING:
-                return Arrays.asList("fa",
-                                     "list-view-pf-icon-md",
-                                     "fa-circle-o-notch",
-                                     "fa-spin");
-            case WARN:
-                return Arrays.asList("pficon",
-                                     "list-view-pf-icon-md",
-                                     "pficon-warning-triangle-o",
-                                     "list-view-pf-icon-warning");
-            case STOPPED:
-                return Arrays.asList("pficon",
-                                     "list-view-pf-icon-md",
-                                     "pficon-close",
-                                     "list-view-pf-icon-info");
-            case ERROR:
-                return Arrays.asList("pficon",
-                                     "list-view-pf-icon-md",
-                                     "pficon-error-circle-o",
-                                     "list-view-pf-icon-danger");
-        }
-
-        return Collections.emptyList();
     }
 
     public void start() {
@@ -363,24 +306,24 @@ public class RuntimePresenter {
     }
 
     private boolean isFromCurrentPipeline(PipelineExecutionTraceKey pipelineExecutionTraceKey) {
-        return itemHandler != null &&
-                !itemHandler.isRuntime() &&
-                itemHandler.getPipelineTrace().getKey().equals(pipelineExecutionTraceKey);
+        return item != null &&
+                !item.isRuntime() &&
+                item.getPipelineTrace().getKey().equals(pipelineExecutionTraceKey);
     }
 
     private void clearPipeline() {
         pipelinePresenter.clearStages();
         currentStages.clear();
-        stagePresenters.values().forEach(stepPresenterInstance::destroy);
+        stagePresenters.values().forEach(stagePresenterInstance::destroy);
         currentTransitions.forEach(transitionPresenterInstance::destroy);
         currentTransitions.clear();
     }
 
-    private StagePresenter newStepPresenter() {
-        return stepPresenterInstance.get();
+    protected StagePresenter newStagePresenter() {
+        return stagePresenterInstance.get();
     }
 
-    private TransitionPresenter newTransitionPresenter() {
+    protected TransitionPresenter newTransitionPresenter() {
         return transitionPresenterInstance.get();
     }
 }

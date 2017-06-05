@@ -57,12 +57,8 @@ public class StagePresenter {
 
     public void setup(final Stage stage) {
         this.stage = stage;
-        setName(stage.getName());
+        view.setName(stage.getName());
         setState(State.EXECUTING);
-    }
-
-    public void setName(final String message) {
-        view.setName(message);
     }
 
     public void setState(final State state) {

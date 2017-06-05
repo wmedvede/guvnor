@@ -42,7 +42,7 @@ public class Pipeline
         return stages;
     }
 
-    public void addStep(final Stage stage) {
+    public void addStage(final Stage stage) {
         stages.add(stage);
     }
 

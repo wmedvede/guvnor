@@ -65,8 +65,6 @@ public class GuvnorAlaUIConstants {
     @TranslationKey(defaultValue = "")
     public static final String SourceConfigurationPageView_SelectOption_placeholder = "SourceConfigurationPageView.SelectOption-placeholder";
 
-    ////Not yet reviewed
-
     @TranslationKey(defaultValue = "")
     public static final String ProviderView_RemoveProviderSuccessMessage = "ProviderView.RemoveProviderSuccessMessage";
 
