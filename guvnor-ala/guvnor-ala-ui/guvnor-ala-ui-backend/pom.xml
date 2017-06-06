@@ -88,18 +88,6 @@
       <artifactId>guvnor-ala-services-backend</artifactId>
     </dependency>
 
-    <!-- TODO this dependency doesn't really have to go here if we want to be able to package fine tune the provider to plug -->
-    <dependency>
-      <groupId>org.guvnor</groupId>
-      <artifactId>guvnor-ala-docker-provider</artifactId>
-    </dependency>
-
-    <!-- TODO this dependency doesn't really have to go here if we want to be able to package fine tune the provider to plug -->
-    <dependency>
-      <groupId>org.guvnor</groupId>
-      <artifactId>guvnor-ala-wildfly-provider</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.guvnor</groupId>
       <artifactId>guvnor-ala-source-git</artifactId>
@@ -113,6 +101,20 @@
     <dependency>
       <groupId>org.guvnor</groupId>
       <artifactId>guvnor-ala-ui-api</artifactId>
+    </dependency>
+
+    <!-- TODO remove this dependency. Currently it's needed by the UIAppSetup class for development purposes,
+    since we wants to have a couple of pipelines for testing. -->
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-ala-docker-provider</artifactId>
+    </dependency>
+
+    <!-- TODO remove this dependency. Currently it's needed by the UIAppSetup class for development purposes,
+    since we wants to have a couple of pipelines for testing. -->
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-ala-wildfly-provider</artifactId>
     </dependency>
 
   </dependencies>

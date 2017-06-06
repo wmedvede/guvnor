@@ -20,9 +20,7 @@ import com.google.gwt.dom.client.Style;
 import org.gwtbootstrap3.client.ui.constants.ValidationState;
 import org.jboss.errai.common.client.dom.HTMLElement;
 
-/**
- * TODO: update me
- */
+
 public class StyleHelper {
 
     public static <E extends Style.HasCssName, F extends Enum<? extends Style.HasCssName>> void addUniqueEnumStyleName(final HTMLElement element,

@@ -49,7 +49,7 @@ import org.uberfire.commons.services.cdi.StartupType;
 import static org.guvnor.ala.pipeline.StageUtil.config;
 
 /**
- * TODO:
+ * TODO, remove this auxiliary component.
  * Auxiliary component for having some pre initialized pipelines for development purposes.
  */
 @ApplicationScoped
