@@ -34,7 +34,7 @@ import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_PipelineStartErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_PipelineStartSuccessMessage;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_title;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_Title;
 
 @ApplicationScoped
 public class NewDeployWizard
@@ -80,7 +80,7 @@ public class NewDeployWizard
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(NewDeployWizard_title);
+        return translationService.getTranslation(NewDeployWizard_Title);
     }
 
     @Override

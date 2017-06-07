@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.wildfly.client;
+package org.guvnor.ala.ui.client.resources.images;
 
-import org.jboss.errai.ioc.client.api.EntryPoint;
-import org.jboss.errai.ui.shared.api.annotations.Bundle;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 
-@Bundle("resources/i18n/GuvnorAlaWildflyUIConstants.properties")
-@EntryPoint
-public class WildflyUIEntryPoint {
+public interface GuvnorAlaUIImageResources
+        extends ClientBundle {
 
+    GuvnorAlaUIImageResources INSTANCE = GWT.create(GuvnorAlaUIImageResources.class);
+
+    @Source("provider-icon-default.png")
+    ImageResource defaultProviderIcon();
 }

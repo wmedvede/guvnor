@@ -21,9 +21,13 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.handler.FormResolver;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
-import org.guvnor.ala.ui.wildfly.client.handler.provider.WF10ProviderConfigPresenter;
+import org.guvnor.ala.ui.wildfly.client.provider.WF10ProviderConfigPresenter;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 
+/**
+ * Form resolver implementation for Wildlfy providers.
+ * @see FormResolver
+ */
 @ApplicationScoped
 public class WildflyFormResolver
         implements FormResolver {

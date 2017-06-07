@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.wildfly.client.handler.provider;
+package org.guvnor.ala.ui.wildfly.client.provider;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.jboss.errai.common.client.dom.Button;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
+import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.TextInput;
+import org.jboss.errai.common.client.dom.Window;
 import org.jboss.errai.ui.client.local.api.IsElement;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
+import static org.guvnor.ala.ui.wildfly.client.resources.i18n.GuvnorAlaWildflyUIConstants.WF10ProviderConfigView_AllParamsNeedsCompletionForValidationMessage;
+import static org.guvnor.ala.ui.wildfly.client.resources.i18n.GuvnorAlaWildflyUIConstants.WF10ProviderConfigView_TestConnectionFailMessage;
+import static org.guvnor.ala.ui.wildfly.client.resources.i18n.GuvnorAlaWildflyUIConstants.WF10ProviderConfigView_TestConnectionSuccessfulMessage;
+import static org.guvnor.ala.ui.wildfly.client.resources.i18n.GuvnorAlaWildflyUIConstants.WF10ProviderConfigView_TestConnectionUnExpectedErrorMessage;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 @Dependent
@@ -42,6 +51,9 @@ public class WF10ProviderConfigView
     @Inject
     @DataField("provider-name-form")
     private Div providerNameForm;
+
+    @DataField("provider-type-name")
+    private HTMLElement providerTypeName = Window.getDocument().createElement("strong");
 
     @Inject
     @DataField("provider-name")
@@ -91,7 +103,18 @@ public class WF10ProviderConfigView
     @DataField("test-connection-button")
     private Button testConnectionButton;
 
+    @Inject
+    private TranslationService translationService;
+
+    @Inject
+    private PopupHelper popupHelper;
+
     private WF10ProviderConfigPresenter presenter;
+
+    @PostConstruct
+    private void init() {
+        providerTypeName.setTextContent(getWizardTitle());
+    }
 
     @Override
     public void init(final WF10ProviderConfigPresenter presenter) {
@@ -231,7 +254,41 @@ public class WF10ProviderConfigView
 
     @Override
     public String getWizardTitle() {
-        return "WildFly 10";
+        //do not internationalize
+        return "WildFly 10*";
+    }
+
+    @Override
+    public String getParamsNotCompletedErrorMessage() {
+        return translationService.format(WF10ProviderConfigView_AllParamsNeedsCompletionForValidationMessage);
+    }
+
+    @Override
+    public String getTestConnectionFailMessage(String content) {
+        return translationService.format(WF10ProviderConfigView_TestConnectionFailMessage,
+                                         content);
+    }
+
+    @Override
+    public String getTestConnectionSuccessfulMessage(String content) {
+        return translationService.format(WF10ProviderConfigView_TestConnectionSuccessfulMessage,
+                                         content);
+    }
+
+    @Override
+    public String getTestConnectionUnExpectedErrorMessage(String content) {
+        return translationService.format(WF10ProviderConfigView_TestConnectionUnExpectedErrorMessage,
+                                         content);
+    }
+
+    @Override
+    public void showErrorPopup(String message) {
+        popupHelper.showErrorPopup(message);
+    }
+
+    @Override
+    public void showInformationPopup(String message) {
+        popupHelper.showInformationPopup(message);
     }
 
     private void enable(boolean enabled) {

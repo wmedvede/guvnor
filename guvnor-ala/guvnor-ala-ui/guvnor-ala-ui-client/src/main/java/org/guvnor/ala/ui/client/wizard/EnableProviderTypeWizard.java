@@ -35,7 +35,7 @@ import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_title;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.EnableProviderTypeWizard_Title;
 
 /**
  * Wizard for enabling the desired provider types on the system. Enabled provider types will be available for defining
@@ -74,7 +74,7 @@ public class EnableProviderTypeWizard
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(EnableProviderTypeWizard_title);
+        return translationService.getTranslation(EnableProviderTypeWizard_Title);
     }
 
     @Override

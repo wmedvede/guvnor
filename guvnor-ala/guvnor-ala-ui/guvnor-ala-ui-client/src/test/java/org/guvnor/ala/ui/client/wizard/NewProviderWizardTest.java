@@ -22,7 +22,7 @@ import org.guvnor.ala.ui.client.handler.ClientProviderHandler;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
 import org.guvnor.ala.ui.client.handler.FormResolver;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
-import org.guvnor.ala.ui.client.util.PopupsUtil;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.wizard.provider.ProviderConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderType;
@@ -57,7 +57,7 @@ public class NewProviderWizardTest
     private ClientProviderHandlerRegistry handlerRegistry;
 
     @Mock
-    private PopupsUtil popupsUtil;
+    private PopupHelper popupHelper;
 
     @Mock
     private ProviderService providerService;
@@ -88,7 +88,7 @@ public class NewProviderWizardTest
         providerServiceCaller = spy(new CallerMock<>(providerService));
         wizard = new NewProviderWizard(configurationPage,
                                        handlerRegistry,
-                                       popupsUtil,
+                                       popupHelper,
                                        translationService,
                                        providerServiceCaller,
                                        notification,
@@ -142,7 +142,7 @@ public class NewProviderWizardTest
                never()).setProviderConfigurationForm(configurationForm);
 
         wizard.start();
-        verify(popupsUtil,
+        verify(popupHelper,
                times(1)).showErrorPopup(ERROR_MESSAGE);
     }
 

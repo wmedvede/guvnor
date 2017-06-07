@@ -26,15 +26,19 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jboss.dmr.ModelNode;
 
 import java.util.Date;
@@ -329,6 +333,46 @@ public class WildflyClient {
         }
         return new WildflyAppState( "NA", new Date() );
 
+    }
+
+    public String testConnection() throws WildflyClientException {
+        BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(host,
+                                                   managementPort),
+                                     new UsernamePasswordCredentials(user,
+                                                                     password));
+
+        HttpPost post = new HttpPost("http://" + host + ":" + managementPort + "/management");
+        post.addHeader("X-Management-Client-Name",
+                       "GUVNOR-ALA");
+
+        ModelNode op = new ModelNode();
+        op.get("operation").set("read-resource");
+        post.setEntity(new StringEntity(op.toJSONString(true),
+                                        ContentType.APPLICATION_JSON));
+
+        try (
+                CloseableHttpClient httpclient = HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
+                CloseableHttpResponse httpResponse = httpclient.execute(post);
+        ) {
+            if (HttpStatus.SC_OK != httpResponse.getStatusLine().getStatusCode()) {
+                throw new Exception("Authentication failed. ");
+            } else {
+                String json = EntityUtils.toString(httpResponse.getEntity());
+                ModelNode returnVal = ModelNode.fromJSONString(json);
+                String productName = returnVal.get("result").get("product-name").asString();
+                String productVersion = returnVal.get("result").get("product-version").asString();
+                String releaseVersion = returnVal.get("result").get("release-version").asString();
+                String releaseCodeName = returnVal.get("result").get("release-codename").asString();
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(productName + ", " + productVersion);
+                stringBuilder.append(" (" + releaseCodeName + ", " + releaseVersion + ")");
+                return stringBuilder.toString();
+            }
+        } catch (Exception e) {
+            throw new WildflyClientException(e.getMessage(),
+                                             e);
+        }
     }
 
     public String getProviderName() {

@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.wildlfy.service;
+package org.guvnor.ala.ui.wildfly.service;
 
 import org.jboss.errai.bus.server.annotations.Remote;
 
 @Remote
 public interface WildflyClientService {
 
+    /**
+     * Test the connectivity with a Wildfly/EAP server.
+     * @param host the host server name where the Wildfly/EAP instance is running.
+     * @param port the http port for the Wildfly/EAP instance.
+     * @param managementPort the management port for the Wildfly/EAP instance.
+     * @param user the user for establishing the connection.
+     * @param password the user password.
+     * @return returns a TestConnectionResult object that indicates if the connection could be established or not.
+     */
     TestConnectionResult testConnection(final String host,
                                         final int port,
                                         final int managementPort,
                                         final String user,
-                                        final String password,
-                                        final String realm);
+                                        final String password);
 }

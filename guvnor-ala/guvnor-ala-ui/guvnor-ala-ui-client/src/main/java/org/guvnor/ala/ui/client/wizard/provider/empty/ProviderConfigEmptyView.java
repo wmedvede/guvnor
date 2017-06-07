@@ -16,13 +16,20 @@
 
 package org.guvnor.ala.ui.client.wizard.provider.empty;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.jboss.errai.common.client.dom.Div;
+import org.jboss.errai.common.client.dom.HTMLElement;
+import org.jboss.errai.common.client.dom.Window;
 import org.jboss.errai.ui.client.local.api.IsElement;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
+
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderConfigEmptyView_ProviderTypeNotProperlyConfiguredMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderConfigEmptyView_Title;
 
 @Dependent
 @Templated
@@ -36,6 +43,17 @@ public class ProviderConfigEmptyView
     @DataField("container")
     private Div container;
 
+    @DataField("message-heading")
+    private HTMLElement messageHeading = Window.getDocument().createElement("h1");
+
+    @Inject
+    private TranslationService translationService;
+
+    @PostConstruct
+    private void init() {
+        messageHeading.setTextContent(translationService.getTranslation(ProviderConfigEmptyView_ProviderTypeNotProperlyConfiguredMessage));
+    }
+
     @Override
     public void init(final ProviderConfigEmptyPresenter presenter) {
         this.presenter = presenter;
@@ -43,6 +61,6 @@ public class ProviderConfigEmptyView
 
     @Override
     public String getWizardTitle() {
-        return "Missing provider";
+        return translationService.getTranslation(ProviderConfigEmptyView_Title);
     }
 }

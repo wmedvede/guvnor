@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.widget.CustomGroupItem;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.jboss.errai.common.client.dom.Div;
@@ -32,7 +33,6 @@ import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.uberfire.ext.widgets.common.client.common.popups.YesNoCancelPopup;
 import org.uberfire.mvp.Command;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderTypeView_ProviderTypeRemovePopupText;
@@ -56,6 +56,9 @@ public class ProviderTypeView
 
     @Inject
     private TranslationService translationService;
+
+    @Inject
+    private PopupHelper popupHelper;
 
     private ProviderTypePresenter presenter;
 
@@ -111,14 +114,11 @@ public class ProviderTypeView
 
     @Override
     public void confirmRemove(final Command command) {
-        final YesNoCancelPopup result = YesNoCancelPopup.newYesNoCancelPopup(getRemoveProviderTypePopupTitle(),
-                                                                             getRemoveProviderTypePopupText(),
-                                                                             command,
-                                                                             () -> {
-                                                                             },
-                                                                             null);
-        result.clearScrollHeight();
-        result.show();
+        popupHelper.showYesNoPopup(getRemoveProviderTypePopupTitle(),
+                                   getRemoveProviderTypePopupText(),
+                                   command,
+                                   () -> {
+                                   });
     }
 
     @EventHandler("add-new-provider")

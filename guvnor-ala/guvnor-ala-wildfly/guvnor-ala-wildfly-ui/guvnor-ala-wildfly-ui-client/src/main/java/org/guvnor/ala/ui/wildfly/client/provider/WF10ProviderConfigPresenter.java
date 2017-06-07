@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.wildfly.client.handler.provider;
+package org.guvnor.ala.ui.wildfly.client.provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,18 +25,16 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.widget.FormStatus;
-import org.guvnor.ala.ui.model.ITestConnectionResult;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.wildlfy.service.WildflyClientService;
+import org.guvnor.ala.ui.wildfly.service.TestConnectionResult;
+import org.guvnor.ala.ui.wildfly.service.WildflyClientService;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.ErrorCallback;
 import org.jboss.errai.common.client.api.RemoteCallback;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
-import org.uberfire.ext.widgets.common.client.common.popups.YesNoCancelPopup;
-import org.uberfire.ext.widgets.common.client.common.popups.errors.ErrorPopup;
 
 import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
 
@@ -45,17 +43,17 @@ public class WF10ProviderConfigPresenter
         extends AbstractHasContentChangeHandlers
         implements ProviderConfigurationForm {
 
-    private static final String HOST = "host";
+    protected static final String HOST = "host";
 
-    private static final String PORT = "port";
+    protected static final String PORT = "port";
 
-    private static final String MANAGEMENT_PORT = "management-port";
+    protected static final String MANAGEMENT_PORT = "management-port";
 
-    private static final String USER = "wildfly-user";
+    protected static final String USER = "wildfly-user";
 
-    private static final String PASSWORD = "wildfly-password";
+    protected static final String PASSWORD = "wildfly-password";
 
-    private static final String MANAGEMENT_REALM = "ManagementRealm";
+    protected static final String PASSWORD_MASK = "****";
 
     public interface View
             extends UberElement<WF10ProviderConfigPresenter> {
@@ -103,6 +101,18 @@ public class WF10ProviderConfigPresenter
         void clear();
 
         String getWizardTitle();
+
+        String getParamsNotCompletedErrorMessage();
+
+        String getTestConnectionFailMessage(String content);
+
+        String getTestConnectionSuccessfulMessage(String content);
+
+        String getTestConnectionUnExpectedErrorMessage(String content);
+
+        void showInformationPopup(String message);
+
+        void showErrorPopup(String message);
     }
 
     private final View view;
@@ -158,7 +168,7 @@ public class WF10ProviderConfigPresenter
                                               MANAGEMENT_PORT));
         view.setUsername(getStringValue(provider.getConfiguration().getValues(),
                                         USER));
-        view.setPassword("****");
+        view.setPassword(PASSWORD_MASK);
     }
 
     public String getProviderName() {
@@ -270,42 +280,26 @@ public class WF10ProviderConfigPresenter
                                                                                        getInt(view.getPort()),
                                                                                        getInt(view.getManagementPort()),
                                                                                        view.getUsername(),
-                                                                                       view.getPassword(),
-                                                                                       MANAGEMENT_REALM);
+                                                                                       view.getPassword());
         }
     }
 
-    private RemoteCallback<ITestConnectionResult> getTestConnectionSuccessCallback() {
+    private RemoteCallback<TestConnectionResult> getTestConnectionSuccessCallback() {
         return response -> {
-            String message = response.getManagementConnectionError() ?
-                    translateMessage(TestConnectionFailMessage,
-                                     response.getManagementConnectionMessage()) :
-                    translateMessage(TestConnectionSuccessfulMessage,
-                                     response.getManagementConnectionMessage());
-            YesNoCancelPopup.newYesNoCancelPopup("Information",
-                                                 message,
-                                                 null,
-                                                 null,
-                                                 (org.uberfire.mvp.Command) () -> {
-                                                     //do nothing.
-                                                 }).show();
+            if (response.getManagementConnectionError()) {
+                view.showInformationPopup(view.getTestConnectionFailMessage(response.getManagementConnectionMessage()));
+            } else {
+                view.showInformationPopup(view.getTestConnectionSuccessfulMessage(response.getManagementConnectionMessage()));
+            }
         };
     }
 
     private ErrorCallback<Message> getTestConnectionErrorCallback() {
         return (message, throwable) -> {
-            ErrorPopup.showMessage("An error was produced during connection test: " + throwable.getMessage());
+            view.showErrorPopup(view.getTestConnectionUnExpectedErrorMessage(throwable.getMessage()));
             return false;
         };
     }
-
-    private String translateMessage(String msg,
-                                    String content) {
-        return msg + content;
-    }
-
-    private static final String TestConnectionSuccessfulMessage = "<strong>Management connection test successful:</strong><BR>";
-    private static final String TestConnectionFailMessage = "<strong>Management connection test failed:</strong><BR>";
 
     private boolean validateRemoteParams() {
         boolean result = !isEmpty(view.getHost()) &&
@@ -314,13 +308,7 @@ public class WF10ProviderConfigPresenter
                 !isEmpty(view.getUsername()) &&
                 !isEmpty(view.getPassword());
         if (!result) {
-            YesNoCancelPopup.newYesNoCancelPopup("Information",
-                                                 "All parameters must be completed for performing validation",
-                                                 null,
-                                                 null,
-                                                 () -> {
-                                                     //do nothing.
-                                                 }).show();
+            view.showInformationPopup(view.getParamsNotCompletedErrorMessage());
             return false;
         }
         return true;

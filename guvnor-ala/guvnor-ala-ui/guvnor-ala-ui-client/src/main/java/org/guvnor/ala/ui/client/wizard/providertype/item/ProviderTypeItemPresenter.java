@@ -22,6 +22,7 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.handler.ClientProviderHandler;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
+import org.guvnor.ala.ui.client.resources.images.GuvnorAlaUIImageResources;
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -34,8 +35,6 @@ import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeNam
 @Dependent
 public class ProviderTypeItemPresenter
         extends AbstractHasContentChangeHandlers {
-
-    private static final String DEFAULT_PROVIDER_TYPE_ICON_URL = "images/provider-icon-default.png";
 
     public interface View
             extends UberElement<ProviderTypeItemPresenter> {
@@ -98,6 +97,6 @@ public class ProviderTypeItemPresenter
         if (handler != null) {
             imageURL = handler.getProviderTypeImageURL();
         }
-        return imageURL != null ? imageURL : DEFAULT_PROVIDER_TYPE_ICON_URL;
+        return imageURL != null ? imageURL : GuvnorAlaUIImageResources.INSTANCE.defaultProviderIcon().getSafeUri().asString();
     }
 }

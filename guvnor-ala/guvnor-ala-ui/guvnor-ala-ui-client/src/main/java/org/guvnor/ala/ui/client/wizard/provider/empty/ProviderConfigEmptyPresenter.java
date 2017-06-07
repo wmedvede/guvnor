@@ -27,6 +27,10 @@ import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
 
+/**
+ * Empty provider config presenter that does nothing. This presenter is rarely used, and is only showed in cases
+ * were the UI module for given provider type has missing components.
+ */
 @Dependent
 public class ProviderConfigEmptyPresenter
         implements ProviderConfigurationForm {

@@ -19,6 +19,7 @@ package org.guvnor.ala.ui.client.provider;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.jboss.errai.common.client.dom.Anchor;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
@@ -30,14 +31,13 @@ import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
-import org.uberfire.ext.widgets.common.client.common.popups.YesNoCancelPopup;
 import org.uberfire.mvp.Command;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_ConfirmRemovePopupMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_ConfirmRemovePopupTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_RemoveProviderErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ProviderView_RemoveProviderSuccessMessage;
-import static org.jboss.errai.common.client.dom.DOMUtil.*;
+import static org.jboss.errai.common.client.dom.DOMUtil.removeAllChildren;
 
 @Dependent
 @Templated
@@ -84,6 +84,9 @@ public class ProviderView
     @Inject
     private TranslationService translationService;
 
+    @Inject
+    private PopupHelper popupHelper;
+
     private ProviderPresenter presenter;
 
     @Override
@@ -93,14 +96,11 @@ public class ProviderView
 
     @Override
     public void confirmRemove(final Command command) {
-        final YesNoCancelPopup result = YesNoCancelPopup.newYesNoCancelPopup(translationService.getTranslation(ProviderView_ConfirmRemovePopupTitle),
-                                                                             translationService.getTranslation(ProviderView_ConfirmRemovePopupMessage),
-                                                                             command,
-                                                                             () -> {
-                                                                             },
-                                                                             null);
-        result.clearScrollHeight();
-        result.show();
+        popupHelper.showYesNoPopup(translationService.getTranslation(ProviderView_ConfirmRemovePopupTitle),
+                                   translationService.getTranslation(ProviderView_ConfirmRemovePopupMessage),
+                                   command,
+                                   () -> {
+                                   });
     }
 
     @Override

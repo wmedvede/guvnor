@@ -24,18 +24,22 @@ import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.wildfly.model.WildflyProviderType;
 
+/**
+ * Backend provider handler implementation for Wildfly providers.
+ * @see BackendProviderHandler
+ */
 @ApplicationScoped
-public class WildflyProviderHandler
+public class WildflyBackendProviderHandler
         implements BackendProviderHandler {
 
     private WildflyProviderConfigConverter configConverter;
 
-    public WildflyProviderHandler() {
+    public WildflyBackendProviderHandler() {
         //Empty constructor for Weld proxying
     }
 
     @Inject
-    public WildflyProviderHandler(WildflyProviderConfigConverter configConverter) {
+    public WildflyBackendProviderHandler(WildflyProviderConfigConverter configConverter) {
         this.configConverter = configConverter;
     }
 

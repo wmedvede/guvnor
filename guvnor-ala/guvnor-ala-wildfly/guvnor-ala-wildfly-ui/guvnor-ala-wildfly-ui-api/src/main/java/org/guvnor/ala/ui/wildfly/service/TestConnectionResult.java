@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.wildlfy.service;
+package org.guvnor.ala.ui.wildfly.service;
 
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
@@ -30,10 +30,13 @@ public class TestConnectionResult {
 
     private String managementConnectionMessage;
 
-    public TestConnectionResult(@MapsTo("httpConnectionError") boolean httpConnectionError,
-                                @MapsTo("httpConnectionMessage") String httpConnectionMessage,
-                                @MapsTo("managementConnectionError") boolean managementConnectionError,
-                                @MapsTo("managementConnectionMessage") String managementConnectionMessage) {
+    public TestConnectionResult() {
+    }
+
+    public TestConnectionResult(@MapsTo("httpConnectionError") final boolean httpConnectionError,
+                                @MapsTo("httpConnectionMessage") final String httpConnectionMessage,
+                                @MapsTo("managementConnectionError") final boolean managementConnectionError,
+                                @MapsTo("managementConnectionMessage") final String managementConnectionMessage) {
         this.httpConnectionError = httpConnectionError;
         this.managementConnectionError = managementConnectionError;
         this.httpConnectionMessage = httpConnectionMessage;

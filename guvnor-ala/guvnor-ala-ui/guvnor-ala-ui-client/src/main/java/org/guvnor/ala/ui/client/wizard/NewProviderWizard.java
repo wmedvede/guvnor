@@ -26,7 +26,7 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.events.ProviderTypeSelectedEvent;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandlerRegistry;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
-import org.guvnor.ala.ui.client.util.PopupsUtil;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.wizard.provider.ProviderConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderType;
@@ -39,10 +39,10 @@ import org.uberfire.workbench.events.NotificationEvent;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_title;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_Title;
 
 /**
- * Wizard for creating a provicer.
+ * Wizard for creating a provider.
  */
 @ApplicationScoped
 public class NewProviderWizard
@@ -50,7 +50,7 @@ public class NewProviderWizard
 
     private final ProviderConfigurationPagePresenter providerConfigurationPage;
     private final ClientProviderHandlerRegistry handlerRegistry;
-    private final PopupsUtil popupsUtil;
+    private final PopupHelper popupHelper;
     private final Caller<ProviderService> providerService;
     private final Event<ProviderTypeSelectedEvent> providerTypeSelectedEvent;
 
@@ -61,7 +61,7 @@ public class NewProviderWizard
     @Inject
     public NewProviderWizard(final ProviderConfigurationPagePresenter providerConfigurationPage,
                              final ClientProviderHandlerRegistry handlerRegistry,
-                             final PopupsUtil popupsUtil,
+                             final PopupHelper popupHelper,
                              final TranslationService translationService,
                              final Caller<ProviderService> providerService,
                              final Event<NotificationEvent> notification,
@@ -70,7 +70,7 @@ public class NewProviderWizard
               notification);
         this.providerConfigurationPage = providerConfigurationPage;
         this.handlerRegistry = handlerRegistry;
-        this.popupsUtil = popupsUtil;
+        this.popupHelper = popupHelper;
         this.providerService = providerService;
         this.providerTypeSelectedEvent = providerTypeSelectedEvent;
     }
@@ -92,7 +92,7 @@ public class NewProviderWizard
     public void start() {
         if (providerConfigurationForm == null) {
             //uncommon case, will next never occur.
-            popupsUtil.showErrorPopup(translationService.format(
+            popupHelper.showErrorPopup(translationService.format(
                     NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage,
                     (providerType != null ? providerType.getName() : null)));
         } else {
@@ -103,7 +103,7 @@ public class NewProviderWizard
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(NewProviderWizard_title);
+        return translationService.getTranslation(NewProviderWizard_Title);
     }
 
     @Override

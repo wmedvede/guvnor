@@ -21,10 +21,10 @@ import org.jboss.errai.ui.shared.api.annotations.TranslationKey;
 public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
-    public static final String ProvisioningManagementBrowserView_title = "ProvisioningManagementBrowserView.title";
+    public static final String ProvisioningManagementBrowserView_Title = "ProvisioningManagementBrowserView.Title";
 
     @TranslationKey(defaultValue = "")
-    public static final String EnableProviderTypeWizard_title = "EnableProviderTypeWizard.title";
+    public static final String EnableProviderTypeWizard_Title = "EnableProviderTypeWizard.Title";
 
     @TranslationKey(defaultValue = "")
     public static final String EnableProviderTypeWizard_ProviderTypeEnableSuccessMessage = "EnableProviderTypeWizard.ProviderTypeEnableSuccessMessage";
@@ -33,10 +33,10 @@ public class GuvnorAlaUIConstants {
     public static final String EnableProviderTypeWizard_ProviderTypeEnableErrorMessage = "EnableProviderTypeWizard.ProviderTypeEnableErrorMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String EnableProviderTypePageView_title = "EnableProviderTypePageView.title";
+    public static final String EnableProviderTypePageView_Title = "EnableProviderTypePageView.Title";
 
     @TranslationKey(defaultValue = "")
-    public static final String NewProviderWizard_title = "NewProviderWizard.title";
+    public static final String NewProviderWizard_Title = "NewProviderWizard.Title";
 
     @TranslationKey(defaultValue = "")
     public static final String NewProviderWizard_ProviderCreateSuccessMessage = "NewProviderWizard.ProviderCreateSuccessMessage";
@@ -48,7 +48,7 @@ public class GuvnorAlaUIConstants {
     public static final String NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage = "NewProviderWizard.ProviderNotProperlyConfiguredInSystemErrorMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String NewDeployWizard_title = "NewDeployWizard.title";
+    public static final String NewDeployWizard_Title = "NewDeployWizard.Title";
 
     @TranslationKey(defaultValue = "")
     public static final String NewDeployWizard_PipelineStartSuccessMessage = "NewDeployWizard.PipelineStartSuccessMessage";
@@ -85,4 +85,11 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String ProviderTypeNavigationView_TitleText = "ProviderTypeNavigationView.TitleText";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ProviderConfigEmptyView_Title = "ProviderConfigEmptyView.Title";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ProviderConfigEmptyView_ProviderTypeNotProperlyConfiguredMessage = "ProviderConfigEmptyView.ProviderTypeNotProperlyConfiguredMessage";
+
 }

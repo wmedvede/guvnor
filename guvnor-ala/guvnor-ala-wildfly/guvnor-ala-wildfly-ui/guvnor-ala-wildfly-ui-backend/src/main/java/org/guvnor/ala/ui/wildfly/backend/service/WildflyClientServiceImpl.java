@@ -18,8 +18,9 @@ package org.guvnor.ala.ui.wildfly.backend.service;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import org.guvnor.ala.ui.wildlfy.service.TestConnectionResult;
-import org.guvnor.ala.ui.wildlfy.service.WildflyClientService;
+import org.guvnor.ala.ui.wildfly.service.TestConnectionResult;
+import org.guvnor.ala.ui.wildfly.service.WildflyClientService;
+import org.guvnor.ala.wildfly.access.WildflyClient;
 import org.jboss.errai.bus.server.annotations.Service;
 
 @Service
@@ -36,11 +37,34 @@ public class WildflyClientServiceImpl
                                                final int port,
                                                final int managementPort,
                                                final String user,
-                                               final String password,
-                                               final String realm) {
-        return new TestConnectionResult(false,
-                                        "httpConnectionOK",
-                                        false,
-                                        "managementConnectionOK");
+                                               final String password) {
+        final TestConnectionResult result = new TestConnectionResult();
+        try {
+
+            final String testMessage = createWFClient(host,
+                                                      port,
+                                                      managementPort,
+                                                      user,
+                                                      password).testConnection();
+            result.setManagementConnectionError(false);
+            result.setManagementConnectionMessage(testMessage);
+        } catch (Exception e) {
+            result.setManagementConnectionError(true);
+            result.setManagementConnectionMessage(e.getMessage());
+        }
+        return result;
+    }
+
+    protected WildflyClient createWFClient(final String host,
+                                           final int port,
+                                           final int managementPort,
+                                           final String user,
+                                           final String password) {
+        return new WildflyClient("",
+                                 user,
+                                 password,
+                                 host,
+                                 port,
+                                 managementPort);
     }
 }

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.model;
+package org.guvnor.ala.ui.wildfly.client.resources.images;
 
-public interface ITestConnectionResult {
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 
-    boolean getHttpConnectionError();
+public interface GuvnorAlaWildflyUIImageResources
+        extends ClientBundle {
 
-    String getHttpConnectionMessage();
+    GuvnorAlaWildflyUIImageResources INSTANCE = GWT.create(GuvnorAlaWildflyUIImageResources.class);
 
-    boolean getManagementConnectionError();
-
-    String getManagementConnectionMessage();
+    @Source("provider-icon-wildfly.png")
+    ImageResource providerIcon();
 }

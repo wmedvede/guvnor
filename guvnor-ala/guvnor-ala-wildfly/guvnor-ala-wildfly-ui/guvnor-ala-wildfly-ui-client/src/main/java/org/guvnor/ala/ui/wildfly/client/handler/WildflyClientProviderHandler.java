@@ -22,19 +22,22 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.handler.ClientProviderHandler;
 import org.guvnor.ala.ui.client.handler.FormResolver;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.wildfly.client.resources.images.GuvnorAlaWildflyUIImageResources;
 
+/**
+ * Client provider handler implementation for Wildfly providers.
+ * @see ClientProviderHandler
+ */
 @ApplicationScoped
-public class WildflyProviderHandler
+public class WildflyClientProviderHandler
         implements ClientProviderHandler {
 
     private static final String PROVIDER_TYPE_NAME = "wildfly";
 
-    private static final String PROVIDER_TYPE_ICON_URL = "images/provider-icon-wildfly.png";
-
     private WildflyFormResolver formResolver;
 
     @Inject
-    public WildflyProviderHandler(WildflyFormResolver formResolver) {
+    public WildflyClientProviderHandler(WildflyFormResolver formResolver) {
         this.formResolver = formResolver;
     }
 
@@ -55,6 +58,6 @@ public class WildflyProviderHandler
 
     @Override
     public String getProviderTypeImageURL() {
-        return PROVIDER_TYPE_ICON_URL;
+        return GuvnorAlaWildflyUIImageResources.INSTANCE.providerIcon().getSafeUri().asString();
     }
 }
