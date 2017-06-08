@@ -255,7 +255,7 @@ public class WF10ProviderConfigView
     @Override
     public String getWizardTitle() {
         //do not internationalize
-        return "WildFly 10*";
+        return "WildFly 10";
     }
 
     @Override

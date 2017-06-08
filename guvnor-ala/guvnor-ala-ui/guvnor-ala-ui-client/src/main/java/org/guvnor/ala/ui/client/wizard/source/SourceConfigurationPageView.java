@@ -35,7 +35,7 @@ import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_SelectOption_placeholder;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_title;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_Title;
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
@@ -97,7 +97,7 @@ public class SourceConfigurationPageView
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(SourceConfigurationPageView_title);
+        return translationService.getTranslation(SourceConfigurationPageView_Title);
     }
 
     @Override

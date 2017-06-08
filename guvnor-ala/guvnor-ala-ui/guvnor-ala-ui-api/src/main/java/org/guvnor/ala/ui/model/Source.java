@@ -16,8 +16,5 @@
 
 package org.guvnor.ala.ui.model;
 
-/**
- * TODO: update me
- */
 public interface Source {
 }

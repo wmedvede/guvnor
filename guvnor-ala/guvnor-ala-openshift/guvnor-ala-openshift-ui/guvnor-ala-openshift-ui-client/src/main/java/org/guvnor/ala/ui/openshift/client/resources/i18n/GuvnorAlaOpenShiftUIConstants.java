@@ -14,19 +14,8 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.model;
+package org.guvnor.ala.ui.openshift.client.resources.i18n;
 
-public interface IServerOptions {
+public class GuvnorAlaOpenShiftUIConstants {
 
-    String getHost();
-
-    int getPort();
-
-    int getManagementPort();
-
-    String getUser();
-
-    String getPassword();
-
-    String getRealm();
 }

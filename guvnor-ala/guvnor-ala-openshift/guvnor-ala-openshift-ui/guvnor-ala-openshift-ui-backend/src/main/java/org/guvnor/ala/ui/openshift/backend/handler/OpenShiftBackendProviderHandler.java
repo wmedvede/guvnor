@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.handler.ose;
+package org.guvnor.ala.ui.openshift.backend.handler;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.handler.FormResolver;
-import org.guvnor.ala.ui.client.handler.ClientProviderHandler;
-import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.backend.service.converter.ProviderConfigConverter;
+import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
+/**
+ * Backend provider handler implementation for OpenShift providers.
+ * @see BackendProviderHandler
+ *
+ * //TODO will be completed when we define the OpenShift provider properly.
+ */
 @ApplicationScoped
-public class OSEProviderHandler
-        implements ClientProviderHandler {
+public class OpenShiftBackendProviderHandler
+        implements BackendProviderHandler {
 
-    private static final String PROVIDER_TYPE_ICON_URL = "images/provider-icon-ose.png";
-
-    private OSEFormResolver formResolver;
-
-    @Inject
-    public OSEProviderHandler(OSEFormResolver formResolver) {
-        this.formResolver = formResolver;
+    public OpenShiftBackendProviderHandler() {
+        //Empty constructor for Weld proxying
     }
 
     @Override
@@ -44,16 +43,11 @@ public class OSEProviderHandler
 
     @Override
     public boolean acceptProviderType(ProviderTypeKey providerTypeKey) {
-        return providerTypeKey != null && ProviderType.OPEN_SHIFT_PROVIDER_TYPE.equals(providerTypeKey.getId());
+        return providerTypeKey != null && "openshift".equals(providerTypeKey.getId());
     }
 
     @Override
-    public FormResolver getFormResolver() {
-        return formResolver;
-    }
-
-    @Override
-    public String getProviderTypeImageURL() {
-        return PROVIDER_TYPE_ICON_URL;
+    public ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey) {
+        return null;
     }
 }

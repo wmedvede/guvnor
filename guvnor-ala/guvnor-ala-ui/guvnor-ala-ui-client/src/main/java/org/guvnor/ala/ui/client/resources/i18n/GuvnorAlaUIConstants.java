@@ -57,10 +57,10 @@ public class GuvnorAlaUIConstants {
     public static final String NewDeployWizard_PipelineStartErrorMessage = "NewDeployWizard.PipelineStartErrorMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String SelectPipelinePageView_title = "SelectPipelinePageView.title";
+    public static final String SelectPipelinePageView_Title = "SelectPipelinePageView.Title";
 
     @TranslationKey(defaultValue = "")
-    public static final String SourceConfigurationPageView_title = "SourceConfigurationPageView.title";
+    public static final String SourceConfigurationPageView_Title = "SourceConfigurationPageView.Title";
 
     @TranslationKey(defaultValue = "")
     public static final String SourceConfigurationPageView_SelectOption_placeholder = "SourceConfigurationPageView.SelectOption-placeholder";

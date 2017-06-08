@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.handler.ose.provider;
+package org.guvnor.ala.ui.openshift.client.provider;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
-import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.gwtbootstrap3.client.ui.constants.ValidationState;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
+import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.TextInput;
+import org.jboss.errai.common.client.dom.Window;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
@@ -37,9 +39,11 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 @Dependent
 @Templated
 public class OSEProviderConfigView
-        extends AbstractHasContentChangeHandlers
         implements IsElement,
                    OSEProviderConfigPresenter.View {
+
+    @DataField("provider-type-name")
+    private HTMLElement providerTypeName = Window.getDocument().createElement("strong");
 
     @Inject
     @DataField("provider-name-form")
@@ -47,7 +51,7 @@ public class OSEProviderConfigView
 
     @Inject
     @DataField("provider-name")
-    private TextInput name;
+    private TextInput providerName;
 
     @Inject
     @DataField("master-url-form")
@@ -80,21 +84,19 @@ public class OSEProviderConfigView
         this.presenter = presenter;
     }
 
-    @Override
-    public void setContent(final String name,
-                           final String masterURL,
-                           final String username,
-                           final String password) {
-        resetFormState();
-        this.name.setValue(name);
-        this.masterURL.setValue(masterURL);
-        this.username.setValue(username);
-        this.password.setValue(password);
+    @PostConstruct
+    private void init() {
+        providerTypeName.setTextContent(getWizardTitle());
     }
 
     @Override
-    public String getName() {
-        return name.getValue();
+    public String getProviderName() {
+        return providerName.getValue();
+    }
+
+    @Override
+    public void setProviderName(String providerName) {
+        this.providerName.setValue(providerName);
     }
 
     @Override
@@ -103,8 +105,18 @@ public class OSEProviderConfigView
     }
 
     @Override
+    public void setMasterURL(String masterURL) {
+        this.masterURL.setValue(masterURL);
+    }
+
+    @Override
     public String getUsername() {
         return username.getValue();
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username.setValue(username);
     }
 
     @Override
@@ -112,62 +124,21 @@ public class OSEProviderConfigView
         return password.getValue();
     }
 
-    @EventHandler("provider-name")
-    public void onProviderNameChange(@ForEvent("change") final Event event) {
-        if (!name.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(providerNameForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
-    }
-
-    @EventHandler("master-url")
-    public void onMasterURLChange(@ForEvent("change") final Event event) {
-        if (!masterURL.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(masterURLForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
-    }
-
-    @EventHandler("username")
-    public void onUsernameChange(@ForEvent("change") final Event event) {
-        if (!username.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(usernameForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
-    }
-
-    @EventHandler("password")
-    public void onPasswordChange(@ForEvent("change") final Event event) {
-        if (!password.getValue().trim().isEmpty()) {
-            addUniqueEnumStyleName(passwordForm,
-                                   ValidationState.class,
-                                   ValidationState.NONE);
-        }
-        fireChangeHandlers();
+    @Override
+    public void setPassword(String password) {
+        this.password.setValue(password);
     }
 
     @Override
     public void disable() {
         resetFormState();
-        this.name.setDisabled(true);
-        this.masterURL.setDisabled(true);
-        this.username.setDisabled(true);
-        this.password.setDisabled(true);
+        enable(false);
     }
 
     @Override
     public void enable() {
         resetFormState();
-        this.name.setDisabled(false);
-        this.masterURL.setDisabled(false);
-        this.username.setDisabled(false);
-        this.password.setDisabled(false);
+        enable(true);
     }
 
     @Override
@@ -233,7 +204,7 @@ public class OSEProviderConfigView
     @Override
     public void clear() {
         resetFormState();
-        this.name.setValue("");
+        this.providerName.setValue("");
         this.masterURL.setValue("");
         this.username.setValue("");
         this.password.setValue("");
@@ -241,7 +212,28 @@ public class OSEProviderConfigView
 
     @Override
     public String getWizardTitle() {
+        //do not internationalize this value.
         return "OpenShift";
+    }
+
+    @EventHandler("provider-name")
+    private void onProviderNameChange(@ForEvent("change") final Event event) {
+        presenter.onProviderNameChange();
+    }
+
+    @EventHandler("master-url")
+    private void onMasterURLChange(@ForEvent("change") final Event event) {
+        presenter.onMasterURLChange();
+    }
+
+    @EventHandler("username")
+    private void onUsernameChange(@ForEvent("change") final Event event) {
+        presenter.onUserNameChange();
+    }
+
+    @EventHandler("password")
+    private void onPasswordChange(@ForEvent("change") final Event event) {
+        presenter.onPasswordChange();
     }
 
     private void resetFormState() {
@@ -257,5 +249,12 @@ public class OSEProviderConfigView
         addUniqueEnumStyleName(passwordForm,
                                ValidationState.class,
                                ValidationState.NONE);
+    }
+
+    private void enable(boolean enabled) {
+        this.providerName.setDisabled(!enabled);
+        this.masterURL.setDisabled(!enabled);
+        this.username.setDisabled(!enabled);
+        this.password.setDisabled(!enabled);
     }
 }

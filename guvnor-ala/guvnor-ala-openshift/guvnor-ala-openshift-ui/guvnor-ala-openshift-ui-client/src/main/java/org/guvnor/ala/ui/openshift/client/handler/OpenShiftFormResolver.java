@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.handler.ose;
+package org.guvnor.ala.ui.openshift.client.handler;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.handler.FormResolver;
-import org.guvnor.ala.ui.client.handler.ose.provider.OSEProviderConfigPresenter;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
+import org.guvnor.ala.ui.openshift.client.provider.OSEProviderConfigPresenter;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 
+/**
+ * Form resolver implementation for OpenShift providers.
+ * @see FormResolver
+ */
 @ApplicationScoped
-public class OSEFormResolver
+public class OpenShiftFormResolver
         implements FormResolver {
 
     private ManagedInstance<OSEProviderConfigPresenter> providerConfigPresenters;
 
     @Inject
-    public OSEFormResolver(ManagedInstance<OSEProviderConfigPresenter> providerConfigPresenters) {
+    public OpenShiftFormResolver(ManagedInstance<OSEProviderConfigPresenter> providerConfigPresenters) {
         this.providerConfigPresenters = providerConfigPresenters;
     }
 

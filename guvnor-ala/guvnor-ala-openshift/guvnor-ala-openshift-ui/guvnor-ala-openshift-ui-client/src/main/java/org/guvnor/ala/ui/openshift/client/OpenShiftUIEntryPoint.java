@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.client.handler.ose;
+package org.guvnor.ala.ui.openshift.client;
 
 import org.jboss.errai.ioc.client.api.EntryPoint;
+import org.jboss.errai.ui.shared.api.annotations.Bundle;
 
+@Bundle("resources/i18n/GuvnorAlaOpenShiftUIConstants.properties")
 @EntryPoint
-public class OSEProviderTypeEntryPoint {
+public class OpenShiftUIEntryPoint {
 
 }

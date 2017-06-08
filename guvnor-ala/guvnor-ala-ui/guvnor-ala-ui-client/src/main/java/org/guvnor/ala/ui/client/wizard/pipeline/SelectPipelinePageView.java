@@ -25,7 +25,7 @@ import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SelectPipelinePageView_title;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SelectPipelinePageView_Title;
 import static org.jboss.errai.common.client.dom.DOMUtil.*;
 
 @Dependent
@@ -60,6 +60,6 @@ public class SelectPipelinePageView
 
     @Override
     public String getTitle() {
-        return translationService.getTranslation(SelectPipelinePageView_title);
+        return translationService.getTranslation(SelectPipelinePageView_Title);
     }
 }
