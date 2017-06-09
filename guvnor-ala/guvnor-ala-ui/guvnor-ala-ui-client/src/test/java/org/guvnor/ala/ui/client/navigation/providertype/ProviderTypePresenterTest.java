@@ -36,8 +36,8 @@ import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.mvp.Command;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderKey;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderType;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderType;
 import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeName;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -143,11 +143,14 @@ public class ProviderTypePresenterTest {
         presenter.onRemoveProviderType();
 
         //emulate user confirmation on screen
-        verify(view, times(1)).confirmRemove(any(Command.class));
+        verify(view,
+               times(1)).confirmRemove(any(Command.class));
         presenter.removeProviderType();
 
-        verify(providerTypeService, times(1)).disableProvider(providerType);
-        verify(providerTypeListRefreshEvent, times(1)).fire(new ProviderTypeListRefreshEvent());
+        verify(providerTypeService,
+               times(1)).disableProviderType(providerType);
+        verify(providerTypeListRefreshEvent,
+               times(1)).fire(new ProviderTypeListRefreshEvent());
     }
 
     private List<ProviderKey> createProviders(ProviderTypeKey providerTypeKey,

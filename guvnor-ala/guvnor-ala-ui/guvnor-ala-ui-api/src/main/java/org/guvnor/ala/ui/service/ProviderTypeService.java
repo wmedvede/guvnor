@@ -25,22 +25,45 @@ import org.jboss.errai.bus.server.annotations.Remote;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 
 /**
- * Client side service for getting information regarding the existing provider types.
+ * Service for managing the existing provider types.
  */
 @Remote
 public interface ProviderTypeService {
 
+    /**
+     * Gets the list of available provider types in the system.
+     * @return a list of ProviderType.
+     */
+    Collection<ProviderType> getAvailableProviderTypes();
+
+    /**
+     * Gets a provider type given a provider type key.
+     * @param providerTypeKey a provider type key.
+     * @return the provider type or null when there aren't a provider with given key.
+     */
+    ProviderType getProviderType(final ProviderTypeKey providerTypeKey);
+
+    /**
+     * Gets the list of provider types currently enabled in the system.
+     * @return a list of ProviderType.
+     */
     Collection<ProviderType> getEnabledProviderTypes();
 
-    Collection<ProviderType> getAvialableProviderTypes();
-
-    void enableProviderType(final ProviderType providerType);
-
+    /**
+     * Enables a collection of provider types.
+     * @param providerTypes a collection of provider types to enable.
+     */
     void enableProviderTypes(final Collection<ProviderType> providerTypes);
 
-    void disableProvider(final ProviderType providerType);
+    /**
+     * Disables a provider type.
+     * @param providerType a provider type to disable.
+     */
+    void disableProviderType(final ProviderType providerType);
 
+    /**
+     * Gets the status of the available provider types.
+     * @return a map with the status for each for the available provider types.
+     */
     Map<ProviderType, ProviderTypeStatus> getProviderTypesStatus();
-
-    ProviderType getProviderType(final ProviderTypeKey providerTypeKey);
 }

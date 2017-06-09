@@ -23,9 +23,6 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 public class ProviderType
         extends AbstractHasKeyObject<ProviderTypeKey> {
 
-    //TODO, remove this constant when the openshif provider is properly implemented
-    public static final String OPEN_SHIFT_PROVIDER_TYPE = "openshift";
-
     private String name;
 
     public ProviderType(@MapsTo("key") ProviderTypeKey key,

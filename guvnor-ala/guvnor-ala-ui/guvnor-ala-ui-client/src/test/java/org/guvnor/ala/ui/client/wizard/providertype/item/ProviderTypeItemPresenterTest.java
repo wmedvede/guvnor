@@ -28,10 +28,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.IMAGE_URL;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.PROVIDER_ID;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.PROVIDER_NAME;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.PROVIDER_VERSION;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.IMAGE_URL;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_ID;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_NAME;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

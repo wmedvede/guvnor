@@ -24,6 +24,9 @@ import javax.enterprise.inject.Instance;
 
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
+/**
+ * Base class for implementing a registry of ProviderHandler.
+ */
 public abstract class AbstractProviderHandlerRegistry<T extends ProviderHandler> {
 
     protected Instance<T> handlerInstance;

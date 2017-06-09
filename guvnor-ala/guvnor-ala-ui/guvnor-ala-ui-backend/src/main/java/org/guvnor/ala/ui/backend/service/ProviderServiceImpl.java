@@ -90,23 +90,6 @@ public class ProviderServiceImpl
     }
 
     @Override
-    public boolean isValidProvider(final ProviderType providerType,
-                                   final String id) {
-        checkNotNull("providerType",
-                     providerType);
-        checkNotEmpty("id",
-                      id);
-
-        for (final Provider provider : getProviders(providerType)) {
-            if (id.equals(provider.getKey().getId())) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     public void createProvider(final ProviderType providerType,
                                final ProviderConfiguration configuration) {
         checkNotNull("providerType",
@@ -116,9 +99,10 @@ public class ProviderServiceImpl
         checkNotEmpty("configuration",
                       configuration.getValues());
 
-        if (!isValidProvider(providerType,
-                             configuration.getId())) {
-            throw new RuntimeException();
+        if (!existsProvider(providerType,
+                            configuration.getId())) {
+            //uncommon case
+            throw new RuntimeException("Provider type undefined in current system, providerType: " + providerType);
         }
         final BackendProviderHandler handler = handlerRegistry.ensureHandler(providerType.getKey());
         @SuppressWarnings("unchecked")
@@ -151,5 +135,15 @@ public class ProviderServiceImpl
 
     private Provider convert(org.guvnor.ala.runtime.providers.Provider provider) {
         return providerConverter.toModel(provider);
+    }
+
+    private boolean existsProvider(final ProviderType providerType,
+                                   final String id) {
+        for (final Provider provider : getProviders(providerType)) {
+            if (id.equals(provider.getKey().getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

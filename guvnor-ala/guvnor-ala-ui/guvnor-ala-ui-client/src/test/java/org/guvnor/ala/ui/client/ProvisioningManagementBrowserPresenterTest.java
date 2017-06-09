@@ -41,8 +41,8 @@ import org.mockito.Mock;
 import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderKeyList;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeList;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKeyList;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeList;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

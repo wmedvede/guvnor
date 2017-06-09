@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.PIPELINE1;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PIPELINE1;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

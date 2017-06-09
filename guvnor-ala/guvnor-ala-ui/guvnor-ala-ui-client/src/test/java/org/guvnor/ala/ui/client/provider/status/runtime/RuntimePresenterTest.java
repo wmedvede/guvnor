@@ -49,8 +49,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.uberfire.mocks.CallerMock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderKey;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeKey;
 import static org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenterHelper.buildStyle;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;

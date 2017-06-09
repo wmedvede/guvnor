@@ -112,7 +112,7 @@
 
     <dependency>
       <groupId>org.guvnor</groupId>
-      <artifactId>guvnor-ala-ui-client</artifactId>
+      <artifactId>guvnor-ala-ui-api</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>

@@ -26,8 +26,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.uberfire.mocks.EventSourceMock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderKey;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeKey;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 

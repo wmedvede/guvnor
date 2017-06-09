@@ -37,11 +37,11 @@ import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.workbench.events.NotificationEvent;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.ERROR_MESSAGE;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.PIPELINE1;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.PIPELINE2;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.prepareServiceCallerError;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.ERROR_MESSAGE;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PIPELINE1;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PIPELINE2;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.prepareServiceCallerError;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_PipelineStartErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_PipelineStartSuccessMessage;
 import static org.mockito.Mockito.*;

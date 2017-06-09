@@ -37,10 +37,10 @@ import org.uberfire.mocks.CallerMock;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.workbench.events.NotificationEvent;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.ERROR_MESSAGE;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderType;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.prepareServiceCallerError;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.ERROR_MESSAGE;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderType;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.prepareServiceCallerError;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage;

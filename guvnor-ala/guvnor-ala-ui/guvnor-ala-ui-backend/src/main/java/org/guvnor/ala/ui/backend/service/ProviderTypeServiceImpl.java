@@ -19,11 +19,8 @@ package org.guvnor.ala.ui.backend.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -34,19 +31,16 @@ import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.service.ProviderTypeService;
 import org.jboss.errai.bus.server.annotations.Service;
 
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotEmpty;
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
+
 @Service
 @ApplicationScoped
 public class ProviderTypeServiceImpl
         implements ProviderTypeService {
 
-    //TODO, remove this temporal provider type definition.
-    private static final ProviderType OSE = new ProviderType(new ProviderTypeKey(ProviderType.OPEN_SHIFT_PROVIDER_TYPE,
-                                                                                 "3.5"),
-                                                             "OpenShift");
-
-    private Map<ProviderTypeKey, ProviderType> allProviders = new HashMap<>();
-
-    private Map<ProviderTypeKey, ProviderType> enabledProviders = new HashMap<>();
+    //TODO, SPRINT6 will manage the storing of this information.
+    private final Map<ProviderTypeKey, ProviderType> enabledProviders = new HashMap<>();
 
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
 
@@ -55,21 +49,12 @@ public class ProviderTypeServiceImpl
     }
 
     @Inject
-    public ProviderTypeServiceImpl(RuntimeProvisioningServiceBackend runtimeProvisioningService) {
+    public ProviderTypeServiceImpl(final RuntimeProvisioningServiceBackend runtimeProvisioningService) {
         this.runtimeProvisioningService = runtimeProvisioningService;
     }
 
-    @PostConstruct
-    private void init() {
-        getAvialableProviderTypes().forEach(providerType -> allProviders.put(providerType.getKey(),
-                                                                             providerType));
-        //TODO The open shift provider don't exists, let's add it manually
-        allProviders.put(OSE.getKey(),
-                         OSE);
-    }
-
     @Override
-    public Collection<ProviderType> getAvialableProviderTypes() {
+    public Collection<ProviderType> getAvailableProviderTypes() {
         List<ProviderType> result = new ArrayList<>();
         List<org.guvnor.ala.runtime.providers.ProviderType> providers =
                 runtimeProvisioningService.getProviderTypes(0,
@@ -78,55 +63,60 @@ public class ProviderTypeServiceImpl
                                                             true);
 
         if (providers != null) {
-            for (org.guvnor.ala.runtime.providers.ProviderType provider : providers) {
-                result.add(new ProviderType(new ProviderTypeKey(provider.getProviderTypeName(),
-                                                                provider.getVersion()),
-                                            provider.getProviderTypeName()));
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public void enableProviderType(final ProviderType providerType) {
-        enabledProviders.put(providerType.getKey(),
-                             providerType);
-    }
-
-    @Override
-    public void enableProviderTypes(final Collection<ProviderType> providerTypes) {
-        for (ProviderType providerType : providerTypes) {
-            enableProviderType(providerType);
-        }
-    }
-
-    @Override
-    public void disableProvider(final ProviderType providerType) {
-        enabledProviders.remove(providerType.getKey());
-    }
-
-    @Override
-    public Map<ProviderType, ProviderTypeStatus> getProviderTypesStatus() {
-        final Map<ProviderType, ProviderTypeStatus> result = new HashMap<>(allProviders.size());
-        final Set<ProviderType> providers = new HashSet<>(allProviders.values());
-        for (final ProviderType providerType : enabledProviders.values()) {
-            result.put(providerType,
-                       ProviderTypeStatus.ENABLED);
-            providers.remove(providerType);
-        }
-        for (ProviderType provider : providers) {
-            result.put(provider,
-                       ProviderTypeStatus.DISABLED);
+            providers.forEach(providerType ->
+                                      result.add(new ProviderType(new ProviderTypeKey(providerType.getProviderTypeName(),
+                                                                                      providerType.getVersion()),
+                                                                  providerType.getProviderTypeName()))
+            );
         }
         return result;
     }
 
     @Override
     public ProviderType getProviderType(final ProviderTypeKey providerTypeKey) {
-        return allProviders.get(providerTypeKey);
+        checkNotNull("providerTypeKey",
+                     providerTypeKey);
+        return getAvailableProviderTypes().stream()
+                .filter(providerType -> providerType.getKey().equals(providerTypeKey))
+                .findFirst().orElse(null);
     }
 
+    @Override
     public Collection<ProviderType> getEnabledProviderTypes() {
         return new ArrayList<>(enabledProviders.values());
+    }
+
+    @Override
+    public void enableProviderTypes(final Collection<ProviderType> providerTypes) {
+        checkNotEmpty("providerTypes",
+                      providerTypes);
+        providerTypes.forEach(this::enableProviderType);
+    }
+
+    private void enableProviderType(final ProviderType providerType) {
+        enabledProviders.put(providerType.getKey(),
+                             providerType);
+    }
+
+    @Override
+    public void disableProviderType(final ProviderType providerType) {
+        checkNotNull("providerType",
+                     providerType);
+        enabledProviders.remove(providerType.getKey());
+    }
+
+    @Override
+    public Map<ProviderType, ProviderTypeStatus> getProviderTypesStatus() {
+        final Map<ProviderType, ProviderTypeStatus> result = new HashMap<>();
+
+        enabledProviders.values().forEach(providerType -> result.put(providerType,
+                                                                     ProviderTypeStatus.ENABLED));
+        getAvailableProviderTypes().forEach(providerType -> {
+            if (!result.containsKey(providerType)) {
+                result.put(providerType,
+                           ProviderTypeStatus.DISABLED);
+            }
+        });
+        return result;
     }
 }

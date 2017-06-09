@@ -18,6 +18,7 @@ package org.guvnor.ala.ui.openshift.backend.handler;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import org.guvnor.ala.openshift.model.OpenShiftProviderType;
 import org.guvnor.ala.ui.backend.service.converter.ProviderConfigConverter;
 import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -25,8 +26,6 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 /**
  * Backend provider handler implementation for OpenShift providers.
  * @see BackendProviderHandler
- *
- * //TODO will be completed when we define the OpenShift provider properly.
  */
 @ApplicationScoped
 public class OpenShiftBackendProviderHandler
@@ -43,11 +42,12 @@ public class OpenShiftBackendProviderHandler
 
     @Override
     public boolean acceptProviderType(ProviderTypeKey providerTypeKey) {
-        return providerTypeKey != null && "openshift".equals(providerTypeKey.getId());
+        return providerTypeKey != null && OpenShiftProviderType.instance().getProviderTypeName().equals(providerTypeKey.getId());
     }
 
     @Override
     public ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey) {
-        return null;
+        //TODO will be completed when the OpenShift provider coded.
+        throw new RuntimeException("OpenShift provider type is not yet implemented.");
     }
 }

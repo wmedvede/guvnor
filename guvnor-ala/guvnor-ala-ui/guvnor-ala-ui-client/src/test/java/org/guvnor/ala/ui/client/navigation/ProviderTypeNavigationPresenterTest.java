@@ -30,8 +30,8 @@ import org.mockito.Mock;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.mvp.Command;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderType;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeList;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderType;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeList;
 import static org.guvnor.ala.ui.client.util.UIUtil.getDisplayableProviderTypeName;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;

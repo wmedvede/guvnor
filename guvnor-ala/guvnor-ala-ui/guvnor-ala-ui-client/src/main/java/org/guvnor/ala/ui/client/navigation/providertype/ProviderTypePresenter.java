@@ -131,6 +131,6 @@ public class ProviderTypePresenter {
     protected void removeProviderType() {
         providerTypeService.call(
                 aVoid -> providerTypeListRefreshEvent.fire(new ProviderTypeListRefreshEvent())
-        ).disableProvider(providerType);
+        ).disableProviderType(providerType);
     }
 }

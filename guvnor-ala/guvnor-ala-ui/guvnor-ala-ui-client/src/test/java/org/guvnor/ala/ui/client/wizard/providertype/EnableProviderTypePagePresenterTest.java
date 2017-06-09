@@ -35,8 +35,8 @@ import org.uberfire.commons.data.Pair;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 import org.uberfire.mocks.EventSourceMock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.buildProviderTypeStatusList;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeList;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.buildProviderTypeStatusList;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;

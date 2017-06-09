@@ -38,9 +38,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.uberfire.mocks.CallerMock;
 
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderKey;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderType;
-import static org.guvnor.ala.ui.client.ProvisioningManagementTestCommons.mockProviderTypeKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKey;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderType;
+import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeKey;
 import static org.mockito.Mockito.*;
 
 @RunWith(GwtMockitoTestRunner.class)

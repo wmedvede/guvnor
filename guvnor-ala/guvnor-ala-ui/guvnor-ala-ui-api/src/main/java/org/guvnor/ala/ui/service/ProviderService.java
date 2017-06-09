@@ -24,20 +24,44 @@ import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderKey;
 
+/**
+ * Service for managing the providers related to the different provider types.
+ */
 @Remote
 public interface ProviderService {
 
+    /**
+     * Gets the provides related to a given provider type.
+     * @param providerType a provider type.
+     * @return a list of providers.
+     */
     Collection<Provider> getProviders(final ProviderType providerType);
 
+    /**
+     * Gets the keys of the providers related to a given provider type.
+     * @param providerType a provider type.
+     * @return a list of provider keys.
+     */
     Collection<ProviderKey> getProvidersKey(final ProviderType providerType);
 
-    boolean isValidProvider(final ProviderType providerType,
-                            final String id);
-
+    /**
+     * Creates a provider by associating it to a provider type.
+     * @param providerType the provider for creating the provider.
+     * @param configuration a provider configuration with all the required parameters for creating the provider.
+     */
     void createProvider(final ProviderType providerType,
                         final ProviderConfiguration configuration);
 
+    /**
+     * Deletes a provider.
+     * @param providerKey the key of the provider to delete.
+     */
     void deleteProvider(final ProviderKey providerKey);
 
+    /**
+     * Gets a provider.
+     * @param providerKey the key of the provider to return.
+     * @return the provider identified by the key if exists, null in any other case.
+     */
     Provider getProvider(final ProviderKey providerKey);
 }
