@@ -38,7 +38,8 @@ public class PipelineExecutorTaskDefImpl
                                        final ProviderId providerId) {
         this.pipeline = pipeline;
         this.input = input;
-        this.providerId = providerId;
+        this.providerId = new InternalProviderId(providerId.getId(),
+                                                 providerId.getProviderType());
     }
 
     public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
@@ -46,7 +47,8 @@ public class PipelineExecutorTaskDefImpl
                                        final ProviderType providerType) {
         this.pipeline = pipeline;
         this.input = input;
-        this.providerType = providerType;
+        this.providerType = new InternalProviderType(providerType.getProviderTypeName(),
+                                                     providerType.getVersion());
     }
 
     @Override

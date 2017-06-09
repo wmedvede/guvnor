@@ -25,7 +25,7 @@ import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
  */
 public interface PipelineExecutorRegistry {
 
-    void register(final PipelineExecutorTrace record);
+    void register(final PipelineExecutorTrace trace);
 
     void deregister(final String taskId);
 

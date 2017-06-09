@@ -37,11 +37,11 @@ public class InMemoryPipelineExecutorRegistry
     }
 
     @Override
-    public void register(final PipelineExecutorTrace record) {
-        PortablePreconditions.checkNotNull("record",
-                                           record);
-        recordsMap.put(record.getTaskId(),
-                       record);
+    public void register(final PipelineExecutorTrace trace) {
+        PortablePreconditions.checkNotNull("trace",
+                                           trace);
+        recordsMap.put(trace.getTaskId(),
+                       trace);
     }
 
     public void deregister(final String taskId) {

@@ -27,7 +27,8 @@ import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
 import static org.guvnor.ala.pipeline.execution.PipelineExecutor.PIPELINE_EXECUTION_ID;
 
 public class PipelineExecutorTaskImpl
-        implements PipelineExecutorTask {
+        implements PipelineExecutorTask,
+                   Cloneable {
 
     private PipelineExecutorTaskDef taskDef;
 
@@ -124,5 +125,18 @@ public class PipelineExecutorTaskImpl
     public void clearErrors() {
         stageError.clear();
         pipelineError = null;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        PipelineExecutorTaskImpl clone = new PipelineExecutorTaskImpl(taskDef,
+                                                                      executionId);
+
+        clone.setPipelineStatus(this.getPipelineStatus());
+        stageStatus.entrySet().forEach(entry -> clone.setStageStatus(entry.getKey(), entry.getValue()));
+        stageError.entrySet().forEach(entry -> clone.setStageError(entry.getKey(), entry.getValue()));
+        clone.setPipelineError(pipelineError);
+        clone.setOutput(output.orElse(null));
+        return clone;
     }
 }

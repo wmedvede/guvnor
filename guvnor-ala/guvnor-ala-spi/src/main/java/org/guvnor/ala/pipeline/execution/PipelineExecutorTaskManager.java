@@ -17,7 +17,8 @@
 package org.guvnor.ala.pipeline.execution;
 
 /**
- * Task manager for executing PipelineExecutionTaskDefs.
+ * Task manager for executing pipeline tasks.
+ * @see PipelineExecutorTask
  */
 public interface PipelineExecutorTaskManager {
 
@@ -37,22 +38,17 @@ public interface PipelineExecutorTaskManager {
                    final ExecutionMode executionMode);
 
     /**
-     * Destroys a pipeline executor task.
+     * Destroys a pipeline executor task that was launched in ASYNCHRONOUS independently of the execution status.
+     * All information related to the task is also removed from the PipelineExecutorRegistry.
      * @param taskId the id of the task to be destroyed.
-     * @throws PipelineExecutorException
+     * @throws PipelineExecutorException throws exceptions when a task that fulfil the conditions couldn't be found.
      */
     void destroy(final String taskId) throws PipelineExecutorException;
 
     /**
-     * Stops a pipeline executor task.
+     * Stops a pipeline executor task that was launched in ASYNCHRONOUS mode that is in RUNNING or SCHEDULED status.
      * @param taskId the id of the task to stop.
-     * @throws PipelineExecutorException
+     * @throws PipelineExecutorException throws exceptions when a task that fulfil the conditions couldn't be found.
      */
     void stop(final String taskId) throws PipelineExecutorException;
-
-    /**
-     * @param taskId
-     * @throws PipelineExecutorException
-     */
-    void restart(final String taskId) throws PipelineExecutorException;
 }
