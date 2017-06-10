@@ -95,12 +95,14 @@
 
     <dependency>
       <groupId>org.guvnor</groupId>
-      <artifactId>guvnor-ala-build-maven</artifactId>
+      <artifactId>guvnor-ala-ui-api</artifactId>
     </dependency>
 
+    <!-- TODO remove this dependency. Currently it's needed by the UIAppSetup class for development purposes,
+    since we wants to have a couple of pipelines for testing. -->
     <dependency>
       <groupId>org.guvnor</groupId>
-      <artifactId>guvnor-ala-ui-api</artifactId>
+      <artifactId>guvnor-ala-build-maven</artifactId>
     </dependency>
 
     <!-- TODO remove this dependency. Currently it's needed by the UIAppSetup class for development purposes,
@@ -115,6 +117,19 @@
     <dependency>
       <groupId>org.guvnor</groupId>
       <artifactId>guvnor-ala-wildfly-provider</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.uberfire</groupId>
+      <artifactId>uberfire-testing-utils</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-ala-ui-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>

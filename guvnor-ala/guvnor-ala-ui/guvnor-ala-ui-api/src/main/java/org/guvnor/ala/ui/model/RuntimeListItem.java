@@ -64,4 +64,34 @@ public class RuntimeListItem {
         return runtime != null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RuntimeListItem that = (RuntimeListItem) o;
+
+        if (itemLabel != null ? !itemLabel.equals(that.itemLabel) : that.itemLabel != null) {
+            return false;
+        }
+        if (runtime != null ? !runtime.equals(that.runtime) : that.runtime != null) {
+            return false;
+        }
+        return pipelineTrace != null ? pipelineTrace.equals(that.pipelineTrace) : that.pipelineTrace == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = itemLabel != null ? itemLabel.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (runtime != null ? runtime.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (pipelineTrace != null ? pipelineTrace.hashCode() : 0);
+        result = ~~result;
+        return result;
+    }
 }

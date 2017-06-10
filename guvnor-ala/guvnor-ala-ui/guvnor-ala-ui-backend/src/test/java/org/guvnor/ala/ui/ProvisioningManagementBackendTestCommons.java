@@ -45,7 +45,8 @@ public class ProvisioningManagementBackendTestCommons {
         };
     }
 
-    public static Provider mockProviderSPI(final String suffix) {
+    public static Provider mockProviderSPI(final ProviderType providerType,
+                                           final String suffix) {
         return new Provider() {
             @Override
             public String getId() {
@@ -54,7 +55,7 @@ public class ProvisioningManagementBackendTestCommons {
 
             @Override
             public ProviderType getProviderType() {
-                return mockProviderTypeSPI(suffix);
+                return providerType;
             }
 
             @Override
@@ -64,12 +65,22 @@ public class ProvisioningManagementBackendTestCommons {
         };
     }
 
-    public static List<ProviderType> mockProviderTypeListSPI(int count) {
+    public static List<ProviderType> mockProviderTypeListSPI(final int count) {
         List<ProviderType> providerTypes = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             //mock an arbitrary set of provider types.
             providerTypes.add(mockProviderTypeSPI(Integer.toString(i)));
         }
         return providerTypes;
+    }
+
+    public static List<Provider> mockProviderListSPI(final ProviderType providerType,
+                                                     int count) {
+        List<Provider> providers = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            providers.add(mockProviderSPI(providerType,
+                                          Integer.toString(i)));
+        }
+        return providers;
     }
 }

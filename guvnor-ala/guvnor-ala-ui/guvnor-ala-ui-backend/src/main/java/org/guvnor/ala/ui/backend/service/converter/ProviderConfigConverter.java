@@ -19,6 +19,10 @@ package org.guvnor.ala.ui.backend.service.converter;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 
+/**
+ * Defines the conversion between provider specific configurations defined in the guvnor-ala core @see {@link ProviderConfig},
+ * and a standard configuration that will be managed by the UI modules @see {@link ProviderConfiguration}.
+ */
 public interface ProviderConfigConverter<M extends ProviderConfiguration, D extends ProviderConfig>
         extends TypeConverter<M, D> {
 

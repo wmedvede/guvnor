@@ -16,12 +16,9 @@
 
 package org.guvnor.ala.services.api;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 /**
  * This class models the information about a pipeline stage that was executed or is scheduled for execution.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 public class PipelineStageItem {
 
     /**

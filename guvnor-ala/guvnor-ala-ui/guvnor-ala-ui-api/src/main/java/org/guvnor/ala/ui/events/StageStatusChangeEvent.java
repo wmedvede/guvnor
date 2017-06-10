@@ -49,4 +49,35 @@ public class StageStatusChangeEvent {
     public PipelineStatus getStatus() {
         return status;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StageStatusChangeEvent that = (StageStatusChangeEvent) o;
+
+        if (pipelineExecutionTraceKey != null ? !pipelineExecutionTraceKey.equals(that.pipelineExecutionTraceKey) : that.pipelineExecutionTraceKey != null) {
+            return false;
+        }
+        if (stage != null ? !stage.equals(that.stage) : that.stage != null) {
+            return false;
+        }
+        return status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pipelineExecutionTraceKey != null ? pipelineExecutionTraceKey.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (stage != null ? stage.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = ~~result;
+        return result;
+    }
 }

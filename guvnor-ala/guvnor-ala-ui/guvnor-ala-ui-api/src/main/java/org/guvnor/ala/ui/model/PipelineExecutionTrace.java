@@ -92,7 +92,55 @@ public class PipelineExecutionTrace
         return stageErrorMap.get(stage);
     }
 
-    public void setStageError(String stage, String error) {
-        stageErrorMap.put(stage, error);
+    public void setStageError(String stage,
+                              String error) {
+        stageErrorMap.put(stage,
+                          error);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PipelineExecutionTrace)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        PipelineExecutionTrace trace = (PipelineExecutionTrace) o;
+
+        if (pipeline != null ? !pipeline.equals(trace.pipeline) : trace.pipeline != null) {
+            return false;
+        }
+        if (pipelineStatus != trace.pipelineStatus) {
+            return false;
+        }
+        if (pipelineError != null ? !pipelineError.equals(trace.pipelineError) : trace.pipelineError != null) {
+            return false;
+        }
+        if (stageStatusMap != null ? !stageStatusMap.equals(trace.stageStatusMap) : trace.stageStatusMap != null) {
+            return false;
+        }
+        return stageErrorMap != null ? stageErrorMap.equals(trace.stageErrorMap) : trace.stageErrorMap == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = ~~result;
+        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (pipelineStatus != null ? pipelineStatus.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (pipelineError != null ? pipelineError.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (stageStatusMap != null ? stageStatusMap.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (stageErrorMap != null ? stageErrorMap.hashCode() : 0);
+        result = ~~result;
+        return result;
     }
 }

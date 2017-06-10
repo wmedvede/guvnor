@@ -41,4 +41,30 @@ public class PipelineStatusChangeEvent {
     public PipelineStatus getStatus() {
         return status;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PipelineStatusChangeEvent that = (PipelineStatusChangeEvent) o;
+
+        if (pipelineExecutionTraceKey != null ? !pipelineExecutionTraceKey.equals(that.pipelineExecutionTraceKey) : that.pipelineExecutionTraceKey != null) {
+            return false;
+        }
+        return status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pipelineExecutionTraceKey != null ? pipelineExecutionTraceKey.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = ~~result;
+        return result;
+    }
 }

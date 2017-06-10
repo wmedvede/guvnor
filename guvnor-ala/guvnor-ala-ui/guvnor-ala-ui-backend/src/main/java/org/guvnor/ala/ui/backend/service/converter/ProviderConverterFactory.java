@@ -16,16 +16,14 @@
 
 package org.guvnor.ala.ui.backend.service.converter;
 
+import org.guvnor.ala.ui.model.ProviderTypeKey;
+
 /**
- * Defines the conversion of types between domains.
+ * Interface for accessing the provider related converters.
  */
-public interface TypeConverter<MODEL_TYPE, DOMAIN_TYPE> {
+public interface ProviderConverterFactory {
 
-    Class<MODEL_TYPE> getModelType();
+    ProviderConfigConverter getProviderConfigConverter(final ProviderTypeKey providerTypeKey);
 
-    Class<DOMAIN_TYPE> getDomainType();
-
-    DOMAIN_TYPE toDomain(MODEL_TYPE modelValue);
-
-    MODEL_TYPE toModel(DOMAIN_TYPE domainValue);
+    ProviderConverter getProviderConverter();
 }

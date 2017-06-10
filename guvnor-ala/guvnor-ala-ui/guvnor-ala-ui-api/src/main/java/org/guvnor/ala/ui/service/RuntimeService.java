@@ -21,7 +21,6 @@ import java.util.Collection;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
-import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.Source;
 import org.jboss.errai.bus.server.annotations.Remote;
@@ -29,22 +28,38 @@ import org.jboss.errai.bus.server.annotations.Remote;
 @Remote
 public interface RuntimeService {
 
+    /**
+     * Gets the information about the runtimes associated to a given provider.
+     * @param providerKey a provider que for getting the runtimes.
+     * @return a list of RuntimeListItem.
+     */
     Collection<RuntimeListItem> getRuntimesInfo(final ProviderKey providerKey);
 
+    /**
+     * Gets the runtime information for a given pipeline execution.
+     * @param pipelineExecutionTraceKey the identifier for a pipeline execution.
+     * @return the RuntimeListItem associated to the pipeline execution when exists, false in any other case.
+     */
     RuntimeListItem getRuntimeInfo(final PipelineExecutionTraceKey pipelineExecutionTraceKey);
 
+    /**
+     * Gests the pipeline names for the pipelines associated to a given provider type.
+     * @param providerTypeKey a provider type key.
+     * @return a list for pipeline names.
+     */
     Collection<String> getPipelines(final ProviderTypeKey providerTypeKey);
 
+    /**
+     * Creates a runtime by associating it with a given provider. A provider may have multiple runtimes associated.
+     * @param providerKey the provider key for creating the runtime.
+     * @param runtimeName a name for the runtime to be created.
+     * @param source a source configuration from where to get all the information relative to the sources to use.
+     * @param pipelineName the name of a pipeline to use for performing all the required operations for building the
+     * runtime.
+     * @return returns the pipeline execution id.
+     */
     String createRuntime(final ProviderKey providerKey,
                          final String runtimeName,
                          final Source source,
                          final String pipelineName);
-
-    void start(final RuntimeKey runtimeKey);
-
-    void stop(final RuntimeKey runtimeKey);
-
-    void rebuild(final RuntimeKey runtimeKey);
-
-    void delete(final RuntimeKey runtimeKey);
 }

@@ -16,12 +16,9 @@
 
 package org.guvnor.ala.services.api;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 /**
  * This class models the query parameters for a query against the runtime system.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
 public class RuntimeQuery {
 
     /**

@@ -32,7 +32,6 @@ import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
-import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
@@ -140,6 +139,7 @@ public class RuntimeServiceImpl
 
         final Provider provider = providerService.getProvider(providerKey);
         if (provider == null) {
+            //uncommon case
             logger.error("No provider was found for providerKey: " + providerKey);
             throw new RuntimeException("No provider was found for providerKey: " + providerKey);
         }
@@ -152,28 +152,9 @@ public class RuntimeServiceImpl
             return pipelineService.runPipeline(pipelineName,
                                                input);
         } catch (Exception e) {
-            logger.error("Runtime creation failed.");
+            logger.error("Runtime creation failed.",
+                         e);
             throw ExceptionUtilities.handleException(e);
         }
-    }
-
-    @Override
-    public void start(final RuntimeKey runtimeKey) {
-
-    }
-
-    @Override
-    public void stop(final RuntimeKey runtimeKey) {
-
-    }
-
-    @Override
-    public void rebuild(final RuntimeKey runtimeKey) {
-
-    }
-
-    @Override
-    public void delete(final RuntimeKey runtimeKey) {
-
     }
 }

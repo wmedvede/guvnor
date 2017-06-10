@@ -25,11 +25,7 @@ import org.guvnor.ala.pipeline.events.BeforePipelineExecutionEvent;
 import org.guvnor.ala.pipeline.events.BeforeStageExecutionEvent;
 import org.guvnor.ala.pipeline.events.OnErrorPipelineExecutionEvent;
 import org.guvnor.ala.pipeline.events.OnErrorStageExecutionEvent;
-import org.guvnor.ala.pipeline.events.PipelineEvent;
 import org.guvnor.ala.pipeline.events.PipelineEventListener;
-import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
-import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
-import org.guvnor.ala.registry.PipelineExecutorRegistry;
 import org.guvnor.ala.ui.events.PipelineStatusChangeEvent;
 import org.guvnor.ala.ui.events.StageStatusChangeEvent;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
@@ -46,79 +42,53 @@ public class PipelineExecutionListener
 
     private Event<StageStatusChangeEvent> stageStatusChangeEvent;
 
-    private PipelineExecutorRegistry executorRegistry;
+    public PipelineExecutionListener() {
+        //Empty constructor for Weld proxying
+    }
 
     @Inject
     public PipelineExecutionListener(final Event<PipelineStatusChangeEvent> pipelineStatusChangeEvent,
-                                     final Event<StageStatusChangeEvent> stageStatusChangeEvent,
-                                     final PipelineExecutorRegistry executorRegistry) {
+                                     final Event<StageStatusChangeEvent> stageStatusChangeEvent) {
         this.pipelineStatusChangeEvent = pipelineStatusChangeEvent;
         this.stageStatusChangeEvent = stageStatusChangeEvent;
-        this.executorRegistry = executorRegistry;
     }
 
     @Override
     public void beforePipelineExecution(BeforePipelineExecutionEvent bpee) {
-        PipelineExecutorTask task = getTask(bpee);
-        if (task != null) {
-            pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(bpee.getExecutionId()),
-                                                                         PipelineStatus.RUNNING));
-        }
+        pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(bpee.getExecutionId()),
+                                                                     PipelineStatus.RUNNING));
     }
 
     @Override
     public void afterPipelineExecution(AfterPipelineExecutionEvent apee) {
-        PipelineExecutorTask task = getTask(apee);
-        if (task != null) {
-            pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(apee.getExecutionId()),
-                                                                         PipelineStatus.FINISHED));
-        }
+        pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(apee.getExecutionId()),
+                                                                     PipelineStatus.FINISHED));
     }
 
     @Override
     public void beforeStageExecution(BeforeStageExecutionEvent bsee) {
-        PipelineExecutorTask task = getTask(bsee);
-        if (task != null) {
-            stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(task.getId()),
-                                                                   bsee.getStage().getName(),
-                                                                   PipelineStatus.RUNNING));
-        }
+        stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(bsee.getExecutionId()),
+                                                               bsee.getStage().getName(),
+                                                               PipelineStatus.RUNNING));
     }
 
     @Override
     public void onStageError(OnErrorStageExecutionEvent oesee) {
-        PipelineExecutorTask task = getTask(oesee);
-        if (task != null) {
-            stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(task.getId()),
-                                                                   oesee.getStage().getName(),
-                                                                   PipelineStatus.ERROR));
-        }
+        stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(oesee.getExecutionId()),
+                                                               oesee.getStage().getName(),
+                                                               PipelineStatus.ERROR));
     }
 
     @Override
     public void afterStageExecution(AfterStageExecutionEvent asee) {
-        PipelineExecutorTask task = getTask(asee);
-        if (task != null) {
-            stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(task.getId()),
-                                                                   asee.getStage().getName(),
-                                                                   PipelineStatus.FINISHED));
-        }
+        stageStatusChangeEvent.fire(new StageStatusChangeEvent(new PipelineExecutionTraceKey(asee.getExecutionId()),
+                                                               asee.getStage().getName(),
+                                                               PipelineStatus.FINISHED));
     }
 
     @Override
     public void onPipelineError(OnErrorPipelineExecutionEvent oepee) {
-        PipelineExecutorTask task = getTask(oepee);
-        if (task != null) {
-            pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(oepee.getExecutionId()),
-                                                                         PipelineStatus.ERROR));
-        }
-    }
-
-    private PipelineExecutorTask getTask(PipelineEvent event) {
-        if (event.getExecutionId() != null) {
-            PipelineExecutorTrace executionRecord = executorRegistry.getExecutorTrace(event.getExecutionId());
-            return executionRecord.getTask();
-        }
-        return null;
+        pipelineStatusChangeEvent.fire(new PipelineStatusChangeEvent(new PipelineExecutionTraceKey(oepee.getExecutionId()),
+                                                                     PipelineStatus.ERROR));
     }
 }

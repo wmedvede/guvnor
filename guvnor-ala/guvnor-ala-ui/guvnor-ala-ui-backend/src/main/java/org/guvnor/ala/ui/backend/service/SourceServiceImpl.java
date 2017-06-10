@@ -31,31 +31,40 @@ import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.repositories.RepositoryService;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.jboss.errai.security.shared.api.identity.User;
-import org.uberfire.commons.validation.PortablePreconditions;
 import org.uberfire.security.authz.AuthorizationManager;
+
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
 @Service
 @ApplicationScoped
 public class SourceServiceImpl
         implements SourceService {
 
-    @Inject
     private OrganizationalUnitService organizationalUnitService;
 
-    @Inject
     private RepositoryService repositoryService;
 
-    @Inject
     private ProjectService<? extends Project> projectService;
 
-    @Inject
     private AuthorizationManager authorizationManager;
 
-    @Inject
     private User identity;
 
     public SourceServiceImpl() {
         //Empty constructor for Weld proxying
+    }
+
+    @Inject
+    public SourceServiceImpl(OrganizationalUnitService organizationalUnitService,
+                             RepositoryService repositoryService,
+                             ProjectService<? extends Project> projectService,
+                             AuthorizationManager authorizationManager,
+                             User identity) {
+        this.organizationalUnitService = organizationalUnitService;
+        this.repositoryService = repositoryService;
+        this.projectService = projectService;
+        this.authorizationManager = authorizationManager;
+        this.identity = identity;
     }
 
     @Override
@@ -67,8 +76,8 @@ public class SourceServiceImpl
 
     @Override
     public Collection<String> getRepositories(final String organizationalUnit) {
-        PortablePreconditions.checkNotNull("organizationalUnit",
-                                           organizationalUnit);
+        checkNotNull("organizationalUnit",
+                     organizationalUnit);
         OrganizationalUnit ou = organizationalUnitService.getOrganizationalUnit(organizationalUnit);
         if (ou == null) {
             return new ArrayList<>();
@@ -85,8 +94,8 @@ public class SourceServiceImpl
 
     @Override
     public Collection<String> getBranches(final String repository) {
-        PortablePreconditions.checkNotNull("repository",
-                                           repository);
+        checkNotNull("repository",
+                     repository);
         final Repository repo = repositoryService.getRepository(repository);
         return repo != null ? repo.getBranches() : new ArrayList<>();
     }
@@ -94,10 +103,10 @@ public class SourceServiceImpl
     @Override
     public Collection<Project> getProjects(final String repositoryAlias,
                                            final String branch) {
-        PortablePreconditions.checkNotNull("repositoryAlias",
-                                           repositoryAlias);
-        PortablePreconditions.checkNotNull("branch",
-                                           branch);
+        checkNotNull("repositoryAlias",
+                     repositoryAlias);
+        checkNotNull("branch",
+                     branch);
         final Repository repo = repositoryService.getRepository(repositoryAlias);
         if (repo == null) {
             return new ArrayList<>();

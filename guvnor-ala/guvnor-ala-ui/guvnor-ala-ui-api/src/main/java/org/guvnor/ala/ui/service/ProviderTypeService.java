@@ -25,7 +25,7 @@ import org.jboss.errai.bus.server.annotations.Remote;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 
 /**
- * Service for managing the existing provider types.
+ * Service for managing the provider types.
  */
 @Remote
 public interface ProviderTypeService {

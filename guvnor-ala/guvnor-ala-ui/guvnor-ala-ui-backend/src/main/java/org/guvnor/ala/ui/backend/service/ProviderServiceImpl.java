@@ -25,9 +25,7 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
-import org.guvnor.ala.ui.backend.service.converter.ProviderConverter;
-import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
-import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandlerRegistry;
+import org.guvnor.ala.ui.backend.service.converter.ProviderConverterFactory;
 import org.guvnor.ala.ui.model.AbstractHasKeyObject;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
@@ -47,25 +45,23 @@ public class ProviderServiceImpl
 
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
 
-    private BackendProviderHandlerRegistry handlerRegistry;
-
-    private ProviderConverter providerConverter;
+    private ProviderConverterFactory providerConverterFactory;
 
     public ProviderServiceImpl() {
         //Empty constructor for Weld proxying
     }
 
     @Inject
-    public ProviderServiceImpl(RuntimeProvisioningServiceBackend runtimeProvisioningService,
-                               BackendProviderHandlerRegistry handlerRegistry,
-                               ProviderConverter providerConverter) {
+    public ProviderServiceImpl(final RuntimeProvisioningServiceBackend runtimeProvisioningService,
+                               final ProviderConverterFactory providerConverterFactory) {
         this.runtimeProvisioningService = runtimeProvisioningService;
-        this.handlerRegistry = handlerRegistry;
-        this.providerConverter = providerConverter;
+        this.providerConverterFactory = providerConverterFactory;
     }
 
     @Override
     public Collection<Provider> getProviders(final ProviderType providerType) {
+        checkNotNull("providerType",
+                     providerType);
         Collection<Provider> result = new ArrayList<>();
         List<org.guvnor.ala.runtime.providers.Provider> providers =
                 runtimeProvisioningService.getProviders(0,
@@ -96,18 +92,20 @@ public class ProviderServiceImpl
                      providerType);
         checkNotNull("providerType.providerTypeKey",
                      providerType.getKey());
-        checkNotEmpty("configuration",
+        checkNotNull("configuration",
+                     configuration);
+        checkNotEmpty("configuration.values",
                       configuration.getValues());
 
-        if (!existsProvider(providerType,
-                            configuration.getId())) {
+        if (existsProvider(providerType,
+                           configuration.getId())) {
             //uncommon case
-            throw new RuntimeException("Provider type undefined in current system, providerType: " + providerType);
+            throw new RuntimeException("A provider was already defined for providerType: " + providerType.getName() +
+                                               " and providerId: " + configuration.getId());
         }
-        final BackendProviderHandler handler = handlerRegistry.ensureHandler(providerType.getKey());
         @SuppressWarnings("unchecked")
-        final ProviderConfig providerConfig = (ProviderConfig)
-                handler.getProviderConfigConverter(providerType.getKey()).toDomain(configuration);
+        final ProviderConfig providerConfig =
+                (ProviderConfig) providerConverterFactory.getProviderConfigConverter(providerType.getKey()).toDomain(configuration);
         runtimeProvisioningService.registerProvider(providerConfig);
     }
 
@@ -134,7 +132,7 @@ public class ProviderServiceImpl
     }
 
     private Provider convert(org.guvnor.ala.runtime.providers.Provider provider) {
-        return providerConverter.toModel(provider);
+        return providerConverterFactory.getProviderConverter().toModel(provider);
     }
 
     private boolean existsProvider(final ProviderType providerType,

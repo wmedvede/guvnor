@@ -16,62 +16,13 @@
 
 package org.guvnor.ala.ui.backend.service.converter;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
-import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandlerRegistry;
 import org.guvnor.ala.ui.model.Provider;
-import org.guvnor.ala.ui.model.ProviderConfiguration;
-import org.guvnor.ala.ui.model.ProviderKey;
-import org.guvnor.ala.ui.model.ProviderTypeKey;
 
-@ApplicationScoped
-public class ProviderConverter
-        implements TypeConverter<Provider, org.guvnor.ala.runtime.providers.Provider> {
+/**
+ * Defines the conversion of a Provider representation in the guvnor-ala core domain, to a representation that will be
+ * managed in the UI related models.
+ */
+public interface ProviderConverter
+        extends TypeConverter<Provider, org.guvnor.ala.runtime.providers.Provider> {
 
-    private BackendProviderHandlerRegistry handlerRegistry;
-
-    public ProviderConverter() {
-        //Empty constructor for Weld proxying
-    }
-
-    @Inject
-    public ProviderConverter(final BackendProviderHandlerRegistry handlerRegistry) {
-        this.handlerRegistry = handlerRegistry;
-    }
-
-    @Override
-    public Class<Provider> getModelType() {
-        return Provider.class;
-    }
-
-    @Override
-    public Class<org.guvnor.ala.runtime.providers.Provider> getDomainType() {
-        return org.guvnor.ala.runtime.providers.Provider.class;
-    }
-
-    @Override
-    public org.guvnor.ala.runtime.providers.Provider toDomain(Provider modelValue) {
-        throw new RuntimeException("toDomain conversion is not supported by this converter.");
-    }
-
-    @Override
-    public Provider toModel(org.guvnor.ala.runtime.providers.Provider provider) {
-        Provider result = null;
-        if (provider != null) {
-            ProviderTypeKey providerTypeKey = new ProviderTypeKey(provider.getProviderType().getProviderTypeName(),
-                                                                  provider.getProviderType().getVersion());
-            ProviderKey providerKey = new ProviderKey(providerTypeKey,
-                                                      provider.getId());
-
-            final BackendProviderHandler handler = handlerRegistry.ensureHandler(providerTypeKey);
-            @SuppressWarnings("unchecked")
-            final ProviderConfiguration providerConfiguration = (ProviderConfiguration)
-                    handler.getProviderConfigConverter(providerTypeKey).toModel(provider.getConfig());
-            result = new Provider(providerKey,
-                                  providerConfiguration);
-        }
-        return result;
-    }
 }
