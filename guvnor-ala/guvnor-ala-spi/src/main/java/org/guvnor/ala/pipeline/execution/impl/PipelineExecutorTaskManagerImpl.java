@@ -16,14 +16,12 @@
 
 package org.guvnor.ala.pipeline.execution.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -41,7 +39,6 @@ import org.guvnor.ala.pipeline.events.OnErrorPipelineExecutionEvent;
 import org.guvnor.ala.pipeline.events.OnErrorStageExecutionEvent;
 import org.guvnor.ala.pipeline.events.PipelineEvent;
 import org.guvnor.ala.pipeline.events.PipelineEventListener;
-import org.guvnor.ala.pipeline.execution.ExecutionIdGenerator;
 import org.guvnor.ala.pipeline.execution.PipelineExecutor;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorException;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
@@ -57,25 +54,25 @@ public class PipelineExecutorTaskManagerImpl
 
     private static final Logger logger = LoggerFactory.getLogger(PipelineExecutorTaskManagerImpl.class);
 
-    private static final int DEFAULT_THREAD_POOL_SIZE = 10;
+    protected static final int DEFAULT_THREAD_POOL_SIZE = 10;
 
-    private static final String THREAD_POOL_SIZE_PROPERTY_NAME = "org.guvnor.ala.pipeline.execution.threadPoolSize";
+    protected static final String THREAD_POOL_SIZE_PROPERTY_NAME = "org.guvnor.ala.pipeline.execution.threadPoolSize";
 
-    private ExecutorService executor;
+    protected ExecutorService executor;
 
-    private Instance<ConfigExecutor> configExecutors;
+    protected List<PipelineEventListener> externalListeners;
 
-    private Instance<PipelineEventListener> eventListeners;
+    protected PipelineExecutor pipelineExecutor;
 
-    private PipelineExecutor pipelineExecutor;
+    protected Map<String, TaskEntry> currentTasks = new HashMap<>();
 
-    private final Map<String, TaskEntry> currentTasks = new HashMap<>();
+    protected Map<String, Future<?>> futureTaskMap = new HashMap<>();
 
-    private final Map<String, Future<?>> futureTaskMap = new HashMap<>();
+    protected PipelineExecutorRegistry pipelineExecutorRegistry;
 
-    private PipelineExecutorRegistry pipelineExecutorRegistry;
+    protected PipelineEventListener localListener;
 
-    private PipelineEventListener localListener;
+    protected PipelineExecutorTaskManagerImplHelper taskManagerHelper;
 
     /**
      * Set of pipeline execution status that admits the stop operation.
@@ -92,11 +89,12 @@ public class PipelineExecutorTaskManagerImpl
     }
 
     @Inject
-    public PipelineExecutorTaskManagerImpl(@Any final Instance<ConfigExecutor> configExecutors,
-                                           @Any final Instance<PipelineEventListener> eventListeners,
+    public PipelineExecutorTaskManagerImpl(@Any final Instance<ConfigExecutor> configExecutorInstance,
+                                           @Any final Instance<PipelineEventListener> pipelineEventListenerInstance,
                                            final PipelineExecutorRegistry pipelineExecutorRegistry) {
-        this.configExecutors = configExecutors;
-        this.eventListeners = eventListeners;
+
+        this.taskManagerHelper = new PipelineExecutorTaskManagerImplHelper(configExecutorInstance,
+                                                                           pipelineEventListenerInstance);
         this.pipelineExecutorRegistry = pipelineExecutorRegistry;
     }
 
@@ -105,6 +103,7 @@ public class PipelineExecutorTaskManagerImpl
         initExecutor();
         initPipelineExecutor();
         initLocalListener();
+        initExternalListeners();
     }
 
     @PreDestroy
@@ -115,11 +114,11 @@ public class PipelineExecutorTaskManagerImpl
                 entrySet.addAll(currentTasks.values());
                 entrySet.forEach(entry -> {
                     currentTasks.remove(entry.getTask().getId());
-                    if (entry.isAsynch()) {
+                    if (entry.isAsync()) {
                         final PipelineExecutorTaskImpl task = entry.getTask();
-                        if (stopEnabledStatus.add(task.getPipelineStatus())) {
+                        if (stopEnabledStatus.contains(task.getPipelineStatus())) {
                             try {
-                                setTaskInStoppedStatus(task);
+                                taskManagerHelper.setTaskInStoppedStatus(task);
                                 updateExecutorRegistry(task);
                             } catch (Exception e) {
                                 logger.error("It was not possible to update task: " + task.getId() + " during " +
@@ -140,33 +139,11 @@ public class PipelineExecutorTaskManagerImpl
     }
 
     private void initExecutor() {
-        final String threadPoolSizeValue = System.getProperties().getProperty(THREAD_POOL_SIZE_PROPERTY_NAME);
-        int threadPoolSize;
-        if (threadPoolSizeValue == null) {
-            threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
-            logger.debug(THREAD_POOL_SIZE_PROPERTY_NAME + " property was not set, by default value will be used: " + DEFAULT_THREAD_POOL_SIZE);
-        } else {
-            try {
-                threadPoolSize = Integer.parseInt(threadPoolSizeValue);
-                if (threadPoolSize <= 0) {
-                    threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
-                    logger.error(THREAD_POOL_SIZE_PROPERTY_NAME + " property must be greater than 0, by default value will be used: " + DEFAULT_THREAD_POOL_SIZE);
-                } else {
-                    logger.debug(THREAD_POOL_SIZE_PROPERTY_NAME + " property will be set to: " + threadPoolSize);
-                }
-            } catch (Exception e) {
-                threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
-                logger.error(THREAD_POOL_SIZE_PROPERTY_NAME + " property was set to a wrong value, by default value will be used: " + DEFAULT_THREAD_POOL_SIZE,
-                             e);
-            }
-        }
-        executor = Executors.newFixedThreadPool(threadPoolSize);
+        executor = taskManagerHelper.createExecutorService();
     }
 
     private void initPipelineExecutor() {
-        final Collection<ConfigExecutor> configs = new ArrayList<>();
-        configExecutors.iterator().forEachRemaining(configs::add);
-        pipelineExecutor = new PipelineExecutor(configs);
+        pipelineExecutor = taskManagerHelper.createPipelineExecutor();
     }
 
     private void initLocalListener() {
@@ -233,6 +210,10 @@ public class PipelineExecutorTaskManagerImpl
         };
     }
 
+    private void initExternalListeners() {
+        externalListeners = taskManagerHelper.createExternalListeners();
+    }
+
     @Override
     public String execute(final PipelineExecutorTaskDef taskDef,
                           final ExecutionMode executionMode) {
@@ -250,8 +231,8 @@ public class PipelineExecutorTaskManagerImpl
      * @see PipelineExecutorTaskDef
      */
     private synchronized String executeAsync(final PipelineExecutorTaskDef taskDef) {
-        final PipelineExecutorTaskImpl task = createTask(taskDef);
-        storeTaskEntry(TaskEntry.newAsynchEntry(task));
+        final PipelineExecutorTaskImpl task = taskManagerHelper.createTask(taskDef);
+        storeTaskEntry(TaskEntry.newAsyncEntry(task));
         startAsyncTask(task);
         updateExecutorRegistry(task);
         return task.getId();
@@ -260,7 +241,7 @@ public class PipelineExecutorTaskManagerImpl
     /**
      * Executes a task in asynchronous mode.
      * @param task the task for execute.
-     * @return the taskId for of the task.
+     * @return the taskId of the task.
      */
     private synchronized void startAsyncTask(final PipelineExecutorTask task) {
         final Future<?> future = executor.submit(() -> {
@@ -282,7 +263,7 @@ public class PipelineExecutorTaskManagerImpl
      * @return the taskId assigned to the executed task.
      */
     private String executeSync(final PipelineExecutorTaskDef taskDef) {
-        final PipelineExecutorTaskImpl task = createTask(taskDef);
+        final PipelineExecutorTaskImpl task = taskManagerHelper.createTask(taskDef);
         storeTaskEntry(TaskEntry.newSychEntry(task));
         pipelineExecutor.execute(taskDef.getInput(),
                                  taskDef.getPipeline(),
@@ -305,7 +286,7 @@ public class PipelineExecutorTaskManagerImpl
         if (entry == null) {
             throw new PipelineExecutorException("No PipelineExecutorTask was found for taskId: " + taskId);
         }
-        if (!entry.isAsynch()) {
+        if (!entry.isAsync()) {
             throw new PipelineExecutorException("Stop operation is not available for taskId: " + taskId +
                                                         " running in SYNCHRONOUS mode");
         }
@@ -316,7 +297,7 @@ public class PipelineExecutorTaskManagerImpl
         }
         destroyFutureTask(taskId);
         removeTaskEntry(taskId);
-        setTaskInStoppedStatus(entry.getTask());
+        taskManagerHelper.setTaskInStoppedStatus(entry.getTask());
         updateExecutorRegistry(entry.getTask());
     }
 
@@ -326,7 +307,7 @@ public class PipelineExecutorTaskManagerImpl
         if (entry == null) {
             throw new PipelineExecutorException("No PipelineExecutorTask was found for taskId: " + taskId);
         }
-        if (!entry.isAsynch()) {
+        if (!entry.isAsync()) {
             throw new PipelineExecutorException("Destroy operation is not available for taskId: " + taskId +
                                                         " running in SYNCHRONOUS mode");
         }
@@ -335,57 +316,58 @@ public class PipelineExecutorTaskManagerImpl
         pipelineExecutorRegistry.deregister(taskId);
     }
 
-    protected void beforePipelineExecution(final BeforePipelineExecutionEvent bpee,
-                                           final TaskEntry taskEntry) {
+    private void beforePipelineExecution(final BeforePipelineExecutionEvent bpee,
+                                         final TaskEntry taskEntry) {
         taskEntry.getTask().setPipelineStatus(PipelineExecutorTask.Status.RUNNING);
-        if (taskEntry.isAsynch()) {
+        if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }
     }
 
-    protected void afterPipelineExecution(final AfterPipelineExecutionEvent apee,
-                                          final TaskEntry taskEntry) {
-        taskEntry.getTask().setPipelineStatus(PipelineExecutorTask.Status.FINISHED);
-        if (taskEntry.isAsynch()) {
-            updateExecutorRegistry(taskEntry.getTask());
-        }
-    }
-
-    protected void beforeStageExecution(final BeforeStageExecutionEvent bsee,
+    private void afterPipelineExecution(final AfterPipelineExecutionEvent apee,
                                         final TaskEntry taskEntry) {
+        taskEntry.getTask().setPipelineStatus(PipelineExecutorTask.Status.FINISHED);
+        if (taskEntry.isAsync()) {
+            updateExecutorRegistry(taskEntry.getTask());
+        }
+    }
+
+    private void beforeStageExecution(final BeforeStageExecutionEvent bsee,
+                                      final TaskEntry taskEntry) {
         taskEntry.getTask().setStageStatus(bsee.getStage(),
                                            PipelineExecutorTask.Status.RUNNING);
-        if (taskEntry.isAsynch()) {
+        if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }
     }
 
-    protected void onStageError(final OnErrorStageExecutionEvent oesee,
-                                final TaskEntry taskEntry) {
+    private void onStageError(final OnErrorStageExecutionEvent oesee,
+                              final TaskEntry taskEntry) {
+        taskEntry.getTask().setPipelineStatus(PipelineExecutorTask.Status.ERROR);
         taskEntry.getTask().setStageStatus(oesee.getStage(),
                                            PipelineExecutorTask.Status.ERROR);
         taskEntry.getTask().setStageError(oesee.getStage(),
                                           oesee.getError());
-        if (taskEntry.isAsynch()) {
+        if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }
     }
 
-    protected void afterStageExecution(final AfterStageExecutionEvent asee,
-                                       final TaskEntry taskEntry) {
+    private void afterStageExecution(final AfterStageExecutionEvent asee,
+                                     final TaskEntry taskEntry) {
         taskEntry.getTask().setStageStatus(asee.getStage(),
                                            PipelineExecutorTask.Status.FINISHED);
-        if (taskEntry.isAsynch()) {
+        if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }
     }
 
-    protected void onPipelineError(final OnErrorPipelineExecutionEvent oepee,
-                                   final TaskEntry taskEntry) {
+    private void onPipelineError(final OnErrorPipelineExecutionEvent oepee,
+                                 final TaskEntry taskEntry) {
 
         taskEntry.getTask().setPipelineStatus(PipelineExecutorTask.Status.ERROR);
         taskEntry.getTask().setPipelineError(oepee.getError());
-        if (taskEntry.isAsynch()) {
+        if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }
     }
@@ -401,19 +383,6 @@ public class PipelineExecutorTaskManagerImpl
     private synchronized void storeTaskEntry(final TaskEntry entry) {
         currentTasks.put(entry.task.getId(),
                          entry);
-    }
-
-    private PipelineExecutorTaskImpl createTask(final PipelineExecutorTaskDef taskDef) {
-        String executionId = ExecutionIdGenerator.generateExecutionId();
-        return createTask(taskDef,
-                          executionId);
-    }
-
-    private PipelineExecutorTaskImpl createTask(final PipelineExecutorTaskDef taskDef,
-                                                final String executionId) {
-        PipelineExecutorTaskImpl task = new PipelineExecutorTaskImpl(taskDef,
-                                                                     executionId);
-        return task;
     }
 
     private synchronized void storeFutureTask(final String taskId,
@@ -442,27 +411,8 @@ public class PipelineExecutorTaskManagerImpl
     }
 
     private void notifyExternalListeners(final PipelineEvent event) {
-        eventListeners.forEach(listener -> {
-            try {
-                if (event instanceof BeforePipelineExecutionEvent) {
-                    listener.beforePipelineExecution((BeforePipelineExecutionEvent) event);
-                } else if (event instanceof BeforeStageExecutionEvent) {
-                    listener.beforeStageExecution((BeforeStageExecutionEvent) event);
-                } else if (event instanceof AfterStageExecutionEvent) {
-                    listener.afterStageExecution((AfterStageExecutionEvent) event);
-                } else if (event instanceof AfterPipelineExecutionEvent) {
-                    listener.afterPipelineExecution((AfterPipelineExecutionEvent) event);
-                } else if (event instanceof OnErrorPipelineExecutionEvent) {
-                    listener.onPipelineError((OnErrorPipelineExecutionEvent) event);
-                } else if (event instanceof OnErrorStageExecutionEvent) {
-                    listener.onStageError((OnErrorStageExecutionEvent) event);
-                }
-            } catch (Exception e) {
-                //if the notification of the event in a particular listener fails let the execution continue.
-                logger.error("Pipeline event notification on listener: " + listener + " failed: " + e.getMessage(),
-                             e);
-            }
-        });
+        taskManagerHelper.notifyExternalListeners(externalListeners,
+                                                  event);
     }
 
     private void updateExecutorRegistry(final PipelineExecutorTaskImpl task) {
@@ -476,17 +426,7 @@ public class PipelineExecutorTaskManagerImpl
         }
     }
 
-    private void setTaskInStoppedStatus(final PipelineExecutorTaskImpl task) {
-        task.setPipelineStatus(PipelineExecutorTask.Status.STOPPED);
-        task.getTaskDef().getPipeline().getStages().forEach(
-                stage -> task.setStageStatus(stage,
-                                             PipelineExecutorTask.Status.STOPPED)
-        );
-        task.clearErrors();
-        task.setOutput(null);
-    }
-
-    private static class TaskEntry {
+    protected static class TaskEntry {
 
         private PipelineExecutorTaskImpl task;
 
@@ -498,7 +438,7 @@ public class PipelineExecutorTaskManagerImpl
             this.executionMode = executionMode;
         }
 
-        public static TaskEntry newAsynchEntry(PipelineExecutorTaskImpl task) {
+        public static TaskEntry newAsyncEntry(PipelineExecutorTaskImpl task) {
             return new TaskEntry(task,
                                  ExecutionMode.ASYNCHRONOUS);
         }
@@ -512,7 +452,7 @@ public class PipelineExecutorTaskManagerImpl
             return task;
         }
 
-        public boolean isAsynch() {
+        public boolean isAsync() {
             return ExecutionMode.ASYNCHRONOUS == executionMode;
         }
     }

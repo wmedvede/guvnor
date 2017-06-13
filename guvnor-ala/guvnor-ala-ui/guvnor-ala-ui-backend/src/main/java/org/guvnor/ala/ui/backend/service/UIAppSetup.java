@@ -78,17 +78,26 @@ public class UIAppSetup {
         final GitConfig gitConfig = new GitConfig() {
             @Override
             public String toString() {
-                return "Git Config";
+                return "GitConfig";
             }
         };
 
         final Stage<Input, SourceConfig> sourceConfigStage = config("Git Source", f -> gitConfig);
 
         final MavenProjectConfig projectConfig = new MavenProjectConfig() {
+            @Override
+            public String toString() {
+                return "MavenProjectConfig";
+            }
         };
         final Stage<SourceConfig, ProjectConfig> projectConfigStage = config("Maven Project", f -> projectConfig);
 
         final MavenBuildConfig mavenBuildConfig = new MavenBuildConfig() {
+            @Override
+            public String toString() {
+                return "MavenBuildConfig";
+            }
+
             @Override
             public List<String> getGoals() {
                 final List<String> result = new ArrayList<>();
@@ -109,14 +118,29 @@ public class UIAppSetup {
 
 
         final MavenBuildExecConfig mavenBuildExecConfig =  new MavenBuildExecConfig() {
+            @Override
+            public String toString() {
+                return "MavenBuildExecConfig";
+            }
         };
         final Stage<BuildConfig, BinaryConfig> buildExecStage = config("Maven Build", f -> mavenBuildExecConfig);
 
 
-        final WildflyProviderConfig wildflyProviderConfig =  new WildflyProviderConfig() { };
+        final WildflyProviderConfig wildflyProviderConfig =  new WildflyProviderConfig() {
+            @Override
+            public String toString() {
+                return "WildflyProviderConfig";
+            }
+        };
+
         final Stage<BinaryConfig, ProviderConfig> providerConfigStage = config("Wildfly Provider Config", f -> wildflyProviderConfig);
 
-        final ContextAwareWildflyRuntimeExecConfig wildflyRuntimeExecConfig = new ContextAwareWildflyRuntimeExecConfig();
+        final ContextAwareWildflyRuntimeExecConfig wildflyRuntimeExecConfig = new ContextAwareWildflyRuntimeExecConfig() {
+            @Override
+            public String toString() {
+                return "WildflyRuntimeExecConfig";
+            }
+        };
 
         final Stage<ProviderConfig, RuntimeConfig> runtimeExecStage = config("Wildfly Runtime Exec", f -> wildflyRuntimeExecConfig);
 
