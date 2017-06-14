@@ -64,6 +64,7 @@ public interface PipelineService {
      * @see PipelineConfigsList
      */
     @GET
+    @Path("providertype")
     @Produces(value = APPLICATION_JSON)
     @Consumes(value = APPLICATION_JSON)
     PipelineConfigsList getPipelineConfigs(@QueryParam("providerTypeName") String providerTypeName,
@@ -81,6 +82,7 @@ public interface PipelineService {
      * @return a list with the names of the Pipelines associated with the provider type.
      */
     @GET
+    @Path("providertype/names")
     @Produces(value = APPLICATION_JSON)
     @Consumes(value = APPLICATION_JSON)
     List<String> getPipelineNames(@QueryParam("providerTypeName") String providerTypeName,
@@ -110,6 +112,7 @@ public interface PipelineService {
      * @see PipelineConfig
      */
     @POST
+    @Path("providertype")
     @Consumes(value = APPLICATION_JSON)
     @Produces(value = APPLICATION_JSON)
     String newPipeline(@NotNull PipelineConfig config,
@@ -119,11 +122,13 @@ public interface PipelineService {
      * Run/Execute a registered Pipeline.
      * @param id of the pipeline to be executed.
      * @param input Input values to be used for the pipeline execution.
+     * @param async establishes the execution mode. true for asynchronous execution, false for synchronous execution.
      */
     @POST
     @Consumes(value = APPLICATION_JSON)
     @Produces(value = APPLICATION_JSON)
     @Path("{id}")
     String runPipeline(@PathParam("id") String id,
-                       @NotNull Input input) throws BusinessException;
+                       @NotNull Input input,
+                       @NotNull boolean async) throws BusinessException;
 }

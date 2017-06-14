@@ -23,10 +23,9 @@ import javax.inject.Inject;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.PipelineConfig;
 import org.guvnor.ala.runtime.providers.ProviderType;
-import org.guvnor.ala.services.exceptions.BusinessException;
 import org.guvnor.ala.services.api.PipelineService;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
-import org.guvnor.ala.services.api.itemlist.PipelineConfigsList;
+import org.guvnor.ala.services.exceptions.BusinessException;
 import org.jboss.errai.bus.server.annotations.Service;
 
 @Service
@@ -46,28 +45,28 @@ public class PipelineServiceBackendImpl
     }
 
     @Override
-    public PipelineConfigsList getPipelineConfigs(Integer page,
-                                                  Integer pageSize,
-                                                  String sort,
-                                                  boolean sortOrder) throws BusinessException {
+    public List<PipelineConfig> getPipelineConfigs(Integer page,
+                                                   Integer pageSize,
+                                                   String sort,
+                                                   boolean sortOrder) throws BusinessException {
         return pipelineService.getPipelineConfigs(page,
                                                   pageSize,
                                                   sort,
-                                                  sortOrder);
+                                                  sortOrder).getItems();
     }
 
     @Override
-    public PipelineConfigsList getPipelineConfigs(ProviderType providerType,
-                                                  Integer page,
-                                                  Integer pageSize,
-                                                  String sort,
-                                                  boolean sortOrder) throws BusinessException {
+    public List<PipelineConfig> getPipelineConfigs(ProviderType providerType,
+                                                   Integer page,
+                                                   Integer pageSize,
+                                                   String sort,
+                                                   boolean sortOrder) throws BusinessException {
         return pipelineService.getPipelineConfigs(providerType.getProviderTypeName(),
                                                   providerType.getVersion(),
                                                   page,
                                                   pageSize,
                                                   sort,
-                                                  sortOrder);
+                                                  sortOrder).getItems();
     }
 
     @Override
@@ -98,8 +97,10 @@ public class PipelineServiceBackendImpl
 
     @Override
     public String runPipeline(String id,
-                              Input input) throws BusinessException {
+                              Input input,
+                              boolean async) throws BusinessException {
         return pipelineService.runPipeline(id,
-                                           input);
+                                           input,
+                                           async);
     }
 }

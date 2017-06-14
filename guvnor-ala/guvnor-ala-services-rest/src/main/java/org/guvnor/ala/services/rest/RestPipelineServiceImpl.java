@@ -134,30 +134,39 @@ public class RestPipelineServiceImpl implements PipelineService {
 
     @Override
     public String runPipeline(final String name,
-                              final Input input) throws BusinessException {
+                              final Input input,
+                              final boolean async) throws BusinessException {
         final Pipeline pipeline = pipelineRegistry.getPipelineByName(name);
         if (pipeline == null) {
             throw new BusinessException("Pipeline: " + pipeline + " was not found.");
         }
         String providerName = input.get(ProviderConfig.PROVIDER_NAME);
         Provider provider = null;
-        ProviderType providerType;
+        ProviderType providerType = null;
         PipelineExecutorTaskDef taskDef;
+
         if (providerName != null && !providerName.isEmpty()) {
             provider = runtimeRegistry.getProvider(providerName);
         }
         if (provider == null) {
             providerType = pipelineRegistry.getProviderType(name);
+        }
+
+        if (provider != null) {
+            taskDef = new PipelineExecutorTaskDefImpl(pipeline,
+                                                      input,
+                                                      provider);
+        } else if (providerType != null) {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
                                                       input,
                                                       providerType);
         } else {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input,
-                                                      provider);
+                                                      input);
         }
 
         return executorTaskManager.execute(taskDef,
-                                           PipelineExecutorTaskManager.ExecutionMode.ASYNCHRONOUS);
+                                           async ? PipelineExecutorTaskManager.ExecutionMode.ASYNCHRONOUS :
+                                                   PipelineExecutorTaskManager.ExecutionMode.SYNCHRONOUS);
     }
 }

@@ -150,7 +150,8 @@ public class RuntimeServiceImpl
                     .withSource(source)
                     .build();
             return pipelineService.runPipeline(pipelineName,
-                                               input);
+                                               input,
+                                               true);
         } catch (Exception e) {
             logger.error("Runtime creation failed.",
                          e);

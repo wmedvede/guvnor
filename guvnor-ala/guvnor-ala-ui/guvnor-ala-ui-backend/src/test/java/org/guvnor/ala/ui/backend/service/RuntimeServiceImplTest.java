@@ -179,7 +179,8 @@ public class RuntimeServiceImplTest {
 
         verify(pipelineService,
                times(1)).runPipeline(PIPELINE,
-                                     expectedInput);
+                                     expectedInput,
+                                     true);
     }
 
     @Test
@@ -197,7 +198,8 @@ public class RuntimeServiceImplTest {
 
         verify(pipelineService,
                never()).runPipeline(anyString(),
-                                    any(Input.class));
+                                    any(Input.class),
+                                    eq(true));
     }
 
     private List<RuntimeQueryResultItem> mockRuntimeQueryResultItemList(int count) {

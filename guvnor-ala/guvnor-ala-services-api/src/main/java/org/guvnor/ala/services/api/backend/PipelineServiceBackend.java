@@ -17,24 +17,15 @@
 package org.guvnor.ala.services.api.backend;
 
 import java.util.List;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 
 import org.guvnor.ala.pipeline.Input;
-
-import org.guvnor.ala.runtime.providers.ProviderType;
-import org.jboss.errai.bus.server.annotations.Remote;
 import org.guvnor.ala.pipeline.PipelineConfig;
-import org.guvnor.ala.services.api.itemlist.PipelineConfigsList;
+import org.guvnor.ala.runtime.providers.ProviderType;
 import org.guvnor.ala.services.exceptions.BusinessException;
-
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import org.jboss.errai.bus.server.annotations.Remote;
 
 /**
- * Pipeline Service Backend interface. It allows us to create and run new Pipelines
+ * Pipeline Service Backend interface. It allows the creation and execution of pipelines.
  * Backend @Remote implementation to be used in CDI environments with Errai
  */
 @Remote
@@ -42,40 +33,37 @@ public interface PipelineServiceBackend {
 
     /**
      * Get all the Pipeline Configurations registered in the service
-     * @return PipelineConfigsList with the list of pipeline configurations
-     * @see PipelineConfigsList
+     * @return a list with all the pipeline configurations
      */
-    PipelineConfigsList getPipelineConfigs(Integer page,
-                                           Integer pageSize,
-                                           String sort,
-                                           boolean sortOrder) throws BusinessException;
+    List<PipelineConfig> getPipelineConfigs(final Integer page,
+                                            final Integer pageSize,
+                                            final String sort,
+                                            final boolean sortOrder) throws BusinessException;
 
     /**
      * Gets the Pipeline Configurations registered in the service and associated with the given provider type.
      * @param providerType a provider type registered in the system.
-     * @return a PipelineConfigsList with the pipeline configurations associated with the provider type.
-     * @see PipelineConfigsList
+     * @return a list with the pipeline configurations associated with the provider type.
      */
-    PipelineConfigsList getPipelineConfigs(ProviderType providerType,
-                                           Integer page,
-                                           Integer pageSize,
-                                           String sort,
-                                           boolean sortOrder) throws BusinessException;
+    List<PipelineConfig> getPipelineConfigs(final ProviderType providerType,
+                                            final Integer page,
+                                            final Integer pageSize,
+                                            final String sort,
+                                            boolean sortOrder) throws BusinessException;
 
     /**
      * Gets the names of the Pipelines associated to the given provider type.
      * @param providerType a provider type registered in the system.
      * @return a list with the names of the Pipelines associated with the provider type.
      */
-    List<String> getPipelineNames(ProviderType providerType,
-                                  Integer page,
-                                  Integer pageSize,
-                                  String sort,
-                                  boolean sortOrder) throws BusinessException;
-
+    List<String> getPipelineNames(final ProviderType providerType,
+                                  final Integer page,
+                                  final Integer pageSize,
+                                  final String sort,
+                                  final boolean sortOrder) throws BusinessException;
 
     /**
-     * Register a new Pipeline with the provided configuration
+     * Registers a new Pipeline with the provided configuration
      * @param pipelineConfig the pipeline configuration.
      * @return String with the pipeline id
      * @see PipelineConfig
@@ -93,11 +81,13 @@ public interface PipelineServiceBackend {
                        final ProviderType providerType) throws BusinessException;
 
     /**
-     * Run/Execute a registered Pipeline
+     * Execute a registered Pipeline
      * @param id of the pipeline to be executed
      * @param input to be used for the pipeline execution
+     * @param async establishes the execution mode. true for asynchronous execution, false for synchronous execution.
      * @return the pipeline execution id.
      */
     String runPipeline(final String id,
-                       final Input input) throws BusinessException;
+                       final Input input,
+                       final boolean async) throws BusinessException;
 }

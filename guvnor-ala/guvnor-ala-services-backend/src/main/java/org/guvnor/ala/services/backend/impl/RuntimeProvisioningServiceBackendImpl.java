@@ -34,11 +34,13 @@ import org.jboss.errai.bus.server.annotations.Service;
 
 @Service
 @ApplicationScoped
-public class RuntimeProvisioningServiceBackendImpl implements RuntimeProvisioningServiceBackend {
+public class RuntimeProvisioningServiceBackendImpl
+        implements RuntimeProvisioningServiceBackend {
 
     private RuntimeProvisioningService runtimeProvisioningService;
 
     public RuntimeProvisioningServiceBackendImpl() {
+        //Empty constructor for Weld proxying
     }
 
     @Inject

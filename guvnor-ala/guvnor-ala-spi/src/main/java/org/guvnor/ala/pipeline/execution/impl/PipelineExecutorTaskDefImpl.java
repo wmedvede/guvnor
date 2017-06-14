@@ -33,6 +33,12 @@ public class PipelineExecutorTaskDefImpl
 
     private ProviderType providerType;
 
+    public PipelineExecutorTaskDefImpl(Pipeline pipeline,
+                                       Input input) {
+        this.pipeline = pipeline;
+        this.input = input;
+    }
+
     public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
                                        final Input input,
                                        final ProviderId providerId) {
