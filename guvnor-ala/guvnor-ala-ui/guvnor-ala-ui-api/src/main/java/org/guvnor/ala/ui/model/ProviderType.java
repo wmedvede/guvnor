@@ -19,6 +19,9 @@ package org.guvnor.ala.ui.model;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Class for modeling a provider type.
+ */
 @Portable
 public class ProviderType
         extends AbstractHasKeyObject<ProviderTypeKey> {

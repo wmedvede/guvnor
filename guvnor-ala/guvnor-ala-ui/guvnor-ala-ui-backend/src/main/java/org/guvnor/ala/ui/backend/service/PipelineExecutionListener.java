@@ -32,7 +32,7 @@ import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineStatus;
 
 /**
- * Monitors the events produced by pipelines launched by the PipelineExecutorTaskManager and raises the required
+ * Observes the events produced by the pipelines launched by the PipelineExecutorTaskManager and raises the required
  * events to the UI or other interested parties.
  */
 public class PipelineExecutionListener

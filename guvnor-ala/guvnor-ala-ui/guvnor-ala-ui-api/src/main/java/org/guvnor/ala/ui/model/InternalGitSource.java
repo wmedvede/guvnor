@@ -19,6 +19,9 @@ package org.guvnor.ala.ui.model;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Class for defining project sources in a git repository.
+ */
 @Portable
 public class InternalGitSource
         implements Source {

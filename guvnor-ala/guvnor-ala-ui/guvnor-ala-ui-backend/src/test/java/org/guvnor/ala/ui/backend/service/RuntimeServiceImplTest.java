@@ -48,6 +48,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_ID;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_NAME;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_VERSION;
+import static org.guvnor.ala.ui.backend.service.RuntimeListItemBuilderTest.mockPipelineStageItemList;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -236,20 +237,6 @@ public class RuntimeServiceImplTest {
         item.setRuntimeEndpoint("RuntimeQueryResultItem.runtimeEndpoint." + suffix);
 
         return item;
-    }
-
-    private PipelineStageItemList mockPipelineStageItemList(int count) {
-        List<PipelineStageItem> stageItems = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            stageItems.add(mockStageItem(Integer.toString(i)));
-        }
-        return new PipelineStageItemList(stageItems);
-    }
-
-    private PipelineStageItem mockStageItem(String suffix) {
-        return new PipelineStageItem("PipelineStageItem.name." + suffix,
-                                     "RUNNING",
-                                     "PipelineStageItem.errorMessage." + suffix);
     }
 
     private List<String> mockPipelineNames(int count) {

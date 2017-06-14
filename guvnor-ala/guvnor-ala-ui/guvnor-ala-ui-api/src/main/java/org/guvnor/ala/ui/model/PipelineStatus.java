@@ -18,6 +18,9 @@ package org.guvnor.ala.ui.model;
 
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Enum for modeling the status of a pipeline or a pipeline stage execution.
+ */
 @Portable
 public enum PipelineStatus {
     SCHEDULED,

@@ -18,6 +18,9 @@ package org.guvnor.ala.ui.model;
 
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Enum for modeling the status of a runtime.
+ */
 @Portable
 public enum RuntimeStatus {
     LOADING,

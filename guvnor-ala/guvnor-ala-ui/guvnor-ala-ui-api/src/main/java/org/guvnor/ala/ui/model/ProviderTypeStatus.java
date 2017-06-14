@@ -18,8 +18,17 @@ package org.guvnor.ala.ui.model;
 
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Enum for modeling the status for an installed provider type.
+ */
 @Portable
 public enum ProviderTypeStatus {
+    /**
+     * Enabled provider types are available for creating providers.
+     */
     ENABLED,
+    /**
+     * Disabled provider types are not available for creating providers.
+     */
     DISABLED
 }

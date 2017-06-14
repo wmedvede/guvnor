@@ -16,9 +16,6 @@
 
 package org.guvnor.ala.ui.backend.service.converter.impl;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
 import org.guvnor.ala.ui.backend.service.converter.ProviderConverter;
 import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandler;
 import org.guvnor.ala.ui.backend.service.handler.BackendProviderHandlerRegistry;
@@ -29,19 +26,13 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 
 /**
  * Manages the conversion of a Provider representation in the guvnor-ala core domain, to a representation that will be
- * managed in the UI related models.
+ * used in the UI related models.
  */
-@ApplicationScoped
 public class ProviderConverterImpl
         implements ProviderConverter {
 
     private BackendProviderHandlerRegistry handlerRegistry;
 
-    public ProviderConverterImpl() {
-        //Empty constructor for Weld proxying
-    }
-
-    @Inject
     public ProviderConverterImpl(final BackendProviderHandlerRegistry handlerRegistry) {
         this.handlerRegistry = handlerRegistry;
     }

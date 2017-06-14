@@ -25,11 +25,4 @@ public class ServiceUtil {
         return map.get(key) != null ? map.get(key).toString() : null;
     }
 
-    public static final void putAsStrings(Map<String, String> target,
-                                          Map<String, Object> source) {
-        source.entrySet().forEach(entry -> {
-            target.put(entry.getKey(),
-                       entry.getValue() != null ? entry.getValue().toString() : null);
-        });
-    }
 }

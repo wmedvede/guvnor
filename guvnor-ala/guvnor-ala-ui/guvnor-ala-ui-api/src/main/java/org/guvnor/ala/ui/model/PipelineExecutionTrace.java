@@ -22,6 +22,10 @@ import java.util.Map;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * This class holds the information about a pipeline execution, typically the executed pipeline, the status of
+ * the execution, potential errors, etc.
+ */
 @Portable
 public class PipelineExecutionTrace
         extends AbstractHasKeyObject<PipelineExecutionTraceKey> {

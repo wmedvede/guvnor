@@ -39,10 +39,9 @@ public class ProviderConverterFactoryImpl
     }
 
     @Inject
-    public ProviderConverterFactoryImpl(final BackendProviderHandlerRegistry handlerRegistry,
-                                        final ProviderConverter providerConverter) {
+    public ProviderConverterFactoryImpl(final BackendProviderHandlerRegistry handlerRegistry) {
         this.handlerRegistry = handlerRegistry;
-        this.providerConverter = providerConverter;
+        this.providerConverter = new ProviderConverterImpl(handlerRegistry);
     }
 
     @Override

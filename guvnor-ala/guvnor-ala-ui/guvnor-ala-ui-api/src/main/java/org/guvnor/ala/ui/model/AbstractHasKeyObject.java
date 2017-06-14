@@ -16,6 +16,9 @@
 
 package org.guvnor.ala.ui.model;
 
+/**
+ * Base class for modelling objects that has a key.
+ */
 public abstract class AbstractHasKeyObject<K>
         implements HasKey<K> {
 

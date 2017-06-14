@@ -19,6 +19,9 @@ package org.guvnor.ala.ui.model;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Identifier of a pipeline.
+ */
 @Portable
 public class PipelineKey {
 

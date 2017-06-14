@@ -21,6 +21,9 @@ import org.guvnor.ala.ui.model.PipelineStatus;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Event for notifying a status change in a pipeline.
+ */
 @Portable
 public class PipelineStatusChangeEvent {
 

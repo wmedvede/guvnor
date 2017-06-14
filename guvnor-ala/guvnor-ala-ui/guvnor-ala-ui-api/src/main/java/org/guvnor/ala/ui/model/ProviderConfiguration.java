@@ -22,6 +22,9 @@ import java.util.Map;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Class for holding a provider configuration.
+ */
 @Portable
 public class ProviderConfiguration {
 

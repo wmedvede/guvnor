@@ -30,7 +30,20 @@ import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Stage;
 
+/**
+ * Helper class for building RuntimeListItems.
+ */
 public class RuntimeListItemBuilder {
+
+    private static final String SCHEDULED = "SCHEDULED";
+
+    private static final String RUNNING = "RUNNING";
+
+    private static final String FINISHED = "FINISHED";
+
+    private static final String ERROR = "ERROR";
+
+    private static final String STOPPED = "STOPPED";
 
     private RuntimeQueryResultItem item;
 
@@ -101,12 +114,12 @@ public class RuntimeListItemBuilder {
             return null;
         } else {
             switch (status) {
-                case "SCHEDULED":
-                case "RUNNING":
+                case SCHEDULED:
+                case RUNNING:
                     return RuntimeStatus.LOADING;
-                case "FINISHED":
+                case FINISHED:
                     return RuntimeStatus.STARTED;
-                case "ERROR":
+                case ERROR:
                     return RuntimeStatus.ERROR;
             }
             return null;
@@ -118,15 +131,15 @@ public class RuntimeListItemBuilder {
             return null;
         } else {
             switch (status) {
-                case "SCHEDULED":
+                case SCHEDULED:
                     return PipelineStatus.SCHEDULED;
-                case "RUNNING":
+                case RUNNING:
                     return PipelineStatus.RUNNING;
-                case "FINISHED":
+                case FINISHED:
                     return PipelineStatus.FINISHED;
-                case "ERROR":
+                case ERROR:
                     return PipelineStatus.ERROR;
-                case "STOPPED":
+                case STOPPED:
                     return PipelineStatus.STOPPED;
             }
             return null;

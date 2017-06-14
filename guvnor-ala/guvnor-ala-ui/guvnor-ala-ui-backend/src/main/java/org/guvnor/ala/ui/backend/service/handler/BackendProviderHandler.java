@@ -20,9 +20,17 @@ import org.guvnor.ala.ui.backend.service.converter.ProviderConfigConverter;
 import org.guvnor.ala.ui.handler.ProviderHandler;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
+/**
+ * Base interface for defining a provider type handler for using at backend.
+ */
 public interface BackendProviderHandler
         extends ProviderHandler {
 
+    /**
+     * Gets provider configuration converter.
+     * @param providerTypeKey a provider type identifier.
+     * @return the configured converter for the given provider type, null if no such converter is configured.
+     */
     ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey);
     
 }

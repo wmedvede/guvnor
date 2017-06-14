@@ -22,6 +22,9 @@ import java.util.List;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Class for getting information about a pipeline definition.
+ */
 @Portable
 public class Pipeline
         extends AbstractHasKeyObject<PipelineKey> {

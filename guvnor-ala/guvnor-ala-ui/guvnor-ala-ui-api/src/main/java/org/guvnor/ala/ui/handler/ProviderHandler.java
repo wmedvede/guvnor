@@ -18,10 +18,23 @@ package org.guvnor.ala.ui.handler;
 
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
+/**
+ * Base interface for defining a provider type handler.
+ */
 public interface ProviderHandler {
 
+    /**
+     * Gets the priority of current handler. The priority might be used to decide wich handler to apply in cases
+     * where there are many handlers registered for a given provider. The highest priority one will be applied.
+     * @return an integer representing current handler priority. Priorities are correlative to the integers natural order.
+     */
     int getPriority();
 
+    /**
+     * Indicates if current handler can manage a given provider type.
+     * @param providerTypeKey a provider type key.
+     * @return true if current handle can manage the given provider type, false in any other case.
+     */
     boolean acceptProviderType(ProviderTypeKey providerTypeKey);
 
 }

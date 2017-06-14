@@ -25,6 +25,9 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.handler.AbstractProviderHandlerRegistry;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 
+/**
+ * Registry for the backend side configured provider type converters.
+ */
 @ApplicationScoped
 public class BackendProviderHandlerRegistry
         extends AbstractProviderHandlerRegistry<BackendProviderHandler> {

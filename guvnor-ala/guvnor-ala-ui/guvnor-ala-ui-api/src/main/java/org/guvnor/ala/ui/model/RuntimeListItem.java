@@ -19,6 +19,9 @@ package org.guvnor.ala.ui.model;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Convenient class for getting the result of query operations against the provisioning runtime system.
+ */
 @Portable
 public class RuntimeListItem {
 
