@@ -19,6 +19,9 @@ package org.guvnor.ala.ui.wildfly.service;
 import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
+/**
+ * Class for getting information about a connection test against a server.
+ */
 @Portable
 public class TestConnectionResult {
 

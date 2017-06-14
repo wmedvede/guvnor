@@ -152,6 +152,7 @@ public class WildflyExecutorTest {
                 put( "out-dir", tempPath.getAbsolutePath() );
                 put( "origin", "https://github.com/salaboy/drools-workshop" );
                 put( "project-dir", "drools-webapp-example" );
+                put( "provider-name", "wildlfy-test" );
                 put( "wildfly-user", "admin" );
                 put( "wildfly-password", "Admin#70365" );
                 put( "host", ip );
@@ -249,6 +250,7 @@ public class WildflyExecutorTest {
                 put( "branch", "master" );
                 put( "origin", "https://github.com/salaboy/drools-workshop" );
                 put( "project-dir", "drools-webapp-example" );
+                put( "provider-name", "wildlfy-test" );
                 put( "wildfly-user", "admin" );
                 put( "wildfly-password", "Admin#70365" );
                 put( "host", ip );

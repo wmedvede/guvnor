@@ -18,6 +18,9 @@ package org.guvnor.ala.ui.wildfly.service;
 
 import org.jboss.errai.bus.server.annotations.Remote;
 
+/**
+ * This service has specific methods that are required by the Wildlfy provider ui.
+ */
 @Remote
 public interface WildflyClientService {
 
