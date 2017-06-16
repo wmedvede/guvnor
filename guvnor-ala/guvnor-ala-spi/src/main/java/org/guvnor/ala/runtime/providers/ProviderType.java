@@ -21,23 +21,21 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.*;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.*;
 
 /**
- *  This interface provides the definition for a ProviderType.
- *   Different provider types can be implemented and discovered at runtime.
+ * This interface provides the definition for a ProviderType.
+ * Different provider types can be implemented and discovered at runtime.
  */
 @JsonTypeInfo(use = CLASS, include = WRAPPER_OBJECT)
 public interface ProviderType {
 
-    /*
+    /**
      * Get the provider type name
-     * @return the provider type name 
+     * @return the provider type name
      */
     String getProviderTypeName();
 
-    /*
+    /**
      * Get the provider type version
-     * @return the provider type version 
+     * @return the provider type version
      */
     String getVersion();
-
-
 }
