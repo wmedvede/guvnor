@@ -17,24 +17,26 @@
 package org.guvnor.ala.runtime.base;
 
 import java.util.Objects;
+
 import org.guvnor.ala.runtime.RuntimeState;
 
-/*
+/**
  * BaseRuntimeState implementation to be extended by each Runtime Provider
-*/
-public class BaseRuntimeState implements RuntimeState {
+ */
+public class BaseRuntimeState
+        implements RuntimeState {
 
     private String state = "NA";
     private String startedAt;
 
-    /*
-     * No-args constructor for enabling marshalling to work, please do not remove. 
-    */
+    /**
+     * No-args constructor for enabling marshalling to work, please do not remove.
+     */
     public BaseRuntimeState() {
     }
 
-    public BaseRuntimeState( String status,
-                             String startedAt ) {
+    public BaseRuntimeState(final String status,
+                            final String startedAt) {
         this.state = status;
         this.startedAt = startedAt;
     }
@@ -51,38 +53,40 @@ public class BaseRuntimeState implements RuntimeState {
 
     @Override
     public String toString() {
-        return "RuntimeState{" + "state=" + state + ", startedAt=" + startedAt + '}';
+        return "BaseRuntimeState{" +
+                "state='" + state + '\'' +
+                ", startedAt='" + startedAt + '\'' +
+                '}';
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 53 * hash + Objects.hashCode( this.state );
-        hash = 53 * hash + Objects.hashCode( this.startedAt );
+        hash = 53 * hash + Objects.hashCode(this.state);
+        hash = 53 * hash + Objects.hashCode(this.startedAt);
         return hash;
     }
 
     @Override
-    public boolean equals( Object obj ) {
-        if ( this == obj ) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if ( obj == null ) {
+        if (obj == null) {
             return false;
         }
-        if ( getClass() != obj.getClass() ) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        final BaseRuntimeState other = ( BaseRuntimeState ) obj;
-        if ( !Objects.equals( this.state, other.state ) ) {
+        final BaseRuntimeState other = (BaseRuntimeState) obj;
+        if (!Objects.equals(this.state,
+                            other.state)) {
             return false;
         }
-        if ( !Objects.equals( this.startedAt, other.startedAt ) ) {
+        if (!Objects.equals(this.startedAt,
+                            other.startedAt)) {
             return false;
         }
         return true;
     }
-    
-    
-
 }

@@ -18,6 +18,7 @@ package org.guvnor.ala.wildfly.executor.tests;
 
 import org.guvnor.ala.wildfly.access.WildflyClient;
 import org.guvnor.ala.wildfly.access.impl.WildflyAccessInterfaceImpl;
+import org.guvnor.ala.wildfly.config.impl.WildflyProviderConfigImpl;
 import org.guvnor.ala.wildfly.model.WildflyProviderImpl;
 import org.junit.Test;
 
@@ -31,11 +32,22 @@ public class WildflyAccessInterfaceImplTest {
 
     @Test
     public void testWildflyClientNull() {
-        final WildflyClient client = accessInterface.getWildflyClient(new WildflyProviderImpl(PROVIDER, null, null, null, null, null));
+        final WildflyClient client = accessInterface.getWildflyClient(
+                new WildflyProviderImpl(
+                        new WildflyProviderConfigImpl(PROVIDER,
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      null,
+                                                      null)
+                )
+        );
 
         assertNotNull(client);
-        assertEquals(client.getPort(), 8080);
-        assertEquals(client.getManagementPort(), 9990);
+        assertEquals(client.getPort(),
+                     8080);
+        assertEquals(client.getManagementPort(),
+                     9990);
     }
 
     @Test
@@ -46,15 +58,28 @@ public class WildflyAccessInterfaceImplTest {
         final String user = "admin";
         final String password = "pass";
 
-        final WildflyClient client = accessInterface.getWildflyClient(new WildflyProviderImpl(PROVIDER, hostId, port, managementPort, user, password));
+        final WildflyClient client = accessInterface.getWildflyClient(
+                new WildflyProviderImpl(new WildflyProviderConfigImpl(PROVIDER,
+                                                                      hostId,
+                                                                      port,
+                                                                      managementPort,
+                                                                      user,
+                                                                      password)
+                )
+        );
 
         assertNotNull(client);
-        assertEquals(client.getPort(), 8081);
-        assertEquals(client.getManagementPort(), 9991);
-        assertEquals(client.getHost(), hostId);
-        assertEquals(client.getProviderName(), PROVIDER);
-        assertEquals(client.getUser(), user);
-        assertEquals(client.getPassword(), password);
+        assertEquals(client.getPort(),
+                     8081);
+        assertEquals(client.getManagementPort(),
+                     9991);
+        assertEquals(client.getHost(),
+                     hostId);
+        assertEquals(client.getProviderName(),
+                     PROVIDER);
+        assertEquals(client.getUser(),
+                     user);
+        assertEquals(client.getPassword(),
+                     password);
     }
-
 }

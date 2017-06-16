@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.guvnor.ala.docker.executor;
 
 import java.util.Optional;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import org.guvnor.ala.config.Config;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.docker.config.DockerProviderConfig;
+import org.guvnor.ala.docker.config.impl.DockerProviderConfigImpl;
 import org.guvnor.ala.docker.model.DockerProvider;
 import org.guvnor.ala.docker.model.DockerProviderImpl;
 import org.guvnor.ala.pipeline.FunctionConfigExecutor;
@@ -29,23 +31,25 @@ import org.guvnor.ala.runtime.providers.ProviderBuilder;
 import org.guvnor.ala.runtime.providers.ProviderDestroyer;
 import org.guvnor.ala.runtime.providers.ProviderId;
 
-public class DockerProviderConfigExecutor implements ProviderBuilder<DockerProviderConfig, DockerProvider>,
-                                                     ProviderDestroyer,
-                                                     FunctionConfigExecutor<DockerProviderConfig, DockerProvider> {
+public class DockerProviderConfigExecutor
+        implements ProviderBuilder<DockerProviderConfig, DockerProvider>,
+                   ProviderDestroyer,
+                   FunctionConfigExecutor<DockerProviderConfig, DockerProvider> {
 
     private RuntimeRegistry runtimeRegistry;
 
     @Inject
-    public DockerProviderConfigExecutor( final RuntimeRegistry runtimeRegistry ) {
+    public DockerProviderConfigExecutor(final RuntimeRegistry runtimeRegistry) {
         this.runtimeRegistry = runtimeRegistry;
     }
 
     @Override
-    public Optional<DockerProvider> apply( final DockerProviderConfig dockerProviderConfig ) {
-        final DockerProviderImpl provider = new DockerProviderImpl( dockerProviderConfig.getName(), 
-                dockerProviderConfig.getHostIp(), dockerProviderConfig );
-        runtimeRegistry.registerProvider( provider );
-        return Optional.of( provider );
+    public Optional<DockerProvider> apply(final DockerProviderConfig dockerProviderConfig) {
+        final DockerProviderImpl provider = new DockerProviderImpl(
+                new DockerProviderConfigImpl(dockerProviderConfig.getName(),
+                                             dockerProviderConfig.getHostIp()));
+        runtimeRegistry.registerProvider(provider);
+        return Optional.of(provider);
     }
 
     @Override
@@ -59,17 +63,16 @@ public class DockerProviderConfigExecutor implements ProviderBuilder<DockerProvi
     }
 
     @Override
-    public boolean supports( final ProviderConfig config ) {
+    public boolean supports(final ProviderConfig config) {
         return config instanceof DockerProviderConfig;
     }
 
     @Override
-    public boolean supports( final ProviderId providerId ) {
+    public boolean supports(final ProviderId providerId) {
         return providerId instanceof DockerProvider;
     }
 
     @Override
-    public void destroy( final ProviderId providerId ) {
+    public void destroy(final ProviderId providerId) {
     }
-
 }

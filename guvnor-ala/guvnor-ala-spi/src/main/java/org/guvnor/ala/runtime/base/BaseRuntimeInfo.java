@@ -17,24 +17,25 @@
 package org.guvnor.ala.runtime.base;
 
 import java.util.Objects;
+
 import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.runtime.RuntimeInfo;
 
-/*
+/**
  * BaseRuntimeInfo implementation to be extended by each Runtime Provider
-*/
-public class BaseRuntimeInfo implements RuntimeInfo {
+ */
+public class BaseRuntimeInfo
+        implements RuntimeInfo {
 
     private RuntimeConfig config;
 
-    /*
-     * No-args constructor for enabling marshalling to work, please do not remove. 
-    */
+    /**
+     * No-args constructor for enabling marshalling to work, please do not remove.
+     */
     public BaseRuntimeInfo() {
     }
 
-    public BaseRuntimeInfo( RuntimeConfig config ) {
-
+    public BaseRuntimeInfo(final RuntimeConfig config) {
         this.config = config;
     }
 
@@ -45,34 +46,34 @@ public class BaseRuntimeInfo implements RuntimeInfo {
 
     @Override
     public String toString() {
-        return "RuntimeInfo{ config=" + config + '}';
+        return "BaseRuntimeInfo{" +
+                "config=" + config +
+                '}';
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + Objects.hashCode( this.config );
+        hash = 67 * hash + Objects.hashCode(this.config);
         return hash;
     }
 
     @Override
-    public boolean equals( Object obj ) {
-        if ( this == obj ) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if ( obj == null ) {
+        if (obj == null) {
             return false;
         }
-        if ( getClass() != obj.getClass() ) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        final BaseRuntimeInfo other = ( BaseRuntimeInfo ) obj;
-        if ( !Objects.equals( this.config, other.config ) ) {
+        final BaseRuntimeInfo other = (BaseRuntimeInfo) obj;
+        if (!Objects.equals(this.config,
+                            other.config)) {
             return false;
         }
         return true;
     }
-    
-    
-
 }

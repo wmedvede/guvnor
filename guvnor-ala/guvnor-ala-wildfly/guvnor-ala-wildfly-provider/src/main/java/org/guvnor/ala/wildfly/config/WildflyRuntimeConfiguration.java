@@ -25,8 +25,9 @@ import org.guvnor.ala.config.RuntimeConfig;
  * @see ProvisioningConfig
  * @see RuntimeConfig
  */
-public interface WildflyRuntimeConfiguration extends ProvisioningConfig,
-                                                     RuntimeConfig {
+public interface WildflyRuntimeConfiguration
+        extends ProvisioningConfig,
+                RuntimeConfig {
 
     /**
      * Attribute name for setting the war file path parameter. Pipeline inputs that wants to set this value should
@@ -50,8 +51,8 @@ public interface WildflyRuntimeConfiguration extends ProvisioningConfig,
 
     /**
      * Get the Redeploy Strategy for apps in wildfly
-     *  - auto: will automatically redeploy the app if it already exist
-     *  - none: will fail if you try to redeploy an app that already exist
+     * - auto: will automatically redeploy the app if it already exist
+     * - none: will fail if you try to redeploy an app that already exist
      * @return String with the strategy
      */
     default String getRedeployStrategy() {
