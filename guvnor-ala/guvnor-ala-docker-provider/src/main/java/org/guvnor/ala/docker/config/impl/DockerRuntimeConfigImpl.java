@@ -20,26 +20,29 @@ import org.guvnor.ala.config.CloneableConfig;
 import org.guvnor.ala.docker.config.DockerRuntimeConfig;
 import org.guvnor.ala.runtime.providers.ProviderId;
 
-public class DockerRuntimeConfigImpl implements DockerRuntimeConfig,
-                                                CloneableConfig<DockerRuntimeConfig> {
+public class DockerRuntimeConfigImpl
+        implements DockerRuntimeConfig,
+                   CloneableConfig<DockerRuntimeConfig> {
 
+    private String runtimeName;
     private String image;
     private String port;
     private boolean pull;
     private ProviderId providerId;
 
     public DockerRuntimeConfigImpl() {
+        //No-args constructor for enabling marshalling to work, please do not remove.
     }
 
-    public DockerRuntimeConfigImpl( ProviderId providerId,
-                                    String image,
-                                    String port,
-                                    boolean pull ) {
+    public DockerRuntimeConfigImpl(final ProviderId providerId,
+                                   final String image,
+                                   final String port,
+                                   final boolean pull) {
         this.providerId = providerId;
         this.image = image;
         this.port = port;
         this.pull = pull;
-
+        this.runtimeName = image;
     }
 
     @Override
@@ -62,20 +65,25 @@ public class DockerRuntimeConfigImpl implements DockerRuntimeConfig,
         return providerId;
     }
 
-    public void setImage( String image ) {
+    public void setImage(String image) {
         this.image = image;
     }
 
-    public void setPort( String port ) {
+    public void setPort(String port) {
         this.port = port;
     }
 
-    public void setPull( boolean pull ) {
+    public void setPull(boolean pull) {
         this.pull = pull;
     }
 
-    public void setProviderId( ProviderId providerId ) {
+    public void setProviderId(ProviderId providerId) {
         this.providerId = providerId;
+    }
+
+    @Override
+    public String getRuntimeName() {
+        return runtimeName;
     }
 
     @Override
@@ -84,10 +92,46 @@ public class DockerRuntimeConfigImpl implements DockerRuntimeConfig,
     }
 
     @Override
-    public DockerRuntimeConfig asNewClone( final DockerRuntimeConfig source ) {
-        return new DockerRuntimeConfigImpl( source.getProviderId(),
-                                            source.getImage(),
-                                            source.getPort(),
-                                            source.isPull() );
+    public DockerRuntimeConfig asNewClone(final DockerRuntimeConfig source) {
+        return new DockerRuntimeConfigImpl(source.getProviderId(),
+                                           source.getImage(),
+                                           source.getPort(),
+                                           source.isPull());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DockerRuntimeConfigImpl that = (DockerRuntimeConfigImpl) o;
+
+        if (pull != that.pull) {
+            return false;
+        }
+        if (runtimeName != null ? !runtimeName.equals(that.runtimeName) : that.runtimeName != null) {
+            return false;
+        }
+        if (image != null ? !image.equals(that.image) : that.image != null) {
+            return false;
+        }
+        if (port != null ? !port.equals(that.port) : that.port != null) {
+            return false;
+        }
+        return providerId != null ? providerId.equals(that.providerId) : that.providerId == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = runtimeName != null ? runtimeName.hashCode() : 0;
+        result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (port != null ? port.hashCode() : 0);
+        result = 31 * result + (pull ? 1 : 0);
+        result = 31 * result + (providerId != null ? providerId.hashCode() : 0);
+        return result;
     }
 }

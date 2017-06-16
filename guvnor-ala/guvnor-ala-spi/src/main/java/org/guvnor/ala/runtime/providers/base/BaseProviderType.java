@@ -15,19 +15,19 @@
  */
 package org.guvnor.ala.runtime.providers.base;
 
-import java.util.Objects;
 import org.guvnor.ala.runtime.providers.ProviderType;
 
-/*
+/**
  * BaseProviderType implementation to be extended by concrete ProviderTypes
  */
-public abstract class BaseProviderType implements ProviderType {
+public abstract class BaseProviderType
+        implements ProviderType {
 
     private final String providerTypeName;
     private final String version;
 
-    public BaseProviderType( String providerName,
-            String version ) {
+    public BaseProviderType(String providerName,
+                            String version) {
         this.providerTypeName = providerName;
         this.version = version;
     }
@@ -44,36 +44,33 @@ public abstract class BaseProviderType implements ProviderType {
 
     @Override
     public String toString() {
-        return "ProviderType{" + "providerTypeName=" + providerTypeName + ", version=" + version + '}';
+        return "BaseProviderType{" +
+                "providerTypeName='" + providerTypeName + '\'' +
+                ", version='" + version + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BaseProviderType that = (BaseProviderType) o;
+
+        if (providerTypeName != null ? !providerTypeName.equals(that.providerTypeName) : that.providerTypeName != null) {
+            return false;
+        }
+        return version != null ? version.equals(that.version) : that.version == null;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 43 * hash + Objects.hashCode( this.providerTypeName );
-        hash = 43 * hash + Objects.hashCode( this.version );
-        return hash;
+        int result = providerTypeName != null ? providerTypeName.hashCode() : 0;
+        result = 31 * result + (version != null ? version.hashCode() : 0);
+        return result;
     }
-
-    @Override
-    public boolean equals( Object obj ) {
-        if ( this == obj ) {
-            return true;
-        }
-        if ( obj == null ) {
-            return false;
-        }
-        if ( getClass() != obj.getClass() ) {
-            return false;
-        }
-        final BaseProviderType other = ( BaseProviderType ) obj;
-        if ( !Objects.equals( this.providerTypeName, other.providerTypeName ) ) {
-            return false;
-        }
-        if ( !Objects.equals( this.version, other.version ) ) {
-            return false;
-        }
-        return true;
-    }
-
 }
