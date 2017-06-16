@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
 import org.uberfire.commons.validation.PortablePreconditions;
 
 @ApplicationScoped
-public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningService {
+public class RestRuntimeProvisioningServiceImpl
+        implements RuntimeProvisioningService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestRuntimeProvisioningServiceImpl.class);
 
@@ -153,7 +154,7 @@ public class RestRuntimeProvisioningServiceImpl implements RuntimeProvisioningSe
 
     @Override
     public void unregisterProvider(String name) throws BusinessException {
-        runtimeRegistry.unregisterProvider(name);
+        runtimeRegistry.deregisterProvider(name);
     }
 
     @Override

@@ -19,8 +19,9 @@ package org.guvnor.ala.docker.config.impl;
 import org.guvnor.ala.config.CloneableConfig;
 import org.guvnor.ala.docker.config.DockerProviderConfig;
 
-public class DockerProviderConfigImpl implements DockerProviderConfig,
-                                                 CloneableConfig<DockerProviderConfig> {
+public class DockerProviderConfigImpl
+        implements DockerProviderConfig,
+                   CloneableConfig<DockerProviderConfig> {
 
     private String name;
     private String hostIp;
@@ -28,11 +29,10 @@ public class DockerProviderConfigImpl implements DockerProviderConfig,
     public DockerProviderConfigImpl() {
         this.name = DockerProviderConfig.super.getName();
         this.hostIp = DockerProviderConfig.super.getHostIp();
-
     }
 
-    public DockerProviderConfigImpl( final String name,
-                                     final String hostIp ) {
+    public DockerProviderConfigImpl(final String name,
+                                    final String hostIp) {
         this.name = name;
         this.hostIp = hostIp;
     }
@@ -47,21 +47,17 @@ public class DockerProviderConfigImpl implements DockerProviderConfig,
         return name;
     }
 
-    public void setName( String name ) {
-        this.name = name;
-    }
-
-    public void setHostIp( String hostIp ) {
-        this.hostIp = hostIp;
-    }
-
     @Override
     public String toString() {
-        return "DockerProviderConfigImpl{" + "name=" + name + ", hostIp=" + hostIp + '}';
+        return "DockerProviderConfigImpl{" +
+                "name='" + name + '\'' +
+                ", hostIp='" + hostIp + '\'' +
+                '}';
     }
 
     @Override
-    public DockerProviderConfig asNewClone( final DockerProviderConfig origin ) {
-        return new DockerProviderConfigImpl( origin.getName(), origin.getHostIp() );
+    public DockerProviderConfig asNewClone(final DockerProviderConfig origin) {
+        return new DockerProviderConfigImpl(origin.getName(),
+                                            origin.getHostIp());
     }
 }
