@@ -23,21 +23,23 @@ import java.util.Properties;
 import org.guvnor.ala.build.maven.config.MavenBuildConfig;
 import org.guvnor.ala.config.CloneableConfig;
 
-public class MavenBuildConfigImpl implements MavenBuildConfig,
-                                             CloneableConfig<MavenBuildConfig> {
+public class MavenBuildConfigImpl
+        implements MavenBuildConfig,
+                   CloneableConfig<MavenBuildConfig> {
 
     private List<String> goals;
     private Properties properties;
 
     public MavenBuildConfigImpl() {
-        goals = new ArrayList<>( MavenBuildConfig.super.getGoals() );
-        properties = new Properties( MavenBuildConfig.super.getProperties() );
+        goals = new ArrayList<>(MavenBuildConfig.super.getGoals());
+        properties = new Properties();
+        properties.putAll(MavenBuildConfig.super.getProperties());
     }
 
-    public MavenBuildConfigImpl( final List<String> goals,
-                                 final Properties properties ) {
-        this.goals = new ArrayList<>( goals );
-        this.properties = new Properties( properties );
+    public MavenBuildConfigImpl(final List<String> goals,
+                                final Properties properties) {
+        this.goals = new ArrayList<>(goals);
+        this.properties = new Properties(properties);
     }
 
     @Override
@@ -45,7 +47,7 @@ public class MavenBuildConfigImpl implements MavenBuildConfig,
         return goals;
     }
 
-    public void setGoals( List<String> goals ) {
+    public void setGoals(List<String> goals) {
         this.goals = goals;
     }
 
@@ -54,7 +56,7 @@ public class MavenBuildConfigImpl implements MavenBuildConfig,
         return properties;
     }
 
-    public void setProperties( final Properties properties ) {
+    public void setProperties(final Properties properties) {
         this.properties = properties;
     }
 
@@ -67,7 +69,8 @@ public class MavenBuildConfigImpl implements MavenBuildConfig,
     }
 
     @Override
-    public MavenBuildConfig asNewClone( final MavenBuildConfig source ) {
-        return new MavenBuildConfigImpl( source.getGoals(), source.getProperties() );
+    public MavenBuildConfig asNewClone(final MavenBuildConfig source) {
+        return new MavenBuildConfigImpl(source.getGoals(),
+                                        source.getProperties());
     }
 }

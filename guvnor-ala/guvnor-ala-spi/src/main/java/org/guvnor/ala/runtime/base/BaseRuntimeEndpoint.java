@@ -17,26 +17,28 @@
 package org.guvnor.ala.runtime.base;
 
 import java.util.Objects;
+
 import org.guvnor.ala.runtime.RuntimeEndpoint;
 
-/*
+/**
  * BaseRuntimeEndpoint implementation to be extended by each Runtime Provider
-*/
-public class BaseRuntimeEndpoint implements RuntimeEndpoint {
+ */
+public class BaseRuntimeEndpoint
+        implements RuntimeEndpoint {
 
     private String host;
     private int port;
     private String context;
 
-    /*
-     * No-args constructor for enabling marshalling to work, please do not remove. 
-    */
+    /**
+     * No-args constructor for enabling marshalling to work, please do not remove.
+     */
     public BaseRuntimeEndpoint() {
     }
 
-    public BaseRuntimeEndpoint( String host,
-            int port,
-            String context ) {
+    public BaseRuntimeEndpoint(final String host,
+                               final int port,
+                               final String context) {
         this.host = host;
         this.port = port;
         this.context = context;
@@ -47,7 +49,7 @@ public class BaseRuntimeEndpoint implements RuntimeEndpoint {
         return host;
     }
 
-    public void setHost( String host ) {
+    public void setHost(final String host) {
         this.host = host;
     }
 
@@ -56,7 +58,7 @@ public class BaseRuntimeEndpoint implements RuntimeEndpoint {
         return port;
     }
 
-    public void setPort( int port ) {
+    public void setPort(final int port) {
         this.port = port;
     }
 
@@ -65,48 +67,51 @@ public class BaseRuntimeEndpoint implements RuntimeEndpoint {
         return context;
     }
 
-    public void setContext( String context ) {
+    public void setContext(final String context) {
         this.context = context;
     }
 
     @Override
     public String toString() {
-        return "RuntimeEndpoint{" + "host=" + host + ", port=" + port + ", context=" + context + '}';
+        return "BaseRuntimeEndpoint{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                ", context='" + context + '\'' +
+                '}';
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 79 * hash + Objects.hashCode( this.host );
+        hash = 79 * hash + Objects.hashCode(this.host);
         hash = 79 * hash + this.port;
-        hash = 79 * hash + Objects.hashCode( this.context );
+        hash = 79 * hash + Objects.hashCode(this.context);
         return hash;
     }
 
     @Override
-    public boolean equals( Object obj ) {
-        if ( this == obj ) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if ( obj == null ) {
+        if (obj == null) {
             return false;
         }
-        if ( getClass() != obj.getClass() ) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
-        final BaseRuntimeEndpoint other = ( BaseRuntimeEndpoint ) obj;
-        if ( this.port != other.port ) {
+        final BaseRuntimeEndpoint other = (BaseRuntimeEndpoint) obj;
+        if (this.port != other.port) {
             return false;
         }
-        if ( !Objects.equals( this.host, other.host ) ) {
+        if (!Objects.equals(this.host,
+                            other.host)) {
             return false;
         }
-        if ( !Objects.equals( this.context, other.context ) ) {
+        if (!Objects.equals(this.context,
+                            other.context)) {
             return false;
         }
         return true;
     }
-    
-    
-
 }
