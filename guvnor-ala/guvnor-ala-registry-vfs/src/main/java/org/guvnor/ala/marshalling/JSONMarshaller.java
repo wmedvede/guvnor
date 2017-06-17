@@ -18,12 +18,14 @@ package org.guvnor.ala.marshalling;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Basic json marshaller.
+ */
 public class JSONMarshaller {
 
     private static final Logger logger = LoggerFactory.getLogger(JSONMarshaller.class);
@@ -32,8 +34,6 @@ public class JSONMarshaller {
 
     public JSONMarshaller() {
         this.objectMapper = new ObjectMapper();
-
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     public String marshall(final Object objectInput) throws Exception {
@@ -46,13 +46,34 @@ public class JSONMarshaller {
         }
     }
 
-    public <T> T unmarshall(String serializedInput,
+    public <T> T unmarshall(String marshalledInput,
                             Class<T> type) throws Exception {
         try {
-            return objectMapper.readValue(serializedInput,
+            return objectMapper.readValue(marshalledInput,
                                           type);
         } catch (IOException e) {
-            logger.error("An error was produced during object unmarshalling, serializedInput: " + serializedInput,
+            logger.error("An error was produced during object unmarshalling, marshalledInput: " + marshalledInput,
+                         e);
+            throw e;
+        }
+    }
+
+    /**
+     * @param marshalledInput marshalled content to unmarshall.
+     * @param clazz Expected result type. The expected result type can not be a Map, Collection, or an array.
+     * An exception si thrown if any of the following conditions are met:
+     * Map.class.isAssignableFrom(clazz)
+     * Collection.class.isAssignableFrom(clazz)
+     * clazz.isArray()
+     * @return the unmarshalled object.
+     */
+    public Object unmarshallSimpleType(String marshalledInput,
+                                       Class<?> clazz) throws Exception {
+        try {
+            return objectMapper.readValue(marshalledInput,
+                                          SimpleType.construct(clazz));
+        } catch (IOException e) {
+            logger.error("An error was produced during object unmarshalling, marshalledInput: " + marshalledInput,
                          e);
             throw e;
         }

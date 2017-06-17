@@ -60,4 +60,28 @@ public class DockerProviderConfigImpl
         return new DockerProviderConfigImpl(origin.getName(),
                                             origin.getHostIp());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DockerProviderConfigImpl that = (DockerProviderConfigImpl) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        return hostIp != null ? hostIp.equals(that.hostIp) : that.hostIp == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (hostIp != null ? hostIp.hashCode() : 0);
+        return result;
+    }
 }

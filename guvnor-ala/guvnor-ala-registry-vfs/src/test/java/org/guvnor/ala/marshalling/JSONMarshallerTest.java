@@ -19,14 +19,14 @@ package org.guvnor.ala.marshalling;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
-import org.guvnor.ala.build.Project;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.guvnor.ala.build.maven.config.impl.MavenBuildConfigImpl;
 import org.guvnor.ala.config.ProjectConfig;
-import org.guvnor.ala.pipeline.Pipeline;
-import org.guvnor.ala.pipeline.PipelineConfig;
-import org.guvnor.ala.pipeline.Stage;
+import org.guvnor.ala.docker.config.impl.DockerProviderConfigImpl;
+import org.guvnor.ala.docker.model.DockerProviderImpl;
+import org.guvnor.ala.wildfly.config.impl.WildflyProviderConfigImpl;
+import org.guvnor.ala.wildfly.model.WildflyProviderImpl;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +44,10 @@ public class JSONMarshallerTest {
 
     private MavenBuildConfigImpl mavenBuildConfig;
 
+    private WildflyProviderImpl wildflyProvider;
+
+    private DockerProviderImpl dockerProvider;
+
     @Before
     public void setUp() throws Exception {
         contentPath = Paths.get(CONTENT_URI);
@@ -57,8 +61,14 @@ public class JSONMarshallerTest {
 
         mavenBuildConfig = new MavenBuildConfigImpl();
 
-        configRegistry.register(new MyProjectConfig());
-        configRegistry.register(mavenBuildConfig);
+        dockerProvider = createDockerProvider("Docker1");
+        wildflyProvider = createWildflyProvider("WF1");
+
+       // configRegistry.register(new MyProjectConfig());
+      //  configRegistry.register(mavenBuildConfig);
+
+        configRegistry.registerProvider(wildflyProvider);
+        //configRegistry.registerProvider(dockerProvider);
     }
 
     @Test
@@ -78,6 +88,13 @@ public class JSONMarshallerTest {
         serializedContent = new String(content);
         ConfigRegistry result = marshaller.unmarshall(serializedContent,
                                                       ConfigRegistry.class);
+
+        JsonNode node = marshaller.objectMapper.readTree(serializedContent);
+        //node.size()
+
+
+
+
         System.out.println("unserializedContent: " + result);
     }
 
@@ -85,27 +102,18 @@ public class JSONMarshallerTest {
 
     }
 
-    public void nada() {
-        Pipeline<?> pipeline = new Pipeline<Stage>() {
-            @Override
-            public String getName() {
-                return null;
-            }
+    private WildflyProviderImpl createWildflyProvider(String suffix) {
+        return new WildflyProviderImpl(
+                new WildflyProviderConfigImpl("name." + suffix,
+                                              "host." + suffix,
+                                              "port." + suffix,
+                                              "managementPort." + suffix,
+                                              "user." + suffix,
+                                              "password." + suffix));
+    }
 
-            @Override
-            public List<Stage> getStages() {
-                return null;
-            }
-
-            @Override
-            public PipelineConfig getConfig() {
-                return null;
-            }
-        };
-
-        pipeline.getStages().forEach(stage -> {
-                                         System.out.println(stage.getName());
-                                     }
-        );
+    private DockerProviderImpl createDockerProvider(String suffix) {
+        return new DockerProviderImpl(new DockerProviderConfigImpl("name." + suffix,
+                                                                   "host." + suffix));
     }
 }

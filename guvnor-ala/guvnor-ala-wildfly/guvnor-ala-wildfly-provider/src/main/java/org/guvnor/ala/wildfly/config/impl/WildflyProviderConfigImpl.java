@@ -92,4 +92,44 @@ public class WildflyProviderConfigImpl
                                              origin.getUser(),
                                              origin.getPassword());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        WildflyProviderConfigImpl that = (WildflyProviderConfigImpl) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (host != null ? !host.equals(that.host) : that.host != null) {
+            return false;
+        }
+        if (port != null ? !port.equals(that.port) : that.port != null) {
+            return false;
+        }
+        if (managementPort != null ? !managementPort.equals(that.managementPort) : that.managementPort != null) {
+            return false;
+        }
+        if (user != null ? !user.equals(that.user) : that.user != null) {
+            return false;
+        }
+        return password != null ? password.equals(that.password) : that.password == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (host != null ? host.hashCode() : 0);
+        result = 31 * result + (port != null ? port.hashCode() : 0);
+        result = 31 * result + (managementPort != null ? managementPort.hashCode() : 0);
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
+        return result;
+    }
 }
