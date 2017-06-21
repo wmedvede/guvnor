@@ -16,6 +16,9 @@
 
 package org.guvnor.ala.pipeline.execution.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
@@ -25,7 +28,9 @@ import org.guvnor.ala.runtime.providers.ProviderType;
 public class PipelineExecutorTaskDefImpl
         implements PipelineExecutorTaskDef {
 
-    private Pipeline pipeline;
+    private String pipeline;
+
+    private List<String> stages = new ArrayList<>();
 
     private Input input;
 
@@ -33,33 +38,45 @@ public class PipelineExecutorTaskDefImpl
 
     private ProviderType providerType;
 
-    public PipelineExecutorTaskDefImpl(Pipeline pipeline,
-                                       Input input) {
-        this.pipeline = pipeline;
+    public PipelineExecutorTaskDefImpl() {
+        //no args constructor for marshalling/unmarshalling.
+    }
+
+    private PipelineExecutorTaskDefImpl(final Pipeline pipeline) {
+        this.pipeline = pipeline.getName();
+        pipeline.getStages().forEach(stage -> stages.add(stage.getName()));
+    }
+
+    public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
+                                       final Input input) {
+        this(pipeline);
         this.input = input;
     }
 
     public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
                                        final Input input,
                                        final ProviderId providerId) {
-        this.pipeline = pipeline;
+        this(pipeline);
         this.input = input;
-        this.providerId = new InternalProviderId(providerId.getId(),
-                                                 providerId.getProviderType());
+        this.providerId = providerId;
     }
 
     public PipelineExecutorTaskDefImpl(final Pipeline pipeline,
                                        final Input input,
                                        final ProviderType providerType) {
-        this.pipeline = pipeline;
+        this(pipeline);
         this.input = input;
-        this.providerType = new InternalProviderType(providerType.getProviderTypeName(),
-                                                     providerType.getVersion());
+        this.providerType = providerType;
     }
 
     @Override
-    public Pipeline getPipeline() {
+    public String getPipeline() {
         return pipeline;
+    }
+
+    @Override
+    public List<String> getStages() {
+        return stages;
     }
 
     @Override

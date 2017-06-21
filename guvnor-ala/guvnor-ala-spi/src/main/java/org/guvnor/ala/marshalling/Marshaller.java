@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.registry.local;
+package org.guvnor.ala.marshalling;
 
-import javax.enterprise.context.ApplicationScoped;
+import java.io.IOException;
 
-import org.guvnor.ala.registry.impl.BaseBuildRegistry;
+/**
+ * General purpose contract for marshalling/unmarshalling operations.
+ */
+public interface Marshaller<T> {
 
-@ApplicationScoped
-public class InMemoryBuildRegistry
-        extends BaseBuildRegistry {
+    Class<T> getType();
 
-    public InMemoryBuildRegistry() {
-        //Empty constructor for Weld proxying
-    }
+    String marshal(final T value) throws IOException;
+
+    T unmarshal(final String marshalledValue) throws IOException;
 }

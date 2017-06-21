@@ -19,7 +19,6 @@ package org.guvnor.ala.registry.impl;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -32,22 +31,24 @@ import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderId;
 import org.guvnor.ala.runtime.providers.ProviderType;
 
+import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
+
 /**
  * Base implementation of a RuntimeRegistry.
  */
-public class BaseRuntimeRegistry
+public abstract class BaseRuntimeRegistry
         implements RuntimeRegistry {
 
-    protected final Map<ProviderType, ProviderType> providerTypes = new ConcurrentHashMap<>();
+    protected Map<ProviderType, ProviderType> providerTypes = new ConcurrentHashMap<>();
 
-    protected final Map<String, Provider> providers = new ConcurrentHashMap<>();
+    protected Map<String, Provider> providers = new ConcurrentHashMap<>();
 
-    protected final Map<String, Runtime> runtimes = new ConcurrentHashMap<>();
+    protected Map<String, Runtime> runtimes = new ConcurrentHashMap<>();
 
     @Override
     public void registerProviderType(final ProviderType providerType) {
-        requireNonNull(providerType,
-                       "providerType");
+        checkNotNull("providerType",
+                     providerType);
         providerTypes.put(providerType,
                           providerType);
     }
@@ -77,15 +78,15 @@ public class BaseRuntimeRegistry
 
     @Override
     public void deregisterProviderType(final ProviderType providerType) {
-        requireNonNull(providerType,
-                       "providerType");
+        checkNotNull("providerType",
+                     providerType);
         providerTypes.remove(providerType);
     }
 
     @Override
     public void registerProvider(final Provider provider) {
-        requireNonNull(provider,
-                       "provider");
+        checkNotNull("provider",
+                     provider);
         providers.put(provider.getId(),
                       provider);
     }
@@ -117,8 +118,8 @@ public class BaseRuntimeRegistry
 
     @Override
     public List<Provider> getProvidersByType(final ProviderType providerType) {
-        requireNonNull(providerType,
-                       "providerType");
+        checkNotNull("providerType",
+                     providerType);
         return providers.values().stream()
                 .filter(provider -> providerType.equals(provider.getProviderType()))
                 .collect(Collectors.toList());
@@ -126,29 +127,29 @@ public class BaseRuntimeRegistry
 
     @Override
     public Provider getProvider(final String providerId) {
-        requireNonNull(providerId,
-                       "providerId");
+        checkNotNull("providerId",
+                     providerId);
         return providers.get(providerId);
     }
 
     @Override
     public void deregisterProvider(final Provider provider) {
-        requireNonNull(provider,
-                       "provider");
+        checkNotNull("provider",
+                     provider);
         providers.remove(provider.getId());
     }
 
     @Override
     public void deregisterProvider(final String providerId) {
-        requireNonNull(providerId,
-                       "providerId");
+        checkNotNull("providerId",
+                     providerId);
         providers.remove(providerId);
     }
 
     @Override
     public void registerRuntime(final Runtime runtime) {
-        requireNonNull(runtime,
-                       "runtime");
+        checkNotNull("runtime",
+                     runtime);
         runtimes.put(runtime.getId(),
                      runtime);
     }
@@ -178,8 +179,8 @@ public class BaseRuntimeRegistry
 
     @Override
     public List<Runtime> getRuntimesByProvider(final ProviderType providerType) {
-        requireNonNull(providerType,
-                       "providerType");
+        checkNotNull("providerType",
+                     providerType);
         return runtimes.values().stream()
                 .filter(runtime -> providerType.equals(runtime.getProviderId().getProviderType()))
                 .collect(Collectors.toList());
@@ -187,34 +188,28 @@ public class BaseRuntimeRegistry
 
     @Override
     public Runtime getRuntimeById(final String runtimeId) {
-        requireNonNull(runtimeId,
-                       "runtimeId");
+        checkNotNull("runtimeId",
+                     runtimeId);
         return runtimes.get(runtimeId);
     }
 
     @Override
     public void deregisterRuntime(final RuntimeId runtimeId) {
-        requireNonNull(runtimeId,
-                       "runtimeId");
+        checkNotNull("runtimeId",
+                     runtimeId);
         runtimes.remove(runtimeId.getId());
     }
 
     @Override
     public <T extends Provider> Optional<T> getProvider(final ProviderId providerId,
                                                         final Class<T> clazz) {
-        requireNonNull(providerId,
-                       "providerId");
-        requireNonNull(clazz,
-                       "clazz");
+        checkNotNull("providerId",
+                     providerId);
+        checkNotNull("clazz",
+                     clazz);
         final Provider value = providers.get(providerId.getId());
         return Optional.ofNullable(value)
                 .filter(provider -> clazz.isInstance(provider))
                 .map(provider -> clazz.cast(provider));
-    }
-
-    protected void requireNonNull(final Object paramValue,
-                                  final String paramName) {
-        Objects.requireNonNull(paramValue,
-                               "Parameter " + paramName + " can not be null.");
     }
 }

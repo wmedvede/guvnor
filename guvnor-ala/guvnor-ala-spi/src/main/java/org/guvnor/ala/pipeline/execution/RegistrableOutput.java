@@ -19,26 +19,10 @@ package org.guvnor.ala.pipeline.execution;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
- * Represents a pipeline execution recording.
+ * Marker interface for tagging elements that might be produced as pipeline output and wants to be registered as the
+ * pipeline output in a pipeline executor trace.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-public interface PipelineExecutorTrace {
+public interface RegistrableOutput {
 
-    /**
-     * Shortcut to the task id related with this trace.
-     * @return returns the id of the internal task.
-     */
-    String getTaskId();
-
-    /**
-     * Shortcut to the pipeline id related with this trace.
-     * @return returns the pipeline id of the pipeline related with this trace.
-     */
-    String getPipelineId();
-
-    /**
-     * Gets the task that was executed.
-     * @return returns the internal task.
-     */
-    PipelineExecutorTask getTask();
 }

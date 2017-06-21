@@ -58,6 +58,7 @@ public class PipelineExecutorTaskManagerImplEventsTest
         stages = mockStages(PIPELINE_STAGES_SIZE);
         when(pipeline.getStages()).thenReturn(stages);
         when(pipeline.getName()).thenReturn(PIPELINE_ID);
+        when(pipelineRegistry.getPipelineByName(PIPELINE_ID)).thenReturn(pipeline);
 
         //pick an arbitrary stage for events testing.
         stage = stages.get(0);
@@ -65,7 +66,7 @@ public class PipelineExecutorTaskManagerImplEventsTest
         taskDef = mock(PipelineExecutorTaskDef.class);
         input = mock(Input.class);
         when(taskDef.getInput()).thenReturn(input);
-        when(taskDef.getPipeline()).thenReturn(pipeline);
+        when(taskDef.getPipeline()).thenReturn(PIPELINE_ID);
 
         task = spy(taskManagerHelper.createTask(taskDef,
                                                 TASK_ID));
@@ -149,7 +150,7 @@ public class PipelineExecutorTaskManagerImplEventsTest
         taskManager.localListener.beforeStageExecution(event);
 
         verify(task,
-               times(1)).setStageStatus(stage,
+               times(1)).setStageStatus(stage.getName(),
                                         PipelineExecutorTask.Status.RUNNING);
 
         verifyExecutorRegistryUpdated(async);
@@ -179,10 +180,10 @@ public class PipelineExecutorTaskManagerImplEventsTest
         verify(task,
                times(1)).setPipelineStatus(PipelineExecutorTask.Status.ERROR);
         verify(task,
-               times(1)).setStageStatus(stage,
+               times(1)).setStageStatus(stage.getName(),
                                         PipelineExecutorTask.Status.ERROR);
         verify(task,
-               times(1)).setStageError(stage,
+               times(1)).setStageError(stage.getName(),
                                        error);
 
         verifyExecutorRegistryUpdated(async);
@@ -209,7 +210,7 @@ public class PipelineExecutorTaskManagerImplEventsTest
         taskManager.localListener.afterStageExecution(event);
 
         verify(task,
-               times(1)).setStageStatus(stage,
+               times(1)).setStageStatus(stage.getName(),
                                         PipelineExecutorTask.Status.FINISHED);
 
         verifyExecutorRegistryUpdated(async);

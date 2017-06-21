@@ -18,14 +18,16 @@ package org.guvnor.ala.pipeline.execution.impl;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import org.guvnor.ala.pipeline.Stage;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
+import org.guvnor.ala.pipeline.execution.RegistrableOutput;
 
 import static org.guvnor.ala.pipeline.execution.PipelineExecutor.PIPELINE_EXECUTION_ID;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PipelineExecutorTaskImpl
         implements PipelineExecutorTask,
                    Cloneable {
@@ -39,26 +41,32 @@ public class PipelineExecutorTaskImpl
     /**
      * Holds the execution status for the pipeline stages. The state status can change during the pipeline execution.
      */
-    private Map<Stage, Status> stageStatus = new HashMap<>();
+    @JsonInclude
+    private Map<String, Status> stageStatus = new HashMap<>();
 
     /**
      * Holds the execution error for the stages in case there were errors.
      */
-    private Map<Stage, Throwable> stageError = new HashMap<>();
+    @JsonInclude
+    private Map<String, Throwable> stageError = new HashMap<>();
 
     /**
      * Holds the pipeline error in case the pipeline failed.
      */
     private Throwable pipelineError;
 
-    private Optional<?> output = Optional.empty();
+    private RegistrableOutput output;
+
+    public PipelineExecutorTaskImpl() {
+        //no args constructor for marshalling/unmarshalling.
+    }
 
     public PipelineExecutorTaskImpl(PipelineExecutorTaskDef taskDef,
                                     String executionId) {
         this.taskDef = taskDef;
         setId(executionId);
-        taskDef.getPipeline().getStages().forEach(stage -> setStageStatus(stage,
-                                                                          Status.SCHEDULED));
+        taskDef.getStages().forEach(stage -> setStageStatus(stage,
+                                                            Status.SCHEDULED));
     }
 
     @Override
@@ -85,23 +93,23 @@ public class PipelineExecutorTaskImpl
         this.pipelineStatus = pipelineStatus;
     }
 
-    public void setStageStatus(Stage stage,
+    public void setStageStatus(String stage,
                                Status status) {
         stageStatus.put(stage,
                         status);
     }
 
-    public Status getStageStatus(Stage stage) {
+    public Status getStageStatus(String stage) {
         return stageStatus.get(stage);
     }
 
-    public void setStageError(Stage stage,
+    public void setStageError(String stage,
                               Throwable error) {
         stageError.put(stage,
                        error);
     }
 
-    public Throwable getStageError(Stage stage) {
+    public Throwable getStageError(String stage) {
         return stageError.get(stage);
     }
 
@@ -114,12 +122,12 @@ public class PipelineExecutorTaskImpl
     }
 
     @Override
-    public Optional<?> getOutput() {
+    public RegistrableOutput getOutput() {
         return output;
     }
 
-    public void setOutput(Object obj) {
-        this.output = Optional.ofNullable(obj);
+    public void setOutput(final RegistrableOutput output) {
+        this.output = output;
     }
 
     public void clearErrors() {
@@ -133,10 +141,12 @@ public class PipelineExecutorTaskImpl
                                                                       executionId);
 
         clone.setPipelineStatus(this.getPipelineStatus());
-        stageStatus.entrySet().forEach(entry -> clone.setStageStatus(entry.getKey(), entry.getValue()));
-        stageError.entrySet().forEach(entry -> clone.setStageError(entry.getKey(), entry.getValue()));
+        stageStatus.entrySet().forEach(entry -> clone.setStageStatus(entry.getKey(),
+                                                                     entry.getValue()));
+        stageError.entrySet().forEach(entry -> clone.setStageError(entry.getKey(),
+                                                                   entry.getValue()));
         clone.setPipelineError(pipelineError);
-        clone.setOutput(output.orElse(null));
+        clone.setOutput(output);
         return clone;
     }
 }

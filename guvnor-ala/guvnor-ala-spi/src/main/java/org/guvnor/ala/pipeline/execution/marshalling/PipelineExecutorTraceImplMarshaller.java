@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.registry.local;
+package org.guvnor.ala.pipeline.execution.marshalling;
 
-import javax.enterprise.context.ApplicationScoped;
+import org.guvnor.ala.marshalling.impl.JSONBaseMarshaller;
+import org.guvnor.ala.pipeline.execution.impl.PipelineExecutorTraceImpl;
 
-import org.guvnor.ala.registry.impl.BasePipelineExecutorRegistry;
+/**
+ * PipelineExecutorTraceImpl marshaller implementation.
+ */
+public class PipelineExecutorTraceImplMarshaller
+        extends JSONBaseMarshaller<PipelineExecutorTraceImpl> {
 
-@ApplicationScoped
-public class InMemoryPipelineExecutorRegistry
-        extends BasePipelineExecutorRegistry {
-
-    public InMemoryPipelineExecutorRegistry() {
-        //Empty constructor for Weld proxying
+    public PipelineExecutorTraceImplMarshaller() {
+        super(PipelineExecutorTraceImpl.class);
     }
 }

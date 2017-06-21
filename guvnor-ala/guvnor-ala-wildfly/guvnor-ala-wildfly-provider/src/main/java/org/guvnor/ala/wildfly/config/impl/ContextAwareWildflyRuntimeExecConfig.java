@@ -26,10 +26,11 @@ import org.guvnor.ala.runtime.providers.ProviderId;
 import org.guvnor.ala.wildfly.config.WildflyRuntimeExecConfig;
 import org.guvnor.ala.wildfly.model.WildflyProvider;
 
-public class ContextAwareWildflyRuntimeExecConfig implements
-                                                  ContextAware,
-                                                  WildflyRuntimeExecConfig,
-                                                  CloneableConfig<WildflyRuntimeExecConfig> {
+public class ContextAwareWildflyRuntimeExecConfig
+        implements
+        ContextAware,
+        WildflyRuntimeExecConfig,
+        CloneableConfig<WildflyRuntimeExecConfig> {
 
     @JsonIgnore
     private Map<String, ?> context;

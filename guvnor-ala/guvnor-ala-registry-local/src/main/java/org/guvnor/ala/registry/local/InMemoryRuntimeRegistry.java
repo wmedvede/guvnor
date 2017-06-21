@@ -20,9 +20,6 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.guvnor.ala.registry.impl.BaseRuntimeRegistry;
 
-/**
- * In memory implementation of a runtime registry.
- */
 @ApplicationScoped
 public class InMemoryRuntimeRegistry
         extends BaseRuntimeRegistry {

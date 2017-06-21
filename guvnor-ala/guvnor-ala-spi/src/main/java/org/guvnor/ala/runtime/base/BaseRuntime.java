@@ -17,16 +17,19 @@
 package org.guvnor.ala.runtime.base;
 
 import org.guvnor.ala.config.RuntimeConfig;
+import org.guvnor.ala.pipeline.execution.RegistrableOutput;
 import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.runtime.RuntimeEndpoint;
 import org.guvnor.ala.runtime.RuntimeInfo;
 import org.guvnor.ala.runtime.RuntimeState;
 import org.guvnor.ala.runtime.providers.ProviderId;
 
-/*
+/**
  * BaseRuntime implementation to be extended by each Runtime Provider
  */
-public abstract class BaseRuntime implements Runtime {
+public abstract class BaseRuntime
+        implements Runtime,
+                   RegistrableOutput {
 
     private String id;
     private String name;
@@ -36,13 +39,19 @@ public abstract class BaseRuntime implements Runtime {
     private RuntimeInfo info;
     private RuntimeState state;
 
-    /*
-     * No-args constructor for enabling marshalling to work, please do not remove. 
+    /**
+     * No-args constructor for enabling marshalling to work, please do not remove.
      */
     public BaseRuntime() {
     }
 
-    public BaseRuntime( String id, String name, RuntimeConfig config, ProviderId providerId, RuntimeEndpoint endpoint, RuntimeInfo info, RuntimeState state ) {
+    public BaseRuntime(final String id,
+                       final String name,
+                       final RuntimeConfig config,
+                       final ProviderId providerId,
+                       final RuntimeEndpoint endpoint,
+                       final RuntimeInfo info,
+                       final RuntimeState state) {
         this.id = id;
         this.name = name;
         this.config = config;
@@ -51,7 +60,7 @@ public abstract class BaseRuntime implements Runtime {
         this.info = info;
         this.state = state;
     }
-   
+
     @Override
     public String getId() {
         return id;
@@ -61,6 +70,7 @@ public abstract class BaseRuntime implements Runtime {
     public String getName() {
         return name;
     }
+
     @Override
     public RuntimeConfig getConfig() {
         return config;
