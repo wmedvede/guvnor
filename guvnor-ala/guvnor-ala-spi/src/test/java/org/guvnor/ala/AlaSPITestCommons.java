@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui;
+package org.guvnor.ala;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderType;
 
-public class ProvisioningManagementBackendTestCommons {
+public class AlaSPITestCommons {
 
     public static final String PROVIDER_TYPE_NAME_FIELD = "ProviderType.providerTypeName.";
 
@@ -76,10 +76,18 @@ public class ProvisioningManagementBackendTestCommons {
 
     public static List<Provider> mockProviderListSPI(final ProviderType providerType,
                                                      int count) {
+        return mockProviderListSPI(providerType,
+                                   "",
+                                   count);
+    }
+
+    public static List<Provider> mockProviderListSPI(final ProviderType providerType,
+                                                     final String suffix,
+                                                     int count) {
         List<Provider> providers = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             providers.add(mockProviderSPI(providerType,
-                                          Integer.toString(i)));
+                                          Integer.toString(i) + suffix));
         }
         return providers;
     }

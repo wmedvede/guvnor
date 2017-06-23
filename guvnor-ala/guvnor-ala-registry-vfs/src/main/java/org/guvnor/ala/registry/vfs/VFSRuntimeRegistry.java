@@ -143,13 +143,18 @@ public class VFSRuntimeRegistry
     }
 
     private void initializeRegistry() {
-        final List<Object> providers = registryHelper.readEntries(registryRoot,
-                                                                  newFilter(PROVIDER_SUFFIX));
-        providers.forEach(provider -> super.registerProvider((Provider) provider));
+        try {
+            final List<Object> providers = registryHelper.readEntries(registryRoot,
+                                                                      newFilter(PROVIDER_SUFFIX));
+            providers.forEach(provider -> super.registerProvider((Provider) provider));
 
-        final List<Object> runtimes = registryHelper.readEntries(registryRoot,
-                                                                 newFilter(RUNTIME_SUFFIX));
-        runtimes.forEach(runtime -> super.registerRuntime((Runtime) runtime));
+            final List<Object> runtimes = registryHelper.readEntries(registryRoot,
+                                                                     newFilter(RUNTIME_SUFFIX));
+            runtimes.forEach(runtime -> super.registerRuntime((Runtime) runtime));
+        } catch (Exception e) {
+            logger.error("An error was produced during " + VFSRuntimeRegistry.class.getName() + " initialization.",
+                         e);
+        }
     }
 
     private Path buildProviderPath(final String providerId) {

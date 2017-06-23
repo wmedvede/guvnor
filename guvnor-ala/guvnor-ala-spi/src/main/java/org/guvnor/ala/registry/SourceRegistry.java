@@ -37,47 +37,11 @@ public interface SourceRegistry {
                                    final Repository repo);
 
     /**
-     * Get the path for a given repository
-     * @param repo the repository for getting the path.
-     * @return Path where the repository is stored
-     * @see Path
-     * @see Repository
-     */
-    Path getRepositoryPath(final Repository repo);
-
-    /**
-     * Get the repository for a given path
-     * @param location the path for getting the repository.
-     * @return the repository associated with the path.
-     * @see Path
-     * @see Repository
-     */
-    Repository getRepositoryByPath(final Path location);
-
-    /**
      * Get All the registered repositories
      * @return List<Repository> with all the registered repositories
      * @see Repository
      */
     List<Repository> getAllRepositories();
-
-    /**
-     * Get the repository path by repository Id
-     * @param repoId the repository identifier.
-     * @return Path where the repository is located
-     * @see Path
-     */
-    Path getRepositoryPathById(final String repoId);
-
-    /**
-     * Registers a Project from a repository
-     * @param repo the repository for registering the project.
-     * @param project a project to be registered
-     * @see Repository
-     * @see Project
-     */
-    void registerProject(final Repository repo,
-                         final Project project);
 
     /**
      * Get All the registered projects for a given repository
@@ -87,14 +51,6 @@ public interface SourceRegistry {
      * @see Project
      */
     List<Project> getAllProjects(final Repository repo);
-
-    /**
-     * Gets a Repository filtered by Id
-     * @param repositoryId the repository identifier.
-     * @return the registered repository, when exists, null in any other case.
-     * @see Repository
-     */
-    Repository getRepositoryById(final String repositoryId);
 
     /**
      * Register a Source code from a Repository

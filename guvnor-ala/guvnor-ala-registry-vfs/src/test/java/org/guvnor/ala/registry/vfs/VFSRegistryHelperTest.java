@@ -1,0 +1,385 @@
+/*
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.guvnor.ala.registry.vfs;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.guvnor.ala.marshalling.Marshaller;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.uberfire.io.IOService;
+import org.uberfire.java.nio.IOException;
+import org.uberfire.java.nio.file.DirectoryStream;
+import org.uberfire.java.nio.file.FileSystem;
+import org.uberfire.java.nio.file.Path;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
+public class VFSRegistryHelperTest {
+
+    private static final String PROVISIONING_PATH = "provisioning";
+
+    private static final String DIRECTORY_NAME = "DIRECTORY_NAME";
+
+    private static final String MARSHALLED_VALUE = "MARSHALLED_VALUE";
+
+    private static final String MARSHALLED_ENTRY = "MARSHALLED_ENTRY";
+
+    private static final String ERROR_MESSAGE = "ERROR_MESSAGE";
+
+    private static final int ENTRY_COUNT = 10;
+
+    @Mock
+    private VFSMarshallerRegistry marshallerRegistry;
+
+    @Mock
+    private IOService ioService;
+
+    @Mock
+    private FileSystem fileSystem;
+
+    private VFSRegistryHelper registryHelper;
+
+    @Mock
+    private Path fsRoot;
+
+    @Mock
+    private Path provisioningPath;
+
+    @Mock
+    private VFSRegistryEntryMarshaller entryMarshaller;
+
+    @Mock
+    private Path path;
+
+    @Mock
+    private Marshaller marshaller;
+
+    @Mock
+    private Object value;
+
+    @Mock
+    private VFSRegistryEntry entry;
+
+    @Mock
+    private Path rootPath;
+
+    private List<Path> entryPaths;
+
+    private List<Object> expectedObjects;
+
+    private List<VFSRegistryEntry> entries;
+
+    @Mock
+    private DirectoryStream.Filter<Path> filter;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @SuppressWarnings("unchecked")
+    @Before
+    public void setUp() {
+
+        Iterable<Path> iterable = mock(Iterable.class);
+        Iterator<Path> pathIterator = mock(Iterator.class);
+        when(iterable.iterator()).thenReturn(pathIterator);
+        when(pathIterator.next()).thenReturn(fsRoot);
+        when(fileSystem.getRootDirectories()).thenReturn(iterable);
+        when(fsRoot.resolve(PROVISIONING_PATH)).thenReturn(provisioningPath);
+        when(ioService.exists(provisioningPath)).thenReturn(true);
+
+        when(marshallerRegistry.get(VFSRegistryEntry.class)).thenReturn(entryMarshaller);
+
+        registryHelper = spy(new VFSRegistryHelper(marshallerRegistry,
+                                                   ioService,
+                                                   fileSystem));
+    }
+
+    @Test
+    public void testInitWhenProvisioningPathExists() {
+        when(ioService.exists(provisioningPath)).thenReturn(true);
+
+        registryHelper.init();
+
+        verify(ioService,
+               times(1)).exists(provisioningPath);
+        verify(ioService,
+               never()).createDirectory(provisioningPath);
+    }
+
+    @Test
+    public void testInitWhenProvisioningPathNotExists() {
+        when(ioService.exists(provisioningPath)).thenReturn(false);
+
+        registryHelper.init();
+
+        verify(ioService,
+               times(1)).exists(provisioningPath);
+        verify(ioService,
+               times(1)).createDirectory(provisioningPath);
+    }
+
+    @Test
+    public void testEnsureDirectoryWhenDirectoryExists() {
+        registryHelper.init();
+
+        Path path = mock(Path.class);
+        when(provisioningPath.resolve(DIRECTORY_NAME)).thenReturn(path);
+        when(ioService.exists(path)).thenReturn(true);
+
+        Path result = registryHelper.ensureDirectory(DIRECTORY_NAME);
+        verify(provisioningPath,
+               times(1)).resolve(DIRECTORY_NAME);
+        verify(ioService,
+               never()).createDirectory(path);
+
+        assertEquals(path,
+                     result);
+    }
+
+    @Test
+    public void testEnsureDirectoryWhenDirectoryNotExists() {
+        registryHelper.init();
+
+        Path path = mock(Path.class);
+        Path createdPath = mock(Path.class);
+        when(provisioningPath.resolve(DIRECTORY_NAME)).thenReturn(path);
+        when(ioService.exists(path)).thenReturn(false);
+        when(ioService.createDirectory(path)).thenReturn(createdPath);
+
+        Path result = registryHelper.ensureDirectory(DIRECTORY_NAME);
+        verify(provisioningPath,
+               times(1)).resolve(DIRECTORY_NAME);
+        verify(ioService,
+               times(1)).createDirectory(path);
+
+        assertEquals(createdPath,
+                     result);
+    }
+
+    @Test
+    public void testMd5Hex() {
+        String result = registryHelper.md5Hex(null);
+        assertNull(result);
+
+        result = registryHelper.md5Hex(DIRECTORY_NAME);
+        assertEquals(DigestUtils.md5Hex(DIRECTORY_NAME),
+                     result);
+    }
+
+    @Test
+    public void testStoreEntryWhenMarshallerNotExists() throws Exception {
+        registryHelper.init();
+
+        Object value = mock(Object.class);
+        when(marshallerRegistry.get(value.getClass())).thenReturn(null);
+        expectedException.expectMessage("No marshaller was found for class: " + value.getClass());
+
+        registryHelper.storeEntry(mock(Path.class),
+                                  value,
+                                  true);
+    }
+
+    @Test
+    public void testStoreEntryDeleteIfExists() throws Exception {
+        testStoreEntry(true);
+    }
+
+    @Test
+    public void testStoreEntryNotDeleteIfExists() throws Exception {
+        testStoreEntry(false);
+    }
+
+    private void testStoreEntry(boolean deleteIfExistsOption) throws Exception {
+        registryHelper.init();
+
+        when(marshallerRegistry.get(value.getClass())).thenReturn(marshaller);
+        when(marshaller.marshal(value)).thenReturn(MARSHALLED_VALUE);
+
+        VFSRegistryEntry expectedEntry = new VFSRegistryEntry(VFSRegistryEntry.JSON,
+                                                              value.getClass().getName(),
+                                                              MARSHALLED_VALUE);
+        when(entryMarshaller.marshal(expectedEntry)).thenReturn(MARSHALLED_ENTRY);
+
+        registryHelper.storeEntry(path,
+                                  value,
+                                  deleteIfExistsOption);
+
+        verify(marshallerRegistry,
+               times(1)).get(value.getClass());
+        verify(registryHelper,
+               times(1)).writeBatch(path,
+                                    MARSHALLED_ENTRY,
+                                    deleteIfExistsOption);
+    }
+
+    @Test
+    public void testReadEntryWhenMarshallerNotExists() throws Exception {
+        registryHelper.init();
+
+        when(ioService.readAllString(path)).thenReturn(MARSHALLED_ENTRY);
+        when(entryMarshaller.unmarshal(MARSHALLED_ENTRY)).thenReturn(entry);
+
+        when(entry.getContentType()).thenReturn(Object.class.getName());
+        when(marshallerRegistry.get(Object.class.getClass())).thenReturn(null);
+
+        expectedException.expectMessage("No marshaller was found for class: " + entry.getContentType());
+        registryHelper.readEntry(path);
+    }
+
+    @Test
+    public void testReadEntry() throws Exception {
+        registryHelper.init();
+
+        when(ioService.readAllString(path)).thenReturn(MARSHALLED_ENTRY);
+        when(entryMarshaller.unmarshal(MARSHALLED_ENTRY)).thenReturn(entry);
+
+        when(entry.getContentType()).thenReturn(Object.class.getName());
+        when(entry.getContent()).thenReturn(MARSHALLED_VALUE);
+        when(marshallerRegistry.get(any(Class.class))).thenReturn(marshaller);
+
+        Object unmarshalledValue = mock(Object.class);
+        when(marshaller.unmarshal(MARSHALLED_VALUE)).thenReturn(unmarshalledValue);
+
+        Object result = registryHelper.readEntry(path);
+        assertEquals(unmarshalledValue,
+                     result);
+    }
+
+    @Test
+    public void testReadEntries() throws Exception {
+        registryHelper.init();
+
+        prepareReadEntries();
+
+        List<Object> result = registryHelper.readEntries(rootPath,
+                                                         filter);
+        assertEquals(expectedObjects,
+                     result);
+        for (Path path : entryPaths) {
+            verify(registryHelper,
+                   times(1)).readEntry(path);
+        }
+    }
+
+    @Test
+    public void testReadEntriesWithError() throws Exception {
+        registryHelper.init();
+
+        prepareReadEntries();
+
+        //make an arbitrary path reading to fail.
+        int failingIndex = 5;
+        when(marshaller.unmarshal(entries.get(failingIndex).getContent())).thenThrow(new IOException(ERROR_MESSAGE));
+
+        expectedException.expectMessage(ERROR_MESSAGE);
+        registryHelper.readEntries(rootPath,
+                                   filter);
+        for (int i = 0; i < failingIndex; i++) {
+            verify(registryHelper,
+                   times(1));
+        }
+    }
+
+    @Test
+    public void testWriteBatchDeleteIfExists() {
+        testWriteBatch(true);
+    }
+
+    @Test
+    public void testWriteBatchNotDeleteIfExits() {
+        testWriteBatch(false);
+    }
+
+    private void testWriteBatch(boolean deleteIfExists) {
+        when(path.getFileSystem()).thenReturn(fileSystem);
+        registryHelper.writeBatch(path,
+                                  MARSHALLED_VALUE,
+                                  deleteIfExists);
+        verify(ioService,
+               times(1)).startBatch(fileSystem);
+        verify(ioService,
+               times(1)).write(path,
+                               MARSHALLED_VALUE);
+        verify(ioService,
+               times(1)).endBatch();
+        if (deleteIfExists) {
+            verify(ioService,
+                   times(1)).deleteIfExists(path);
+        }
+    }
+
+    @Test
+    public void testDeleteBatch() {
+        when(path.getFileSystem()).thenReturn(fileSystem);
+        registryHelper.deleteBatch(path);
+
+        verify(ioService,
+               times(1)).startBatch(fileSystem);
+        verify(ioService,
+               times(1)).deleteIfExists(path);
+        verify(ioService,
+               times(1)).endBatch();
+    }
+
+    private void prepareReadEntries() throws Exception {
+        entryPaths = mockList(Path.class,
+                              ENTRY_COUNT);
+        Iterator<Path> pathIterator = entryPaths.iterator();
+
+        expectedObjects = mockList(Object.class,
+                                   ENTRY_COUNT);
+
+        entries = mockList(VFSRegistryEntry.class,
+                           ENTRY_COUNT);
+
+        DirectoryStream<Path> directoryStream = mock(DirectoryStream.class);
+        when(directoryStream.iterator()).thenReturn(pathIterator);
+
+        when(ioService.newDirectoryStream(rootPath,
+                                          filter)).thenReturn(directoryStream);
+
+        for (int i = 0; i < ENTRY_COUNT; i++) {
+            VFSRegistryEntry entry = entries.get(i);
+            when(ioService.readAllString(entryPaths.get(i))).thenReturn(MARSHALLED_ENTRY + i);
+            when(entryMarshaller.unmarshal(MARSHALLED_ENTRY + i)).thenReturn(entry);
+            when(entry.getContentType()).thenReturn(Object.class.getName());
+            when(entry.getContent()).thenReturn(MARSHALLED_VALUE + i);
+            when(marshallerRegistry.get(any(Class.class))).thenReturn(marshaller);
+            when(marshaller.unmarshal(MARSHALLED_VALUE + i)).thenReturn(expectedObjects.get(i));
+        }
+    }
+
+    private <T> List<T> mockList(Class<T> clazz,
+                                 int count) {
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            result.add(mock(clazz));
+        }
+        return result;
+    }
+}

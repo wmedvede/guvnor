@@ -103,9 +103,14 @@ public class VFSPipelineExecutorRegistry
     }
 
     private void initializeRegistry() {
-        final List<Object> traces = registryHelper.readEntries(registryRoot,
-                                                               newFilter(TRACE_SUFFIX));
-        traces.forEach(trace -> super.register((PipelineExecutorTrace) trace));
+        try {
+            final List<Object> traces = registryHelper.readEntries(registryRoot,
+                                                                   newFilter(TRACE_SUFFIX));
+            traces.forEach(trace -> super.register((PipelineExecutorTrace) trace));
+        } catch (Exception e) {
+            logger.error("An error was produced during " + VFSPipelineExecutorRegistry.class.getName() + " initialization.",
+                         e);
+        }
     }
 
     private Path buildTracePath(final String pipelineExecutionTraceId) {

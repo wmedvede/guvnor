@@ -28,6 +28,7 @@ import org.uberfire.java.nio.file.Path;
 
 /**
  * Base implementation of a SourceRegistry.
+ * Note: Was copied as is from original version in guvnor-ala-registry-local.
  */
 public abstract class BaseSourceRegistry
         implements SourceRegistry {
@@ -35,7 +36,6 @@ public abstract class BaseSourceRegistry
     private Map<Path, Repository> repositorySourcesPath = new ConcurrentHashMap<>();
     //Store the repository id and path for reverse lookup
     private Map<String, Path> pathByRepositoryId = new ConcurrentHashMap<>();
-    private Map<Repository, List<Project>> projectsByRepo = new ConcurrentHashMap<>();
     private Map<Repository, List<Source>> sourceByRepo = new ConcurrentHashMap<>();
     private Map<Source, Project> projectBySource = new ConcurrentHashMap<>();
 
@@ -49,31 +49,8 @@ public abstract class BaseSourceRegistry
     }
 
     @Override
-    public Path getRepositoryPath(final Repository repo) {
-        return pathByRepositoryId.get(repo.getId());
-    }
-
-    @Override
-    public Path getRepositoryPathById(final String repoId) {
-        return pathByRepositoryId.get(repoId);
-    }
-
-    @Override
-    public Repository getRepositoryByPath(final Path path) {
-        return repositorySourcesPath.get(path);
-    }
-
-    @Override
     public List<Repository> getAllRepositories() {
         return new ArrayList<>(repositorySourcesPath.values());
-    }
-
-    @Override
-    public void registerProject(final Repository repo,
-                                final Project project) {
-        projectsByRepo.putIfAbsent(repo,
-                                   new ArrayList<>());
-        projectsByRepo.get(repo).add(project);
     }
 
     @Override
@@ -86,11 +63,6 @@ public abstract class BaseSourceRegistry
             }
         }
         return allProjects;
-    }
-
-    @Override
-    public Repository getRepositoryById(final String repositoryId) {
-        return repositorySourcesPath.get(pathByRepositoryId.get(repositoryId));
     }
 
     @Override

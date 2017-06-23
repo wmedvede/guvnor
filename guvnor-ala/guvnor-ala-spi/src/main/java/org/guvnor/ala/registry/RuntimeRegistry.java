@@ -130,15 +130,6 @@ public interface RuntimeRegistry {
                               final boolean sortOrder);
 
     /**
-     * Gets the list of registered runtimes for a given provider type.
-     * @param providerType a given provider type.
-     * @return a list with all the runtimes associated to the provider type.
-     * @see ProviderType
-     * @see Runtime
-     */
-    List<Runtime> getRuntimesByProvider(final ProviderType providerType);
-
-    /**
      * Gets a runtime by identifier.
      * @param runtimeId the identifier of the runtime to look for.
      * @return the runtime with the given identifier, if registered, null y any other case.

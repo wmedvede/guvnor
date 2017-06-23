@@ -140,9 +140,12 @@ public class VFSRegistryHelper {
      * @throws Exception exceptions might be thrown in cases of filesystem or marshalling errors.
      */
     public Object readEntry(final Path path) throws Exception {
-        final String entryContent = readBatch(path);
+        final String entryContent = ioService.readAllString(path);
         final VFSRegistryEntry entry = entryMarshaller.unmarshal(entryContent);
         final Marshaller marshaller = marshallerRegistry.get(Class.forName(entry.getContentType()));
+        if (marshaller == null) {
+            throw new Exception("No marshaller was found for class: " + entry.getContentType());
+        }
         return marshaller.unmarshal(entry.getContent());
     }
 
@@ -153,7 +156,7 @@ public class VFSRegistryHelper {
      * @return a list with the unmarshalled objects backed by the filtered files.
      */
     public List<Object> readEntries(final Path rootPath,
-                                    final DirectoryStream.Filter<Path> filter) {
+                                    final DirectoryStream.Filter<Path> filter) throws Exception {
         final List<Object> entries = new ArrayList<>();
         for (Path path : ioService.newDirectoryStream(rootPath,
                                                       filter)) {
@@ -162,6 +165,7 @@ public class VFSRegistryHelper {
             } catch (Exception e) {
                 logger.error("An error was produced while processing entry for path: " + path,
                              e);
+                throw e;
             }
         }
         return entries;
@@ -196,20 +200,6 @@ public class VFSRegistryHelper {
         try {
             ioService.startBatch(path.getFileSystem());
             ioService.deleteIfExists(path);
-        } finally {
-            ioService.endBatch();
-        }
-    }
-
-    /**
-     * Reads a path content by performing a batch read operation.
-     * @param path a path for reading the content.
-     * @return the string content of the path.
-     */
-    public String readBatch(final Path path) {
-        try {
-            ioService.startBatch(path.getFileSystem());
-            return ioService.readAllString(path);
         } finally {
             ioService.endBatch();
         }

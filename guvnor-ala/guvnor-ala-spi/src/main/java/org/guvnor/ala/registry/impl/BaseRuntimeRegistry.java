@@ -178,15 +178,6 @@ public abstract class BaseRuntimeRegistry
     }
 
     @Override
-    public List<Runtime> getRuntimesByProvider(final ProviderType providerType) {
-        checkNotNull("providerType",
-                     providerType);
-        return runtimes.values().stream()
-                .filter(runtime -> providerType.equals(runtime.getProviderId().getProviderType()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public Runtime getRuntimeById(final String runtimeId) {
         checkNotNull("runtimeId",
                      runtimeId);

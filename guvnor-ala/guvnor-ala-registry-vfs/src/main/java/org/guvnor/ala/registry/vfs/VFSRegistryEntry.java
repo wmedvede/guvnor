@@ -55,4 +55,32 @@ public class VFSRegistryEntry {
         this.contentType = contentType;
         this.content = content;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        VFSRegistryEntry entry = (VFSRegistryEntry) o;
+
+        if (contentFormat != null ? !contentFormat.equals(entry.contentFormat) : entry.contentFormat != null) {
+            return false;
+        }
+        if (contentType != null ? !contentType.equals(entry.contentType) : entry.contentType != null) {
+            return false;
+        }
+        return content != null ? content.equals(entry.content) : entry.content == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = contentFormat != null ? contentFormat.hashCode() : 0;
+        result = 31 * result + (contentType != null ? contentType.hashCode() : 0);
+        result = 31 * result + (content != null ? content.hashCode() : 0);
+        return result;
+    }
 }
