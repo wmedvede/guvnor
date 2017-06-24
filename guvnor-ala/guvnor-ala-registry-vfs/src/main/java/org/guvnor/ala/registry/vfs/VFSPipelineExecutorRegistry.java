@@ -39,9 +39,9 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 public class VFSPipelineExecutorRegistry
         extends InMemoryPipelineExecutorRegistry {
 
-    private static final String PIPELINE_EXECUTOR_REGISTRY_PATH = "executor-registry";
+    protected static final String PIPELINE_EXECUTOR_REGISTRY_PATH = "executor-registry";
 
-    private static final String TRACE_SUFFIX = "-trace.json";
+    protected static final String TRACE_SUFFIX = "-trace.json";
 
     private static final Logger logger = LoggerFactory.getLogger(VFSPipelineExecutorRegistry.class);
 

@@ -39,19 +39,19 @@ import static org.mockito.Mockito.*;
 
 public class BaseRuntimeRegistryTest {
 
-    private static final int ELEMENTS_COUNT = 10;
+    protected static final int ELEMENTS_COUNT = 10;
 
-    private static final String PROVIDER_ID = "PROVIDER_ID";
+    protected static final String PROVIDER_ID = "PROVIDER_ID";
 
-    private BaseRuntimeRegistry runtimeRegistry;
+    protected BaseRuntimeRegistry runtimeRegistry;
 
-    private ProviderType providerType;
+    protected ProviderType providerType;
 
-    private Provider provider;
+    protected Provider provider;
 
-    private ProviderId providerId;
+    protected ProviderId providerId;
 
-    private Runtime runtime;
+    protected Runtime runtime;
 
     @Before
     public void setUp() {
@@ -203,7 +203,7 @@ public class BaseRuntimeRegistryTest {
         }
     }
 
-    private void verifyProviderIsRegistered(Provider provider) {
+    protected void verifyProviderIsRegistered(Provider provider) {
         List<Provider> result = runtimeRegistry.getProviders(0,
                                                              1000,
                                                              RuntimeRegistry.PROVIDER_ID_SORT,
@@ -211,7 +211,7 @@ public class BaseRuntimeRegistryTest {
         assertTrue(result.contains(provider));
     }
 
-    private void verifyProviderIsNotRegistered(Provider provider) {
+    protected void verifyProviderIsNotRegistered(Provider provider) {
         List<Provider> result = runtimeRegistry.getProviders(0,
                                                              1000,
                                                              RuntimeRegistry.PROVIDER_ID_SORT,
@@ -288,7 +288,7 @@ public class BaseRuntimeRegistryTest {
                      result.get());
     }
 
-    private void verifyRuntimeIsRegistered(Runtime runtime) {
+    protected void verifyRuntimeIsRegistered(Runtime runtime) {
         List<Runtime> result = runtimeRegistry.getRuntimes(0,
                                                            1000,
                                                            RuntimeRegistry.RUNTIME_ID_SORT,
@@ -296,7 +296,7 @@ public class BaseRuntimeRegistryTest {
         assertTrue(result.contains(runtime));
     }
 
-    private void verifyRuntimeIsNotRegistered(Runtime runtime) {
+    protected void verifyRuntimeIsNotRegistered(Runtime runtime) {
         List<Runtime> result = runtimeRegistry.getRuntimes(0,
                                                            1000,
                                                            RuntimeRegistry.RUNTIME_ID_SORT,

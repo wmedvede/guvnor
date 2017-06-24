@@ -29,13 +29,13 @@ import static org.mockito.Mockito.*;
 
 public class BasePipelineExecutorRegistryTest {
 
-    private BasePipelineExecutorRegistry pipelineExecutorRegistry;
+    protected BasePipelineExecutorRegistry pipelineExecutorRegistry;
 
-    private static final String PIPELINE_EXECUTION_ID = "PIPELINE_EXECUTION_ID";
+    protected static final String PIPELINE_EXECUTION_ID = "PIPELINE_EXECUTION_ID";
 
-    private static final int TRACES_COUNT = 10;
+    protected static final int TRACES_COUNT = 10;
 
-    private PipelineExecutorTrace trace;
+    protected PipelineExecutorTrace trace;
 
     @Before
     public void setUp() {

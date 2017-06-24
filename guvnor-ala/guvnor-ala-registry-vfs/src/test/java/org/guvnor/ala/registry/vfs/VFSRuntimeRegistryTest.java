@@ -19,82 +19,216 @@ package org.guvnor.ala.registry.vfs;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.guvnor.ala.docker.config.impl.DockerProviderConfigImpl;
-import org.guvnor.ala.docker.model.DockerProviderImpl;
+import org.guvnor.ala.registry.impl.BaseRuntimeRegistryTest;
+import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.runtime.providers.Provider;
-import org.guvnor.ala.wildfly.config.impl.WildflyProviderConfigImpl;
-import org.guvnor.ala.wildfly.model.WildflyProviderImpl;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.uberfire.mocks.FileSystemTestingUtils;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.uberfire.java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.guvnor.ala.AlaSPITestCommons.mockProviderListSPI;
+import static org.guvnor.ala.registry.vfs.VFSRuntimeRegistry.PROVIDER_SUFFIX;
+import static org.guvnor.ala.registry.vfs.VFSRuntimeRegistry.RUNTIME_REGISTRY_PATH;
+import static org.guvnor.ala.registry.vfs.VFSRuntimeRegistry.RUNTIME_SUFFIX;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-public class VFSRuntimeRegistryTest {
+@RunWith(MockitoJUnitRunner.class)
+public class VFSRuntimeRegistryTest
+        extends BaseRuntimeRegistryTest {
 
-    private FileSystemTestingUtils fileSystemTestingUtils = new FileSystemTestingUtils();
+    private static final String ID_MD5 = "ID_MD5";
 
-    private VFSRuntimeRegistry registry;
+    @Mock
+    private VFSRegistryHelper registryHelper;
+
+    @Mock
+    private Path registryRoot;
+
+    private List<Object> providers;
+
+    private List<Object> runtimes;
+
+    private Path providerTargetPath;
+
+    private Path runtimeTargetPath;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
-    public void setUp() throws Exception {
-        fileSystemTestingUtils.setup();
-        registry = new VFSRuntimeRegistry(fileSystemTestingUtils.getIoService(),
-                                          fileSystemTestingUtils.getFileSystem());
-        registry.init();
+    @Override
+    public void setUp() {
+        super.setUp();
+        when(registryHelper.ensureDirectory(RUNTIME_REGISTRY_PATH)).thenReturn(registryRoot);
+        runtimeRegistry = spy(new VFSRuntimeRegistry(registryHelper));
+        ((VFSRuntimeRegistry) runtimeRegistry).init();
     }
 
     @Test
-    public void testRegisterProvider() {
+    public void testInit() throws Exception {
+        providers = new ArrayList<>();
+        providers.addAll(mockProviderListSPI(providerType,
+                                             ELEMENTS_COUNT));
 
-        Provider wfProvider = createWildflyProvider("wf");
-        Provider dockerProvider = createDockerProvider("docker");
+        runtimes = new ArrayList<>();
+        runtimes.addAll(mockRuntimeList(providerId,
+                                        "",
+                                        ELEMENTS_COUNT));
 
-        List<Provider> providers = new ArrayList<>();
-        providers.add(wfProvider);
-        providers.add(dockerProvider);
+        when(registryHelper.readEntries(registryRoot,
+                                        VFSRegistryHelper.BySuffixFilter.newFilter(PROVIDER_SUFFIX))).thenReturn(providers);
+        when(registryHelper.readEntries(registryRoot,
+                                        VFSRegistryHelper.BySuffixFilter.newFilter(RUNTIME_SUFFIX))).thenReturn(runtimes);
 
+        ((VFSRuntimeRegistry) runtimeRegistry).init();
 
-        registry.registerProvider(wfProvider);
-        registry.registerProvider(dockerProvider);
+        verify(registryHelper,
+               times(2)).ensureDirectory(RUNTIME_REGISTRY_PATH);
+        verify(registryHelper,
+               times(2)).readEntries(registryRoot,
+                                     VFSRegistryHelper.BySuffixFilter.newFilter(PROVIDER_SUFFIX));
+        verify(registryHelper,
+               times(2)).readEntries(registryRoot,
+                                     VFSRegistryHelper.BySuffixFilter.newFilter(RUNTIME_SUFFIX));
 
-
-
-        VFSRuntimeRegistry loadedRegistry = new VFSRuntimeRegistry(fileSystemTestingUtils.getIoService(),
-                                                                   fileSystemTestingUtils.getFileSystem());
-        loadedRegistry.init();
-
-        //he just read registry must have the same values as the orignal one.
-
-        int i = 0;
-
-        for( Provider provider : providers ) {
-            assertNotNull(loadedRegistry.getProvider(provider.getId()));
-            assertEquals(provider, loadedRegistry.getProvider(provider.getId()));
+        for (Object provider : providers) {
+            verifyProviderIsRegistered((Provider) provider);
         }
 
+        for (Object runtime : runtimes) {
+            verifyRuntimeIsRegistered((Runtime) runtime);
+        }
     }
 
-    //@After
-    public void cleanUp() {
-        fileSystemTestingUtils.cleanup();
+    @Test
+    @Override
+    public void testRegisterProvider() {
+        prepareProviderTargetPath();
+
+        runtimeRegistry.registerProvider(provider);
+
+        try {
+            verify(registryHelper,
+                   times(1)).storeEntry(providerTargetPath,
+                                        provider,
+                                        false);
+        } catch (Exception e) {
+            //need to catch this exception because parent class method don't throws exceptions,
+            //but this will never happen in this scenario.
+            fail(e.getMessage());
+        }
+        verifyProviderIsRegistered(provider);
     }
 
-    private WildflyProviderImpl createWildflyProvider(String suffix) {
-        return new WildflyProviderImpl(
-                new WildflyProviderConfigImpl("name." + suffix,
-                                              "host." + suffix,
-                                              "port." + suffix,
-                                              "managementPort." + suffix,
-                                              "user." + suffix,
-                                              "password." + suffix));
+    @Test
+    public void testRegisterProviderWhenMarshallingErrors() throws Exception {
+        prepareProviderTargetPath();
+
+        expectedException.expectMessage("Unexpected error was produced during provider marshalling/storing, provider: " + provider);
+        doThrow(new Exception("no matter the message here"))
+                .when(registryHelper)
+                .storeEntry(providerTargetPath,
+                            provider,
+                            false);
+
+        runtimeRegistry.registerProvider(provider);
     }
 
-    private DockerProviderImpl createDockerProvider(String suffix) {
-        return new DockerProviderImpl(new DockerProviderConfigImpl("name." + suffix,
-                                                                   "host." + suffix));
+    @Test
+    @Override
+    public void testDeregisterProvider() {
+        prepareProviderTargetPath();
+        runtimeRegistry.registerProvider(provider);
+        verifyProviderIsRegistered(provider);
+
+        runtimeRegistry.deregisterProvider(provider);
+        verify(registryHelper,
+               times(1)).deleteBatch(providerTargetPath);
+        verifyProviderIsNotRegistered(provider);
     }
 
+    @Test
+    @Override
+    public void testDeregisterProviderById() {
+        prepareProviderTargetPath();
+        runtimeRegistry.registerProvider(provider);
+        verifyProviderIsRegistered(provider);
+
+        runtimeRegistry.deregisterProvider(provider.getId());
+        verify(registryHelper,
+               times(1)).deleteBatch(providerTargetPath);
+        verifyProviderIsNotRegistered(provider);
+    }
+
+    private void prepareProviderTargetPath() {
+        providerTargetPath = prepareTargetPath(provider.getId(),
+                                               PROVIDER_SUFFIX);
+    }
+
+    @Test
+    @Override
+    public void testRegisterRuntime() {
+        prepareRuntimeTargetPath();
+
+        runtimeRegistry.registerRuntime(runtime);
+
+        try {
+            verify(registryHelper,
+                   times(1)).storeEntry(runtimeTargetPath,
+                                        runtime,
+                                        false);
+        } catch (Exception e) {
+            //need to catch this exception because parent class method don't throws exceptions,
+            //but this will never happen in this scenario.
+            fail(e.getMessage());
+        }
+        verifyRuntimeIsRegistered(runtime);
+    }
+
+    @Test
+    public void testRegisterRuntimeWhenMarshallingErrors() throws Exception {
+        prepareRuntimeTargetPath();
+
+        expectedException.expectMessage("Unexpected error was produced during runtime marshalling/storing, runtime: " + runtime);
+        doThrow(new Exception("no matter the message here"))
+                .when(registryHelper)
+                .storeEntry(runtimeTargetPath,
+                            runtime,
+                            false);
+
+        runtimeRegistry.registerRuntime(runtime);
+    }
+
+    @Test
+    @Override
+    public void testDeregisterRuntime() {
+        prepareRuntimeTargetPath();
+        runtimeRegistry.registerRuntime(runtime);
+        verifyRuntimeIsRegistered(runtime);
+
+        runtimeRegistry.deregisterRuntime(runtime);
+        verify(registryHelper,
+               times(1)).deleteBatch(runtimeTargetPath);
+        verifyRuntimeIsNotRegistered(runtime);
+    }
+
+    private void prepareRuntimeTargetPath() {
+        runtimeTargetPath = prepareTargetPath(runtime.getId(),
+                                              RUNTIME_SUFFIX);
+    }
+
+    private Path prepareTargetPath(String id,
+                                   String suffix) {
+        when(registryHelper.md5Hex(id)).thenReturn(ID_MD5);
+        String expectedPath = ID_MD5 + suffix;
+        Path targetPath = mock(Path.class);
+        when(registryRoot.resolve(expectedPath)).thenReturn(targetPath);
+        return targetPath;
+    }
 }

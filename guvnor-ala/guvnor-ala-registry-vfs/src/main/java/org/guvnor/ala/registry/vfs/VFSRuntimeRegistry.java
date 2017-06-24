@@ -41,11 +41,11 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 public class VFSRuntimeRegistry
         extends InMemoryRuntimeRegistry {
 
-    private static final String RUNTIME_REGISTRY_PATH = "runtime-registry";
+    protected static final String RUNTIME_REGISTRY_PATH = "runtime-registry";
 
-    private static final String PROVIDER_SUFFIX = "-provider.json";
+    protected static final String PROVIDER_SUFFIX = "-provider.json";
 
-    private static final String RUNTIME_SUFFIX = "-runtime.json";
+    protected static final String RUNTIME_SUFFIX = "-runtime.json";
 
     private static final Logger logger = LoggerFactory.getLogger(VFSRuntimeRegistry.class);
 
