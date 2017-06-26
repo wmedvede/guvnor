@@ -108,4 +108,48 @@ public abstract class BaseRuntime
                 ", state=" + state +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        BaseRuntime that = (BaseRuntime) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (config != null ? !config.equals(that.config) : that.config != null) {
+            return false;
+        }
+        if (providerId != null ? !providerId.equals(that.providerId) : that.providerId != null) {
+            return false;
+        }
+        if (endpoint != null ? !endpoint.equals(that.endpoint) : that.endpoint != null) {
+            return false;
+        }
+        if (info != null ? !info.equals(that.info) : that.info != null) {
+            return false;
+        }
+        return state != null ? state.equals(that.state) : that.state == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (config != null ? config.hashCode() : 0);
+        result = 31 * result + (providerId != null ? providerId.hashCode() : 0);
+        result = 31 * result + (endpoint != null ? endpoint.hashCode() : 0);
+        result = 31 * result + (info != null ? info.hashCode() : 0);
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        return result;
+    }
 }

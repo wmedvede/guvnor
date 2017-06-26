@@ -18,14 +18,16 @@ package org.guvnor.ala.docker.model;
 
 import org.guvnor.ala.runtime.base.BaseRuntimeState;
 
-public class DockerRuntimeState extends BaseRuntimeState {
+public class DockerRuntimeState
+        extends BaseRuntimeState {
 
     public DockerRuntimeState() {
+        //No-args constructor for enabling marshalling to work, please do not remove.
     }
 
-    public DockerRuntimeState( String state,
-                               String startedAt ) {
-        super( state, startedAt );
+    public DockerRuntimeState(final String state,
+                              final String startedAt) {
+        super(state,
+              startedAt);
     }
-
 }

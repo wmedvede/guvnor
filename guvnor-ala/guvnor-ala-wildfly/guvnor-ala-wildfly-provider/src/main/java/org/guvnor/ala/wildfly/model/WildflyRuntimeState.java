@@ -20,15 +20,17 @@ import java.util.Date;
 
 import org.guvnor.ala.runtime.base.BaseRuntimeState;
 
-public class WildflyRuntimeState extends BaseRuntimeState {
+public class WildflyRuntimeState
+        extends BaseRuntimeState {
 
     public WildflyRuntimeState() {
-        super("", new Date().toString());
+        super("",
+              new Date().toString());
     }
 
-    public WildflyRuntimeState( String state,
-                               String startedAt ) {
-        super( state, startedAt );
+    public WildflyRuntimeState(String state,
+                               String startedAt) {
+        super(state,
+              startedAt);
     }
-
 }

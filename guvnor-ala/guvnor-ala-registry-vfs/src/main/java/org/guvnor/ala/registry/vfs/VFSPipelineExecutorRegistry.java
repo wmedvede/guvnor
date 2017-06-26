@@ -19,11 +19,10 @@ package org.guvnor.ala.registry.vfs;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
 
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTrace;
-import org.guvnor.ala.registry.local.InMemoryPipelineExecutorRegistry;
+import org.guvnor.ala.registry.impl.BasePipelineExecutorRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.java.nio.file.Path;
@@ -34,10 +33,9 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 /**
  * VFS based implementation of a PipelineExecutorRegistry.
  */
-@Specializes
 @ApplicationScoped
 public class VFSPipelineExecutorRegistry
-        extends InMemoryPipelineExecutorRegistry {
+        extends BasePipelineExecutorRegistry {
 
     protected static final String PIPELINE_EXECUTOR_REGISTRY_PATH = "executor-registry";
 

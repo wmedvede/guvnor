@@ -47,9 +47,7 @@ public class VFSMarshallerRegistry
     @PostConstruct
     public void init() {
         marshallerInstance.iterator().forEachRemaining(marshaller -> {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Registering marshaller into VFSMarshallerRegistry, marshaller: " + marshaller);
-            }
+            logger.debug("Registering marshaller into VFSMarshallerRegistry, marshaller: " + marshaller);
             register(marshaller.getType(),
                      marshaller);
         });

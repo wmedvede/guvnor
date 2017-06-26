@@ -96,4 +96,40 @@ public class ContextAwareWildflyRuntimeExecConfig
                 origin.getRedeployStrategy()
         );
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ContextAwareWildflyRuntimeExecConfig that = (ContextAwareWildflyRuntimeExecConfig) o;
+
+        if (context != null ? !context.equals(that.context) : that.context != null) {
+            return false;
+        }
+        if (runtimeName != null ? !runtimeName.equals(that.runtimeName) : that.runtimeName != null) {
+            return false;
+        }
+        if (providerId != null ? !providerId.equals(that.providerId) : that.providerId != null) {
+            return false;
+        }
+        if (warPath != null ? !warPath.equals(that.warPath) : that.warPath != null) {
+            return false;
+        }
+        return redeployStrategy != null ? redeployStrategy.equals(that.redeployStrategy) : that.redeployStrategy == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = context != null ? context.hashCode() : 0;
+        result = 31 * result + (runtimeName != null ? runtimeName.hashCode() : 0);
+        result = 31 * result + (providerId != null ? providerId.hashCode() : 0);
+        result = 31 * result + (warPath != null ? warPath.hashCode() : 0);
+        result = 31 * result + (redeployStrategy != null ? redeployStrategy.hashCode() : 0);
+        return result;
+    }
 }

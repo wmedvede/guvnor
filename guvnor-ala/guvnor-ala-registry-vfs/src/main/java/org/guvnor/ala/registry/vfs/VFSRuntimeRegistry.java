@@ -19,10 +19,9 @@ package org.guvnor.ala.registry.vfs;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Specializes;
 import javax.inject.Inject;
 
-import org.guvnor.ala.registry.local.InMemoryRuntimeRegistry;
+import org.guvnor.ala.registry.impl.BaseRuntimeRegistry;
 import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.runtime.RuntimeId;
 import org.guvnor.ala.runtime.providers.Provider;
@@ -36,10 +35,9 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 /**
  * A runtime registry implementation based on the VFS.
  */
-@Specializes
 @ApplicationScoped
 public class VFSRuntimeRegistry
-        extends InMemoryRuntimeRegistry {
+        extends BaseRuntimeRegistry {
 
     protected static final String RUNTIME_REGISTRY_PATH = "runtime-registry";
 

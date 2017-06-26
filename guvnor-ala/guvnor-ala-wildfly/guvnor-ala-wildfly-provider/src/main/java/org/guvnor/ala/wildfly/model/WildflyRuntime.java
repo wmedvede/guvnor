@@ -32,13 +32,13 @@ public class WildflyRuntime
     public WildflyRuntime() {
     }
 
-    public WildflyRuntime(String id,
-                          String name,
-                          RuntimeConfig config,
-                          ProviderId providerId,
-                          RuntimeEndpoint endpoint,
-                          RuntimeInfo info,
-                          RuntimeState state) {
+    public WildflyRuntime(final String id,
+                          final String name,
+                          final RuntimeConfig config,
+                          final ProviderId providerId,
+                          final RuntimeEndpoint endpoint,
+                          final RuntimeInfo info,
+                          final RuntimeState state) {
         super(id,
               name,
               config,
