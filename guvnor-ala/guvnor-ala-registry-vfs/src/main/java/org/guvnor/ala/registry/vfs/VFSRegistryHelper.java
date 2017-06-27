@@ -39,7 +39,9 @@ import org.uberfire.java.nio.file.Path;
 @ApplicationScoped
 public class VFSRegistryHelper {
 
-    private static final String PROVISIONING_PATH = "provisioning";
+    protected static final String PROVISIONING_BRANCH = "master";
+
+    protected static final String PROVISIONING_PATH = "provisioning";
 
     private static final Logger logger = LoggerFactory.getLogger(VFSRegistryHelper.class);
 
@@ -49,7 +51,7 @@ public class VFSRegistryHelper {
 
     private FileSystem fileSystem;
 
-    private Path provisioningPath;
+    private Path provisioningRootPath;
 
     private VFSRegistryEntryMarshaller entryMarshaller;
 
@@ -69,11 +71,9 @@ public class VFSRegistryHelper {
     @PostConstruct
     protected void init() {
         try {
-            final Path fsRoot = fileSystem.getRootDirectories().iterator().next();
-            provisioningPath = fsRoot.resolve(PROVISIONING_PATH);
-            if (!ioService.exists(provisioningPath)) {
-                provisioningPath = ioService.createDirectory(provisioningPath);
-            }
+            provisioningRootPath = fileSystem.getPath(PROVISIONING_BRANCH,
+                                                      PROVISIONING_PATH);
+            logger.debug("provisioningRootPath: " + provisioningRootPath.toUri());
         } catch (Exception e) {
             //uncommon error
             logger.error("An error was produced during VFS registries directory initialization.",
@@ -88,7 +88,7 @@ public class VFSRegistryHelper {
      * @return the path to the directory.
      */
     public Path ensureDirectory(final String directory) {
-        Path directoryPath = provisioningPath.resolve(directory);
+        Path directoryPath = provisioningRootPath.resolve(directory);
         if (!ioService.exists(directoryPath)) {
             directoryPath = ioService.createDirectory(directoryPath);
         }

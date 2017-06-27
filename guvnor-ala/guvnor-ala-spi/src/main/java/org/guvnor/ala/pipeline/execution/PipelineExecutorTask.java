@@ -60,12 +60,12 @@ public interface PipelineExecutorTask {
      * @param stage a pipeline Stage for querying the execution error.
      * @return The execution error for the Stage in cases where the Stage execution failed, null in any other case.
      */
-    Throwable getStageError(String stage);
+    PipelineExecutorException getStageError(String stage);
 
     /**
      * @return The pipeline execution error in cases where execution failed, false in any other case.
      */
-    Throwable getPipelineError();
+    PipelineExecutorException getPipelineError();
 
     /**
      * @return A config element with the pipeline output.

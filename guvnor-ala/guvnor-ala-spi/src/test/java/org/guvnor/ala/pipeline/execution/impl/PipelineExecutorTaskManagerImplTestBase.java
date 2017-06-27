@@ -35,6 +35,8 @@ public class PipelineExecutorTaskManagerImplTestBase {
 
     protected static final String TASK_ID = "TASK_ID";
 
+    protected static final String ERROR_MESSAGE = "ERROR_MESSAGE";
+
     @Mock
     protected Instance<ConfigExecutor> configExecutorsInstance;
 

@@ -35,13 +35,13 @@ import org.uberfire.java.nio.file.DirectoryStream;
 import org.uberfire.java.nio.file.FileSystem;
 import org.uberfire.java.nio.file.Path;
 
+import static org.guvnor.ala.registry.vfs.VFSRegistryHelper.PROVISIONING_BRANCH;
+import static org.guvnor.ala.registry.vfs.VFSRegistryHelper.PROVISIONING_PATH;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VFSRegistryHelperTest {
-
-    private static final String PROVISIONING_PATH = "provisioning";
 
     private static final String DIRECTORY_NAME = "DIRECTORY_NAME";
 
@@ -63,9 +63,6 @@ public class VFSRegistryHelperTest {
     private FileSystem fileSystem;
 
     private VFSRegistryHelper registryHelper;
-
-    @Mock
-    private Path fsRoot;
 
     @Mock
     private Path provisioningPath;
@@ -103,50 +100,22 @@ public class VFSRegistryHelperTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
-
-        Iterable<Path> iterable = mock(Iterable.class);
-        Iterator<Path> pathIterator = mock(Iterator.class);
-        when(iterable.iterator()).thenReturn(pathIterator);
-        when(pathIterator.next()).thenReturn(fsRoot);
-        when(fileSystem.getRootDirectories()).thenReturn(iterable);
-        when(fsRoot.resolve(PROVISIONING_PATH)).thenReturn(provisioningPath);
-        when(ioService.exists(provisioningPath)).thenReturn(true);
+        when(fileSystem.getPath(PROVISIONING_BRANCH,
+                                PROVISIONING_PATH)).thenReturn(provisioningPath);
 
         when(marshallerRegistry.get(VFSRegistryEntry.class)).thenReturn(entryMarshaller);
 
         registryHelper = spy(new VFSRegistryHelper(marshallerRegistry,
                                                    ioService,
                                                    fileSystem));
-    }
-
-    @Test
-    public void testInitWhenProvisioningPathExists() {
-        when(ioService.exists(provisioningPath)).thenReturn(true);
-
         registryHelper.init();
-
-        verify(ioService,
-               times(1)).exists(provisioningPath);
-        verify(ioService,
-               never()).createDirectory(provisioningPath);
-    }
-
-    @Test
-    public void testInitWhenProvisioningPathNotExists() {
-        when(ioService.exists(provisioningPath)).thenReturn(false);
-
-        registryHelper.init();
-
-        verify(ioService,
-               times(1)).exists(provisioningPath);
-        verify(ioService,
-               times(1)).createDirectory(provisioningPath);
+        verify(fileSystem,
+               times(1)).getPath(PROVISIONING_BRANCH,
+                                 PROVISIONING_PATH);
     }
 
     @Test
     public void testEnsureDirectoryWhenDirectoryExists() {
-        registryHelper.init();
-
         Path path = mock(Path.class);
         when(provisioningPath.resolve(DIRECTORY_NAME)).thenReturn(path);
         when(ioService.exists(path)).thenReturn(true);
@@ -163,8 +132,6 @@ public class VFSRegistryHelperTest {
 
     @Test
     public void testEnsureDirectoryWhenDirectoryNotExists() {
-        registryHelper.init();
-
         Path path = mock(Path.class);
         Path createdPath = mock(Path.class);
         when(provisioningPath.resolve(DIRECTORY_NAME)).thenReturn(path);
@@ -193,8 +160,6 @@ public class VFSRegistryHelperTest {
 
     @Test
     public void testStoreEntryWhenMarshallerNotExists() throws Exception {
-        registryHelper.init();
-
         Object value = mock(Object.class);
         when(marshallerRegistry.get(value.getClass())).thenReturn(null);
         expectedException.expectMessage("No marshaller was found for class: " + value.getClass());
@@ -215,8 +180,6 @@ public class VFSRegistryHelperTest {
     }
 
     private void testStoreEntry(boolean deleteIfExistsOption) throws Exception {
-        registryHelper.init();
-
         when(marshallerRegistry.get(value.getClass())).thenReturn(marshaller);
         when(marshaller.marshal(value)).thenReturn(MARSHALLED_VALUE);
 
@@ -239,8 +202,6 @@ public class VFSRegistryHelperTest {
 
     @Test
     public void testReadEntryWhenMarshallerNotExists() throws Exception {
-        registryHelper.init();
-
         when(ioService.readAllString(path)).thenReturn(MARSHALLED_ENTRY);
         when(entryMarshaller.unmarshal(MARSHALLED_ENTRY)).thenReturn(entry);
 
@@ -253,8 +214,6 @@ public class VFSRegistryHelperTest {
 
     @Test
     public void testReadEntry() throws Exception {
-        registryHelper.init();
-
         when(ioService.readAllString(path)).thenReturn(MARSHALLED_ENTRY);
         when(entryMarshaller.unmarshal(MARSHALLED_ENTRY)).thenReturn(entry);
 
@@ -272,8 +231,6 @@ public class VFSRegistryHelperTest {
 
     @Test
     public void testReadEntries() throws Exception {
-        registryHelper.init();
-
         prepareReadEntries();
 
         List<Object> result = registryHelper.readEntries(rootPath,
@@ -288,8 +245,6 @@ public class VFSRegistryHelperTest {
 
     @Test
     public void testReadEntriesWithError() throws Exception {
-        registryHelper.init();
-
         prepareReadEntries();
 
         //make an arbitrary path reading to fail.

@@ -361,7 +361,8 @@ public class PipelineExecutorTaskManagerImpl
         taskEntry.getTask().setStageStatus(oesee.getStage().getName(),
                                            PipelineExecutorTask.Status.ERROR);
         taskEntry.getTask().setStageError(oesee.getStage().getName(),
-                                          oesee.getError());
+                                          new PipelineExecutorException(oesee.getError().getMessage(),
+                                                                        oesee.getError()));
         if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }
@@ -380,7 +381,8 @@ public class PipelineExecutorTaskManagerImpl
                                  final TaskEntry taskEntry) {
 
         taskEntry.getTask().setPipelineStatus(PipelineExecutorTask.Status.ERROR);
-        taskEntry.getTask().setPipelineError(oepee.getError());
+        taskEntry.getTask().setPipelineError(new PipelineExecutorException(oepee.getError().getMessage(),
+                                                                           oepee.getError()));
         if (taskEntry.isAsync()) {
             updateExecutorRegistry(taskEntry.getTask());
         }

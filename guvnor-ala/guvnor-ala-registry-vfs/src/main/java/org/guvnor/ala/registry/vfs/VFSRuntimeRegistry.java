@@ -41,9 +41,9 @@ public class VFSRuntimeRegistry
 
     protected static final String RUNTIME_REGISTRY_PATH = "runtime-registry";
 
-    protected static final String PROVIDER_SUFFIX = "-provider.json";
+    protected static final String PROVIDER_SUFFIX = "-provider.entry";
 
-    protected static final String RUNTIME_SUFFIX = "-runtime.json";
+    protected static final String RUNTIME_SUFFIX = "-runtime.entry";
 
     private static final Logger logger = LoggerFactory.getLogger(VFSRuntimeRegistry.class);
 

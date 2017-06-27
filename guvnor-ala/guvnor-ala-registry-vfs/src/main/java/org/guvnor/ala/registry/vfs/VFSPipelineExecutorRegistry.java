@@ -39,7 +39,7 @@ public class VFSPipelineExecutorRegistry
 
     protected static final String PIPELINE_EXECUTOR_REGISTRY_PATH = "executor-registry";
 
-    protected static final String TRACE_SUFFIX = "-trace.json";
+    protected static final String TRACE_SUFFIX = "-trace.entry";
 
     private static final Logger logger = LoggerFactory.getLogger(VFSPipelineExecutorRegistry.class);
 

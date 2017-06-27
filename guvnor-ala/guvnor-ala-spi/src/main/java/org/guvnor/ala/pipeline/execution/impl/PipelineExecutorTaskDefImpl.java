@@ -93,4 +93,40 @@ public class PipelineExecutorTaskDefImpl
     public ProviderType getProviderType() {
         return providerId != null ? providerId.getProviderType() : providerType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PipelineExecutorTaskDefImpl taskDef = (PipelineExecutorTaskDefImpl) o;
+
+        if (pipeline != null ? !pipeline.equals(taskDef.pipeline) : taskDef.pipeline != null) {
+            return false;
+        }
+        if (stages != null ? !stages.equals(taskDef.stages) : taskDef.stages != null) {
+            return false;
+        }
+        if (input != null ? !input.equals(taskDef.input) : taskDef.input != null) {
+            return false;
+        }
+        if (providerId != null ? !providerId.equals(taskDef.providerId) : taskDef.providerId != null) {
+            return false;
+        }
+        return providerType != null ? providerType.equals(taskDef.providerType) : taskDef.providerType == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pipeline != null ? pipeline.hashCode() : 0;
+        result = 31 * result + (stages != null ? stages.hashCode() : 0);
+        result = 31 * result + (input != null ? input.hashCode() : 0);
+        result = 31 * result + (providerId != null ? providerId.hashCode() : 0);
+        result = 31 * result + (providerType != null ? providerType.hashCode() : 0);
+        return result;
+    }
 }
