@@ -115,15 +115,9 @@ public class PipelineExecutorTaskManagerImplExecutionTest
         assertEquals(TASK_ID,
                      result);
 
-        //verify the task to execute was properly initialized and stored.
-        verify(taskManager.currentTasks,
-               times(1)).put(stringCaptor.capture(),
-                             taskEntryCaptor.capture());
-
-        assertEquals(stringCaptor.getValue(),
-                     TASK_ID);
-        verifyInternalTask(taskEntryCaptor.getValue(),
-                           false);
+        //verify the task to execute was properly initialized.
+        verify(taskManagerHelper,
+               times(1)).createTask(taskDef);
 
         //verify the pipeline was properly executed.
         verify(pipelineExecutor,
@@ -140,8 +134,6 @@ public class PipelineExecutorTaskManagerImplExecutionTest
                      pipelineExecutorTraceCaptor.getValue().getPipelineId());
         assertEquals(TASK_ID,
                      pipelineExecutorTraceCaptor.getValue().getTaskId());
-        assertHasSameInfo(taskEntryCaptor.getValue().getTask(),
-                          pipelineExecutorTraceCaptor.getValue().getTask());
     }
 
     @Test

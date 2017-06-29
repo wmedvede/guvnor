@@ -25,19 +25,19 @@ import org.guvnor.ala.config.ProjectConfig;
 public interface MavenProjectConfig extends ProjectConfig {
 
     /**
-     * Standard attribute name for setting the project base dir. Pipeline inputs that wants to set the project base dir
+     * Standard attribute name for setting the project base dir. Pipeline inputs that want to set the project base dir
      * should use this parameter name.
      */
     String PROJECT_DIR = "project-dir";
 
     /**
-     * Standard attribute name for setting the project temp dir. Pipeline inputs that wants to set the project temp dir
+     * Standard attribute name for setting the project temp dir. Pipeline inputs that want to set the project temp dir
      * should use this parameter name.
      */
     String PROJECT_TEMP_DIR = "project-temp-dir";
 
     /**
-     * Standard attribute name for setting the preserve temp dir option. Pipeline inputs that wants to set the preserve
+     * Standard attribute name for setting the preserve temp dir option. Pipeline inputs that want to set the preserve
      * temp dir option should use this parameter name.
      */
     String PRESERVE_TEMP_DIR = "preserve-temp-dir";

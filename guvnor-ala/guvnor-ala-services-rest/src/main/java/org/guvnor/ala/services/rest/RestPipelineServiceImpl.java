@@ -72,8 +72,8 @@ public class RestPipelineServiceImpl implements PipelineService {
                                       sortOrder)
                 .stream()
                 .filter(p -> p.getConfig() != null)
-                .forEach((p) -> configs.add(p.getConfig()));
-
+                .map(Pipeline::getConfig)
+                .collect(Collectors.toList());
         return new PipelineConfigsList(configs);
     }
 
@@ -93,8 +93,8 @@ public class RestPipelineServiceImpl implements PipelineService {
                                       sortOrder)
                 .stream()
                 .filter(p -> p.getConfig() != null)
-                .forEach((p) -> configs.add(p.getConfig()));
-
+                .map(Pipeline::getConfig)
+                .collect(Collectors.toList());
         return new PipelineConfigsList(configs);
     }
 
@@ -138,7 +138,7 @@ public class RestPipelineServiceImpl implements PipelineService {
                               final boolean async) throws BusinessException {
         final Pipeline pipeline = pipelineRegistry.getPipelineByName(name);
         if (pipeline == null) {
-            throw new BusinessException("Pipeline: " + pipeline + " was not found.");
+            throw new BusinessException("Pipeline: " + name + " was not found.");
         }
         String providerName = input.get(ProviderConfig.PROVIDER_NAME);
         Provider provider = null;

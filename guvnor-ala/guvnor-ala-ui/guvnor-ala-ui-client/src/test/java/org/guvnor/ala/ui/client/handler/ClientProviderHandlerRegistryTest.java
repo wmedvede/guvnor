@@ -16,19 +16,27 @@
 
 package org.guvnor.ala.ui.client.handler;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
 
-import org.guvnor.ala.ui.handler.AbstractProviderHandlerRegistry;
+import org.guvnor.ala.ui.handler.AbstractProviderHandlerRegistryTest;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 
-@ApplicationScoped
-public class ClientProviderHandlerRegistry
-        extends AbstractProviderHandlerRegistry<ClientProviderHandler> {
+import static org.mockito.Mockito.*;
 
-    @Inject
-    public ClientProviderHandlerRegistry(final @Any Instance<ClientProviderHandler> handlerInstance) {
-        init(handlerInstance);
+public class ClientProviderHandlerRegistryTest
+        extends AbstractProviderHandlerRegistryTest<ClientProviderHandler> {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    @Override
+    protected ClientProviderHandlerRegistry createHandlerRegistry(Instance<ClientProviderHandler> handlerInstance) {
+        return new ClientProviderHandlerRegistry(handlerInstance);
+    }
+
+    @Override
+    protected ClientProviderHandler mockHandler() {
+        return mock(ClientProviderHandler.class);
     }
 }

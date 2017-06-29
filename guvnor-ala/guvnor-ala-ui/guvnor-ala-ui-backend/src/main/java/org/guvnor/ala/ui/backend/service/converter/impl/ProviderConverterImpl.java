@@ -68,7 +68,7 @@ public class ProviderConverterImpl
             final BackendProviderHandler handler = handlerRegistry.ensureHandler(providerTypeKey);
             @SuppressWarnings("unchecked")
             final ProviderConfiguration providerConfiguration = (ProviderConfiguration)
-                    handler.getProviderConfigConverter(providerTypeKey).toModel(provider.getConfig());
+                    handler.getProviderConfigConverter().toModel(provider.getConfig());
             result = new Provider(providerKey,
                                   providerConfiguration);
         }

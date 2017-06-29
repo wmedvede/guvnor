@@ -17,7 +17,8 @@
 package org.guvnor.ala.services.api;
 
 /**
- * This class models the query parameters for a query against the runtime system.
+ * This class models the query parameters for a query against the runtime system to provide information about the
+ * currently provisioned Runtimes, like WildlfyRuntimes, etc.
  */
 public class RuntimeQuery {
 

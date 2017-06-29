@@ -17,9 +17,8 @@
 package org.guvnor.ala.ui.handler;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
 import javax.enterprise.inject.Instance;
 
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -29,12 +28,10 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
  */
 public abstract class AbstractProviderHandlerRegistry<T extends ProviderHandler> {
 
-    protected Instance<T> handlerInstance;
-
     protected List<T> handlers = new ArrayList<>();
 
-    protected void setUp() {
-        handlerInstance.forEach(handlers::add);
+    protected void init(final Instance<T> handlerInstance) {
+        handlerInstance.iterator().forEachRemaining(handlers::add);
     }
 
     public boolean isProviderEnabled(ProviderTypeKey providerTypeKey) {
@@ -44,11 +41,7 @@ public abstract class AbstractProviderHandlerRegistry<T extends ProviderHandler>
     public T getProviderHandler(ProviderTypeKey providerTypeKey) {
         return handlers.stream()
                 .filter(handler -> handler.acceptProviderType(providerTypeKey))
-                .sorted((o1, o2) -> o1.getPriority() - o2.getPriority())
+                .sorted(Comparator.comparingInt(ProviderHandler::getPriority))
                 .findFirst().orElse(null);
-    }
-
-    public List<T> getProviderHandlers() {
-        return Collections.unmodifiableList(handlers);
     }
 }

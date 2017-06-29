@@ -302,7 +302,7 @@ public class SourceConfigurationPageView
     }
 
     private void clear(final Select select) {
-        for (int i = 0; i < select.getOptions().getLength() + 1; i++) {
+        for (int i = 0; i < select.getOptions().getLength(); i++) {
             select.remove(i);
         }
         select.setInnerHTML("");

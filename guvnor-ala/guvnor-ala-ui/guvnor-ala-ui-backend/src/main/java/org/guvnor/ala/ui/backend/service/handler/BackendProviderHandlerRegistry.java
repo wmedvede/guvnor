@@ -16,7 +16,6 @@
 
 package org.guvnor.ala.ui.backend.service.handler;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -37,13 +36,8 @@ public class BackendProviderHandlerRegistry
     }
 
     @Inject
-    public BackendProviderHandlerRegistry(@Any Instance<BackendProviderHandler> handlerInstance) {
-        this.handlerInstance = handlerInstance;
-    }
-
-    @PostConstruct
-    protected void setUp() {
-        super.setUp();
+    public BackendProviderHandlerRegistry(final @Any Instance<BackendProviderHandler> handlerInstance) {
+        init(handlerInstance);
     }
 
     public BackendProviderHandler ensureHandler(ProviderTypeKey providerTypeKey) {

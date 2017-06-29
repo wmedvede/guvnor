@@ -101,7 +101,7 @@ public class ProviderConverterImplTest {
     @Test
     public void testToModelWhenHandlerIsConfigured() {
         when(handlerRegistry.ensureHandler(providerTypeKey)).thenReturn(providerHandler);
-        when(providerHandler.getProviderConfigConverter(providerTypeKey)).thenReturn(providerConfigConverter);
+        when(providerHandler.getProviderConfigConverter()).thenReturn(providerConfigConverter);
         when(providerConfigConverter.toModel(providerConfig)).thenReturn(providerConfiguration);
 
         Provider result = converter.toModel(provider);

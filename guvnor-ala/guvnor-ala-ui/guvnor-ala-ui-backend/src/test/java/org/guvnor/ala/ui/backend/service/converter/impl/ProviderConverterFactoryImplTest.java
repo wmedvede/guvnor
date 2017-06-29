@@ -62,7 +62,7 @@ public class ProviderConverterFactoryImplTest {
     @Test
     public void testGetProviderConfigConverterWhenHandlerConfigured() {
         when(handlerRegistry.ensureHandler(providerTypeKey)).thenReturn(providerHandler);
-        when(providerHandler.getProviderConfigConverter(providerTypeKey)).thenReturn(configConverter);
+        when(providerHandler.getProviderConfigConverter()).thenReturn(configConverter);
 
         assertEquals(configConverter,
                      converterFactory.getProviderConfigConverter(providerTypeKey));

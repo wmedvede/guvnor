@@ -28,10 +28,6 @@ import org.jboss.errai.bus.server.annotations.Service;
 public class WildflyClientServiceImpl
         implements WildflyClientService {
 
-    public WildflyClientServiceImpl() {
-        //Empty constructor for Weld proxying
-    }
-
     @Override
     public TestConnectionResult testConnection(final String host,
                                                final int port,

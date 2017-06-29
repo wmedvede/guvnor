@@ -47,7 +47,7 @@ public class ProviderConverterFactoryImpl
     @Override
     public ProviderConfigConverter getProviderConfigConverter(final ProviderTypeKey providerTypeKey) {
         final BackendProviderHandler handler = handlerRegistry.ensureHandler(providerTypeKey);
-        return handler.getProviderConfigConverter(providerTypeKey);
+        return handler.getProviderConfigConverter();
     }
 
     @Override

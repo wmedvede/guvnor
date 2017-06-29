@@ -17,17 +17,19 @@
 package org.guvnor.ala.ui.backend.service.handler;
 
 import org.guvnor.ala.ui.backend.service.converter.ProviderConfigConverter;
-import org.guvnor.ala.ui.handler.ProviderHandler;
+import org.guvnor.ala.ui.handler.BaseProviderHandlerTest;
+import org.junit.Test;
 
-/**
- * Base interface for defining a provider type handler for using at backend.
- */
-public interface BackendProviderHandler
-        extends ProviderHandler {
+import static org.junit.Assert.assertEquals;
 
-    /**
-     * Gets the provider configuration converter for the given provider type.
-     * @return the configured converter for the given provider type, null if no such converter is configured.
-     */
-    ProviderConfigConverter getProviderConfigConverter();
+public abstract class BaseBackendProviderHandlerTest<T extends BackendProviderHandler>
+        extends BaseProviderHandlerTest<T> {
+
+    @Test
+    public void testGetProviderConfigConverter() {
+        assertEquals(expectedProviderConfigConverter(),
+                     providerHandler.getProviderConfigConverter());
+    }
+
+    protected abstract ProviderConfigConverter expectedProviderConfigConverter();
 }

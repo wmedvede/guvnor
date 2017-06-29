@@ -98,7 +98,6 @@ public class PipelineExecutorTaskManagerImplTestBase {
             @Override
             protected void init() {
                 super.init();
-                super.currentTasks = spy(super.currentTasks);
                 super.futureTaskMap = spy(super.futureTaskMap);
             }
         });

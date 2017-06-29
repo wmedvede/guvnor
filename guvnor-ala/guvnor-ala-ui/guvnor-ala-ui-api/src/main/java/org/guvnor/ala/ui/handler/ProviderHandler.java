@@ -24,7 +24,7 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 public interface ProviderHandler {
 
     /**
-     * Gets the priority of current handler. The priority might be used to decide wich handler to apply in cases
+     * Gets the priority of current handler. The priority might be used to decide which handler to apply in cases
      * where there are many handlers registered for a given provider. The highest priority one will be applied.
      * @return an integer representing current handler priority. Priorities are correlative to the integers natural order.
      */
@@ -36,5 +36,4 @@ public interface ProviderHandler {
      * @return true if current handle can manage the given provider type, false in any other case.
      */
     boolean acceptProviderType(ProviderTypeKey providerTypeKey);
-
 }

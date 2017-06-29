@@ -64,7 +64,7 @@ public class PipelineExecutorTaskManagerImpl
 
     protected PipelineExecutor pipelineExecutor;
 
-    protected Map<String, TaskEntry> currentTasks = new HashMap<>();
+    protected final Map<String, TaskEntry> currentTasks = new HashMap<>();
 
     protected Map<String, Future<?>> futureTaskMap = new HashMap<>();
 

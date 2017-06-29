@@ -30,7 +30,7 @@ import org.jboss.errai.bus.server.annotations.Remote;
 
 /**
  * Runtime Provisioning Service Backend interface. It allows the registering and interaction with different Provisioning
- * Providers and the creation for of new Runtimes on these providers.
+ * Providers and the creation of new Runtimes on these providers.
  * Backend @Remote implementation to be used in CDI environments with Errai
  */
 @Remote

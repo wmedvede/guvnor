@@ -54,7 +54,7 @@ public class WildflyBackendProviderHandler
     }
 
     @Override
-    public ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey) {
+    public ProviderConfigConverter getProviderConfigConverter() {
         return configConverter;
     }
 }

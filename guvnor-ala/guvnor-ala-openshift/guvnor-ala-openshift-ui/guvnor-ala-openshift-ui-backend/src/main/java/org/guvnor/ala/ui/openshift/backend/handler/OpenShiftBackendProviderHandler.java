@@ -46,7 +46,7 @@ public class OpenShiftBackendProviderHandler
     }
 
     @Override
-    public ProviderConfigConverter getProviderConfigConverter(ProviderTypeKey providerTypeKey) {
+    public ProviderConfigConverter getProviderConfigConverter() {
         //TODO will be completed when the OpenShift provider coded.
         throw new RuntimeException("OpenShift provider type is not yet implemented.");
     }
