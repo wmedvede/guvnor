@@ -109,14 +109,26 @@ public interface RuntimeProvisioningService {
     String newRuntime(@NotNull RuntimeConfig conf) throws BusinessException;
 
     /**
-     * Destroy an existing  Runtime
+     * Destroy an existing Runtime
      * @param runtimeId the identifier of the runtime to destroy
      * @throw BusinessException in case of an internal exception
      */
     @DELETE
     @Consumes(value = APPLICATION_JSON)
-    @Path("runtimes/{id}")
+    @Path("runtimes/{id}/destroy")
     void destroyRuntime(@PathParam(value = "id") String runtimeId) throws BusinessException;
+
+    /**
+     * Destroy an existing Runtime by removing it from the runtime registries independently of the connectivity with
+     * the external provider. e.g. if it was not possible to connect an external WF where the runtime
+     * is running.
+     * @param runtimeId the identifier of the runtime to destroy
+     * @throw BusinessException in case of an internal exception
+     */
+    @DELETE
+    @Consumes(value = APPLICATION_JSON)
+    @Path("runtimes/{id}/forceDestroy")
+    void forceDestroyRuntime(@PathParam(value = "id") String runtimeId) throws BusinessException;
 
     /**
      * Get All Runtimes
