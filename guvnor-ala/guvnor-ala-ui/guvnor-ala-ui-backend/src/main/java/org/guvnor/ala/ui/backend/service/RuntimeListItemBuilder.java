@@ -95,7 +95,7 @@ public class RuntimeListItemBuilder {
             final Runtime runtime = new Runtime(new RuntimeKey(new ProviderKey(new ProviderTypeKey(item.getProviderTypeName(),
                                                                                                    item.getProviderVersion()),
                                                                                item.getProviderId()),
-                                                               runtimeName),
+                                                               item.getRuntimeId()),
                                                 transformToRuntimeStatus(item.getRuntimeStatus()),
                                                 item.getRuntimeEndpoint(),
                                                 "not yet implemented");

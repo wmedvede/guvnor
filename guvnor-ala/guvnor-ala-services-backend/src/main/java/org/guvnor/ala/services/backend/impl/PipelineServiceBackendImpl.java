@@ -103,4 +103,15 @@ public class PipelineServiceBackendImpl
                                            input,
                                            async);
     }
+
+    @Override
+    public void stopPipelineExecution(final String executionId) throws BusinessException {
+        pipelineService.stopPipelineExecution(executionId);
+
+    }
+
+    @Override
+    public void deletePipelineExecution(final String executionId) throws BusinessException {
+        pipelineService.deletePipelineExecution(executionId);
+    }
 }

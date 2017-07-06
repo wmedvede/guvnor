@@ -22,6 +22,7 @@ import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.model.Source;
@@ -72,4 +73,34 @@ public interface RuntimeService {
                                             final String runtimeName,
                                             final Source source,
                                             final PipelineKey pipelineKey);
+
+    /**
+     * Stops a running pipeline execution.
+     * @param pipelineExecutionTraceKey identifier for the pipeline execution.
+     */
+    void stopPipelineExecution(final PipelineExecutionTraceKey pipelineExecutionTraceKey);
+
+    /**
+     * Deletes a pipeline execution trace from the system.
+     * @param pipelineExecutionTraceKey identifier of the pipeline execution.
+     */
+    void deletePipelineExecution(final PipelineExecutionTraceKey pipelineExecutionTraceKey);
+
+    /**
+     * Stops a runtime.
+     * @param runtimeKey the key of the runtime to stop.
+     */
+    void stopRuntime(final RuntimeKey runtimeKey);
+
+    /**
+     * Starts a runtime.
+     * @param runtimeKey the key of the runtime to start.
+     */
+    void startRuntime(final RuntimeKey runtimeKey);
+
+    /**
+     * Deletes a runtime.
+     * @param runtimeKey the of the runtime to delete.
+     */
+    void deleteRuntime(final RuntimeKey runtimeKey);
 }
