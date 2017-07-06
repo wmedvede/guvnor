@@ -168,25 +168,41 @@ public class RestRuntimeProvisioningServiceImpl
 
     @Override
     public void destroyRuntime(String runtimeId) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        final Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        if (runtimeById == null) {
+            throw new BusinessException("No runtime was found for runtimeId: " + runtimeId);
+        }
+        final PipelineExecutorTrace pipelineTrace = pipelineExecutorRegistry.getExecutorTrace(runtimeById);
         runtimeFactory.destroyRuntime(runtimeById);
+        if (pipelineTrace != null) {
+            pipelineExecutorRegistry.deregister(pipelineTrace.getTaskId());
+        }
     }
 
     @Override
     public void startRuntime(String runtimeId) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        final Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        if (runtimeById == null) {
+            throw new BusinessException("No runtime was found for runtimeId: " + runtimeId);
+        }
         runtimeManagerFactory.startRuntime(runtimeById);
     }
 
     @Override
     public void stopRuntime(String runtimeId) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        final Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        if (runtimeById == null) {
+            throw new BusinessException("No runtime was found for runtimeId: " + runtimeId);
+        }
         runtimeManagerFactory.stopRuntime(runtimeById);
     }
 
     @Override
     public void restartRuntime(String runtimeId) throws BusinessException {
-        Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        final Runtime runtimeById = runtimeRegistry.getRuntimeById(runtimeId);
+        if (runtimeById == null) {
+            throw new BusinessException("No runtime was found for runtimeId: " + runtimeId);
+        }
         runtimeManagerFactory.restartRuntime(runtimeById);
     }
 
