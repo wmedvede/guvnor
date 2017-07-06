@@ -120,15 +120,36 @@ public interface PipelineService {
 
     /**
      * Run/Execute a registered Pipeline.
-     * @param id of the pipeline to be executed.
+     * @param pipelineId of the pipeline to be executed.
      * @param input Input values to be used for the pipeline execution.
      * @param async establishes the execution mode. true for asynchronous execution, false for synchronous execution.
+     * @return the pipeline execution id.
      */
     @POST
     @Consumes(value = APPLICATION_JSON)
     @Produces(value = APPLICATION_JSON)
-    @Path("{id}")
-    String runPipeline(@PathParam("id") String id,
+    @Path("execution/{pipelineId}/run")
+    String runPipeline(@PathParam("pipelineId") String pipelineId,
                        @NotNull Input input,
                        @NotNull boolean async) throws BusinessException;
+
+    /**
+     * Stops a running pipeline execution.
+     * @param executionId A pipeline execution id to stop. The pipeline execution id is typically returned by
+     * the runPipeline method.
+     * @throws BusinessException
+     */
+    @POST
+    @Path("execution/{executionId}/stop")
+    void stopPipelineExecution(@PathParam("executionId") String executionId) throws BusinessException;
+
+    /**
+     * Deletes a pipeline execution
+     * @param executionId A pipeline execution id to delete. The pipeline execution id is typically returned by
+     * the runPipeline method.
+     * @throws BusinessException
+     */
+    @POST
+    @Path("execution/{executionId}/delete")
+    void deletePipelineExecution(@PathParam("executionId") String executionId) throws BusinessException;
 }

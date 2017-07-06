@@ -21,11 +21,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.enterprise.event.Event;
+
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.services.api.RuntimeQuery;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
+import org.guvnor.ala.ui.events.PipelineExecutionTraceDeletedEvent;
+import org.guvnor.ala.ui.events.RuntimeDeletedEvent;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -44,6 +48,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.uberfire.mocks.EventSourceMock;
 
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.ERROR_MESSAGE;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.PROVIDER_ID;
@@ -84,6 +89,13 @@ public class RuntimeServiceImplTest {
 
     private RuntimeService service;
 
+    //TODO update this test for usint the events.
+    @Mock
+    private EventSourceMock<RuntimeDeletedEvent> runtimeDeletedEvent;
+
+    @Mock
+    private Event<PipelineExecutionTraceDeletedEvent> pipelineExecutionTraceDeletedEvent;
+
     private List<RuntimeQueryResultItem> queryItems;
 
     private List<String> pipelineNames;
@@ -102,7 +114,9 @@ public class RuntimeServiceImplTest {
 
         service = new RuntimeServiceImpl(runtimeProvisioningService,
                                          pipelineService,
-                                         providerService);
+                                         providerService,
+                                         runtimeDeletedEvent,
+                                         pipelineExecutionTraceDeletedEvent);
     }
 
     @Test

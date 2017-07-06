@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.guvnor.ala.pipeline.Input;
@@ -28,11 +29,14 @@ import org.guvnor.ala.services.api.RuntimeQueryBuilder;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
+import org.guvnor.ala.ui.events.PipelineExecutionTraceDeletedEvent;
+import org.guvnor.ala.ui.events.RuntimeDeletedEvent;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.model.Source;
@@ -58,6 +62,10 @@ public class RuntimeServiceImpl
 
     private ProviderService providerService;
 
+    private Event<RuntimeDeletedEvent> runtimeDeletedEvent;
+
+    private Event<PipelineExecutionTraceDeletedEvent> pipelineExecutionTraceDeletedEvent;
+
     public RuntimeServiceImpl() {
         //Empty constructor for Weld proxying
     }
@@ -65,10 +73,14 @@ public class RuntimeServiceImpl
     @Inject
     public RuntimeServiceImpl(final RuntimeProvisioningServiceBackend runtimeProvisioningService,
                               final PipelineServiceBackend pipelineService,
-                              final ProviderService providerService) {
+                              final ProviderService providerService,
+                              final Event<RuntimeDeletedEvent> runtimeDeletedEvent,
+                              final Event<PipelineExecutionTraceDeletedEvent> pipelineExecutionTraceDeletedEvent) {
         this.runtimeProvisioningService = runtimeProvisioningService;
         this.pipelineService = pipelineService;
         this.providerService = providerService;
+        this.runtimeDeletedEvent = runtimeDeletedEvent;
+        this.pipelineExecutionTraceDeletedEvent = pipelineExecutionTraceDeletedEvent;
     }
 
     @Override
@@ -172,5 +184,42 @@ public class RuntimeServiceImpl
                          e);
             throw ExceptionUtilities.handleException(e);
         }
+    }
+
+    @Override
+    public void stopPipelineExecution(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
+        checkNotNull("pipelineExecutionTraceKey",
+                     pipelineExecutionTraceKey);
+        pipelineService.stopPipelineExecution(pipelineExecutionTraceKey.getId());
+    }
+
+    @Override
+    public void deletePipelineExecution(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
+        checkNotNull("pipelineExecutionTraceKey",
+                     pipelineExecutionTraceKey);
+        pipelineService.deletePipelineExecution(pipelineExecutionTraceKey.getId());
+        pipelineExecutionTraceDeletedEvent.fire(new PipelineExecutionTraceDeletedEvent(pipelineExecutionTraceKey));
+    }
+
+    @Override
+    public void stopRuntime(final RuntimeKey runtimeKey) {
+        checkNotNull("runtimeKey",
+                     runtimeKey);
+        runtimeProvisioningService.stopRuntime(runtimeKey.getId());
+    }
+
+    @Override
+    public void startRuntime(final RuntimeKey runtimeKey) {
+        checkNotNull("runtimeKey",
+                     runtimeKey);
+        runtimeProvisioningService.startRuntime(runtimeKey.getId());
+    }
+
+    @Override
+    public void deleteRuntime(final RuntimeKey runtimeKey) {
+        checkNotNull("runtimeKey",
+                     runtimeKey);
+        runtimeProvisioningService.destroyRuntime(runtimeKey.getId());
+        runtimeDeletedEvent.fire(new RuntimeDeletedEvent(runtimeKey));
     }
 }

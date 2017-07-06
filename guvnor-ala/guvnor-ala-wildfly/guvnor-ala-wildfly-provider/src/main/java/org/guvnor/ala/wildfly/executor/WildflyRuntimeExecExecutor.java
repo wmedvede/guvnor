@@ -71,13 +71,15 @@ public class WildflyRuntimeExecExecutor<T extends WildflyRuntimeConfiguration>
             if (result != 200) {
                 throw new ProvisioningException("Deployment to Wildfly Failed with error code: " + result);
             }
-        } else if ("Running".equals(appState.getState()) &&
+        } else if (( "Running".equals(appState.getState()) || "Stopped".equals(appState.getState()) ) &&
                 (isNullOrEmpty(runtimeConfig.getRedeployStrategy()) || "auto".equals(runtimeConfig.getRedeployStrategy()))) {
             wildfly.getWildflyClient(wildflyProvider).undeploy(id);
             int result = wildfly.getWildflyClient(wildflyProvider).deploy(file);
             if (result != 200) {
                 throw new ProvisioningException("Deployment to Wildfly Failed with error code: " + result);
             }
+        } else {
+            throw new ProvisioningException("A runtime with the given identifier: " + id + " is already deployed");
         }
 
         String appContext = id.substring(0,

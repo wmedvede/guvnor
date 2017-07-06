@@ -355,14 +355,16 @@ public class WildflyClient {
             if (element.isJsonObject()) {
                 JsonObject outcome = element.getAsJsonObject();
                 JsonElement resultElement = outcome.get("result");
-                String enabled = "false";
+                String enabled = null;
                 if (resultElement != null) {
                     JsonObject result = resultElement.getAsJsonObject();
                     enabled = result.get("enabled").getAsString();
                 }
-                String state = "";
-                if (enabled.equals("true")) {
+                String state;
+                if (Boolean.TRUE.toString().equals(enabled)) {
                     state = "Running";
+                } else if (Boolean.FALSE.toString().equals(enabled)) {
+                    state = "Stopped";
                 } else {
                     state = "NA";
                 }

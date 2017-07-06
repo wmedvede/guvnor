@@ -37,6 +37,8 @@ public class ProviderStatusPresenter {
 
         void addListItem(final IsElement listItem);
 
+        void removeListItem(final IsElement listItem);
+
         void clear();
     }
 
@@ -77,11 +79,22 @@ public class ProviderStatusPresenter {
         return view;
     }
 
+    public List<RuntimePresenter> getItems() {
+        return currentItems;
+    }
+
+    public void removeItem(final RuntimePresenter item) {
+        view.removeListItem(item.getView());
+        currentItems.remove(item);
+        runtimePresenterInstance.destroy(item);
+    }
+
     protected RuntimePresenter newRuntimePresenter() {
         return runtimePresenterInstance.get();
     }
 
     private void clearItems() {
         currentItems.forEach(runtimePresenterInstance::destroy);
+        currentItems.clear();
     }
 }

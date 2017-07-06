@@ -33,7 +33,10 @@ import org.guvnor.ala.ui.client.handler.FormResolver;
 import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
 import org.guvnor.ala.ui.client.provider.status.ProviderStatusPresenter;
 import org.guvnor.ala.ui.client.provider.status.empty.ProviderStatusEmptyPresenter;
+import org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenter;
 import org.guvnor.ala.ui.client.wizard.provider.empty.ProviderConfigEmptyPresenter;
+import org.guvnor.ala.ui.events.PipelineExecutionTraceDeletedEvent;
+import org.guvnor.ala.ui.events.RuntimeDeletedEvent;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -176,6 +179,33 @@ public class ProviderPresenter {
 
     public IsElement getView() {
         return view;
+    }
+
+    protected void onRuntimeDeleted(@Observes final RuntimeDeletedEvent event) {
+        if (provider != null && event.getRuntimeKey() != null &&
+                provider.getKey().equals(event.getRuntimeKey().getProviderKey())) {
+            providerStatusPresenter.getItems().stream()
+                    .filter(presenter -> presenter.getItem().isRuntime()
+                            && event.getRuntimeKey().equals(presenter.getItem().getRuntime().getKey()))
+                    .findFirst().ifPresent(this::removeItem);
+        }
+    }
+
+    protected void onPipelineExecutionTraceDeleted(@Observes final PipelineExecutionTraceDeletedEvent event) {
+        if (provider != null && event.getPipelineExecutionTraceKey() != null) {
+            providerStatusPresenter.getItems().stream()
+                    .filter(presenter -> !presenter.getItem().isRuntime() &&
+                            presenter.getItem().getPipelineTrace() != null &&
+                            event.getPipelineExecutionTraceKey().equals(presenter.getItem().getPipelineTrace().getKey()))
+                    .findFirst().ifPresent(this::removeItem);
+        }
+    }
+
+    private void removeItem(final RuntimePresenter item) {
+        providerStatusPresenter.removeItem(item);
+        if (providerStatusPresenter.getItems().isEmpty()) {
+            refresh();
+        }
     }
 
     private ProviderConfigurationForm newProviderConfigurationForm(ProviderTypeKey providerTypeKey) {
