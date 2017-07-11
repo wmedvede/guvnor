@@ -30,9 +30,20 @@ public class StageView
         implements org.jboss.errai.ui.client.local.api.IsElement,
                    StagePresenter.View {
 
+    /**
+     * Color used for stages that finished with no errors ->
+     */
     private static final String DONE_COLOR = "#3f9c35";
 
+    /**
+     * Color used for stages with error -> Yellow.
+     */
     private static final String ERROR_COLOR = "#ffff00";
+
+    /**
+     * Color used for stopped stages -> Magenta
+     */
+    private static final String STOPPED_COLOR = "#FF00FF";
 
     @Inject
     @DataField("stage-container")
@@ -54,6 +65,7 @@ public class StageView
         container.getStyle().removeProperty("border-color");
         container.getStyle().setProperty("animation",
                                          "border-pulsate 2s infinite");
+        container.setTitle("RUNNING");
     }
 
     @Override
@@ -61,6 +73,7 @@ public class StageView
         container.getStyle().setProperty("border-color",
                                          DONE_COLOR);
         container.getStyle().removeProperty("animation");
+        container.setTitle("DONE");
     }
 
     @Override
@@ -68,6 +81,15 @@ public class StageView
         container.getStyle().setProperty("border-color",
                                          ERROR_COLOR);
         container.getStyle().removeProperty("animation");
+        container.setTitle("ERROR");
+    }
+
+    @Override
+    public void setStoppedState() {
+        container.getStyle().setProperty("border-color",
+                                         STOPPED_COLOR);
+        container.getStyle().removeProperty("animation");
+        container.setTitle("STOPPED");
     }
 
     @Override

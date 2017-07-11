@@ -21,19 +21,35 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 /**
- * Event for notifying the deletion of a PipelineExecutionTrace.
+ * Event for notifying changes in a pipeline execution.
  */
 @Portable
-public class PipelineExecutionTraceDeletedEvent {
+public class PipelineExecutionChangeEvent {
+
+    PipelineExecutionChange change;
 
     private PipelineExecutionTraceKey pipelineExecutionTraceKey;
 
-    public PipelineExecutionTraceDeletedEvent(@MapsTo("pipelineExecutionTraceKey") final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
+    public PipelineExecutionChangeEvent(@MapsTo("change") final PipelineExecutionChange change,
+                                        @MapsTo("pipelineExecutionTraceKey") final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
+        this.change = change;
         this.pipelineExecutionTraceKey = pipelineExecutionTraceKey;
+    }
+
+    public PipelineExecutionChange getChange() {
+        return change;
     }
 
     public PipelineExecutionTraceKey getPipelineExecutionTraceKey() {
         return pipelineExecutionTraceKey;
+    }
+
+    public boolean isStop() {
+        return change == PipelineExecutionChange.STOP;
+    }
+
+    public boolean isDelete() {
+        return change == PipelineExecutionChange.DELETE;
     }
 
     @Override
@@ -45,13 +61,20 @@ public class PipelineExecutionTraceDeletedEvent {
             return false;
         }
 
-        PipelineExecutionTraceDeletedEvent that = (PipelineExecutionTraceDeletedEvent) o;
+        PipelineExecutionChangeEvent that = (PipelineExecutionChangeEvent) o;
 
+        if (change != that.change) {
+            return false;
+        }
         return pipelineExecutionTraceKey != null ? pipelineExecutionTraceKey.equals(that.pipelineExecutionTraceKey) : that.pipelineExecutionTraceKey == null;
     }
 
     @Override
     public int hashCode() {
-        return pipelineExecutionTraceKey != null ? pipelineExecutionTraceKey.hashCode() : 0;
+        int result = change != null ? change.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (pipelineExecutionTraceKey != null ? pipelineExecutionTraceKey.hashCode() : 0);
+        result = ~~result;
+        return result;
     }
 }

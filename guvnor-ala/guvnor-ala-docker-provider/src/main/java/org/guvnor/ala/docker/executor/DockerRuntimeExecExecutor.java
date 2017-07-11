@@ -51,6 +51,7 @@ import org.guvnor.ala.docker.model.DockerRuntimeEndpoint;
 import org.guvnor.ala.docker.model.DockerRuntimeInfo;
 import org.guvnor.ala.docker.model.DockerRuntimeState;
 
+import static org.guvnor.ala.runtime.RuntimeState.RUNNING;
 import static org.guvnor.ala.util.RuntimeConfigHelper.buildRuntimeName;
 
 public class DockerRuntimeExecExecutor<T extends DockerRuntimeConfig>
@@ -149,7 +150,7 @@ public class DockerRuntimeExecExecutor<T extends DockerRuntimeConfig>
                                              dockerProvider,
                                              dockerRuntimeEndpoint,
                                              new DockerRuntimeInfo(),
-                                             new DockerRuntimeState("Running",
+                                             new DockerRuntimeState(RUNNING,
                                                                     new Date().toString())));
     }
 

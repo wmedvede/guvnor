@@ -35,8 +35,8 @@ import org.guvnor.ala.ui.client.provider.status.ProviderStatusPresenter;
 import org.guvnor.ala.ui.client.provider.status.empty.ProviderStatusEmptyPresenter;
 import org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenter;
 import org.guvnor.ala.ui.client.wizard.provider.empty.ProviderConfigEmptyPresenter;
-import org.guvnor.ala.ui.events.PipelineExecutionTraceDeletedEvent;
-import org.guvnor.ala.ui.events.RuntimeDeletedEvent;
+import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
+import org.guvnor.ala.ui.events.RuntimeChangeEvent;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
@@ -181,8 +181,8 @@ public class ProviderPresenter {
         return view;
     }
 
-    protected void onRuntimeDeleted(@Observes final RuntimeDeletedEvent event) {
-        if (provider != null && event.getRuntimeKey() != null &&
+    protected void onRuntimeChange(@Observes final RuntimeChangeEvent event) {
+        if (event.isDelete() && provider != null && event.getRuntimeKey() != null &&
                 provider.getKey().equals(event.getRuntimeKey().getProviderKey())) {
             providerStatusPresenter.getItems().stream()
                     .filter(presenter -> presenter.getItem().isRuntime()
@@ -191,8 +191,8 @@ public class ProviderPresenter {
         }
     }
 
-    protected void onPipelineExecutionTraceDeleted(@Observes final PipelineExecutionTraceDeletedEvent event) {
-        if (provider != null && event.getPipelineExecutionTraceKey() != null) {
+    protected void onPipelineExecutionChange(@Observes final PipelineExecutionChangeEvent event) {
+        if (event.isDelete() && provider != null && event.getPipelineExecutionTraceKey() != null) {
             providerStatusPresenter.getItems().stream()
                     .filter(presenter -> !presenter.getItem().isRuntime() &&
                             presenter.getItem().getPipelineTrace() != null &&

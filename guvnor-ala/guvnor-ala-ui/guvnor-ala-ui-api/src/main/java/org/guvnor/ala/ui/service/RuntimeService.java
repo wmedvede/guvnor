@@ -46,6 +46,13 @@ public interface RuntimeService {
     RuntimeListItem getRuntimeItem(final PipelineExecutionTraceKey pipelineExecutionTraceKey);
 
     /**
+     * Gets the runtime information for a given runtime.
+     * @param runtimeKey the identifier for a runtime.
+     * @return the RuntimeListItem associated to the runtime when exists, false in any other case.
+     */
+    RuntimeListItem getRuntimeItem(final RuntimeKey runtimeKey);
+
+    /**
      * Gets the information about the runtimes associates to a given provider and the provider itself.
      * @param providerKey
      * @return a RuntimeInfo with the runtimes associated to the providerKey and the Provider information. Null
@@ -100,7 +107,11 @@ public interface RuntimeService {
 
     /**
      * Deletes a runtime.
-     * @param runtimeKey the of the runtime to delete.
+     * @param runtimeKey the key of the runtime to delete.
+     * @param forced indicates if the runtime must be deleted from the guvnor-ala registries independently of the
+     * connectivity with the external provider. e.g. if it was not possible to connect an external WF where the runtime
+     * is running.
      */
-    void deleteRuntime(final RuntimeKey runtimeKey);
+    void deleteRuntime(final RuntimeKey runtimeKey,
+                       final boolean forced);
 }

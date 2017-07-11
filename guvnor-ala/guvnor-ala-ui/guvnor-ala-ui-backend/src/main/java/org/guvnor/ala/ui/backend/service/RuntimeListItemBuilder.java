@@ -27,7 +27,6 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.Runtime;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Stage;
 
 /**
@@ -74,14 +73,14 @@ public class RuntimeListItemBuilder {
         if (item.getPipelineExecutionId() != null) {
             final Pipeline pipeline = new Pipeline(new PipelineKey(item.getPipelineId()));
             pipelineTrace = new PipelineExecutionTrace(new PipelineExecutionTraceKey(item.getPipelineExecutionId()));
-            pipelineTrace.setPipelineStatus(transformToPipelneStatus(item.getPipelineStatus()));
+            pipelineTrace.setPipelineStatus(transformToPipelineStatus(item.getPipelineStatus()));
             pipelineTrace.setPipelineError(item.getPipelineError());
             item.getPipelineStageItems().getItems()
                     .forEach(stage -> {
                                  pipeline.addStage(new Stage(pipeline.getKey(),
                                                              stage.getName()));
                                  pipelineTrace.setStageStatus(stage.getName(),
-                                                              transformToPipelneStatus(stage.getStatus()));
+                                                              transformToPipelineStatus(stage.getStatus()));
                                  pipelineTrace.setStageError(stage.getName(),
                                                              stage.getErrorMessage());
                              }
@@ -96,9 +95,9 @@ public class RuntimeListItemBuilder {
                                                                                                    item.getProviderVersion()),
                                                                                item.getProviderId()),
                                                                item.getRuntimeId()),
-                                                transformToRuntimeStatus(item.getRuntimeStatus()),
+                                                item.getRuntimeStatus(),
                                                 item.getRuntimeEndpoint(),
-                                                "not yet implemented");
+                                                item.getStartedAt());
             runtime.setPipelineTrace(pipelineTrace);
             result = new RuntimeListItem(runtimeName,
                                          runtime);
@@ -109,24 +108,7 @@ public class RuntimeListItemBuilder {
         return result;
     }
 
-    private RuntimeStatus transformToRuntimeStatus(String status) {
-        if (status == null) {
-            return null;
-        } else {
-            switch (status) {
-                case SCHEDULED:
-                case RUNNING:
-                    return RuntimeStatus.LOADING;
-                case FINISHED:
-                    return RuntimeStatus.STARTED;
-                case ERROR:
-                    return RuntimeStatus.ERROR;
-            }
-            return null;
-        }
-    }
-
-    private PipelineStatus transformToPipelneStatus(String status) {
+    private PipelineStatus transformToPipelineStatus(String status) {
         if (status == null) {
             return null;
         } else {

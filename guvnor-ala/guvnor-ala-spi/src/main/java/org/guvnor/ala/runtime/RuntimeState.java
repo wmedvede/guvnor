@@ -18,14 +18,29 @@ package org.guvnor.ala.runtime;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.*;
-import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.*;
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.WRAPPER_OBJECT;
+import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.CLASS;
 
 /**
  * Represent the State of a particular runtime
  */
 @JsonTypeInfo(use = CLASS, include = WRAPPER_OBJECT)
 public interface RuntimeState {
+
+    /**
+     * Common state value for indicating that a it's not possible to establish current runtime state.
+     */
+    String UNKNOWN = "UNKNOWN";
+
+    /**
+     * Common state value for indicating that a runtime is running.
+     */
+    String RUNNING = "RUNNING";
+
+    /**
+     * Common state value for indicating that a runtime is stopped.
+     */
+    String STOPPED = "STOPPED";
 
     /*
      * Get the Runtime State
