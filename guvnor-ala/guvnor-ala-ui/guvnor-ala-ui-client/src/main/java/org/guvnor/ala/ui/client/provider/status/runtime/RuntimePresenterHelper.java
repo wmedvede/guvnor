@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.guvnor.ala.ui.client.widget.pipeline.stage.State;
 import org.guvnor.ala.ui.model.PipelineStatus;
 import org.guvnor.ala.ui.model.RuntimeStatus;
 
@@ -124,5 +125,22 @@ public class RuntimePresenterHelper {
         }
 
         return Collections.emptyList();
+    }
+
+    /**
+     * Gets the stage state to set in the UI given the PipelineStatus.
+     * @param stageStatus the stage status to represent in the UI.
+     * @return a State for configuring the StagePresenter.
+     */
+    public static State buildStageState(final PipelineStatus stageStatus) {
+        if (stageStatus == PipelineStatus.RUNNING) {
+            return State.EXECUTING;
+        } else if (stageStatus == PipelineStatus.ERROR) {
+            return State.ERROR;
+        } else if (stageStatus == PipelineStatus.STOPPED) {
+            return State.STOPPED;
+        } else {
+            return State.DONE;
+        }
     }
 }
