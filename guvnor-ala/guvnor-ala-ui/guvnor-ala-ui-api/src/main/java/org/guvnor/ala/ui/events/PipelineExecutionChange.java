@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package org.guvnor.ala.ui.model;
+package org.guvnor.ala.ui.events;
 
 import org.jboss.errai.common.client.api.annotations.Portable;
 
-/**
- * Enum for modeling the status of a runtime.
- */
 @Portable
-public enum RuntimeStatus {
-    LOADING,
-    RUNNING,
-    STOPPED,
-    ERROR,
-    WARN,
-    UNKNOWN
+public enum PipelineExecutionChange {
+    STOP,
+    DELETE
 }

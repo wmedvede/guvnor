@@ -21,15 +21,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.enterprise.event.Event;
-
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.services.api.RuntimeQuery;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
-import org.guvnor.ala.ui.events.PipelineExecutionTraceDeletedEvent;
-import org.guvnor.ala.ui.events.RuntimeDeletedEvent;
+import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
+import org.guvnor.ala.ui.events.RuntimeChangeEvent;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -91,10 +89,10 @@ public class RuntimeServiceImplTest {
 
     //TODO update this test for usint the events.
     @Mock
-    private EventSourceMock<RuntimeDeletedEvent> runtimeDeletedEvent;
+    private EventSourceMock<RuntimeChangeEvent> runtimeChangeEvent;
 
     @Mock
-    private Event<PipelineExecutionTraceDeletedEvent> pipelineExecutionTraceDeletedEvent;
+    private EventSourceMock<PipelineExecutionChangeEvent> pipelineExecutionChangeEvent;
 
     private List<RuntimeQueryResultItem> queryItems;
 
@@ -115,8 +113,8 @@ public class RuntimeServiceImplTest {
         service = new RuntimeServiceImpl(runtimeProvisioningService,
                                          pipelineService,
                                          providerService,
-                                         runtimeDeletedEvent,
-                                         pipelineExecutionTraceDeletedEvent);
+                                         runtimeChangeEvent,
+                                         pipelineExecutionChangeEvent);
     }
 
     @Test
@@ -305,6 +303,7 @@ public class RuntimeServiceImplTest {
         item.setRuntimeId("RuntimeQueryResultItem.runtimeId." + suffix);
         item.setRuntimeName("RuntimeQueryResultItem.runtimeName." + suffix);
         item.setRuntimeStatus("RUNNING");
+        item.setStartedAt("RuntimeQueryResultItem.startedAt." + suffix);
         item.setRuntimeEndpoint("RuntimeQueryResultItem.runtimeEndpoint." + suffix);
 
         return item;

@@ -97,8 +97,13 @@ public class RuntimeProvisioningServiceBackendImpl
     }
 
     @Override
-    public void destroyRuntime(String runtimeId) throws BusinessException {
-        runtimeProvisioningService.destroyRuntime(runtimeId);
+    public void destroyRuntime(String runtimeId,
+                               boolean forced) throws BusinessException {
+        if (forced) {
+            runtimeProvisioningService.forceDestroyRuntime(runtimeId);
+        } else {
+            runtimeProvisioningService.destroyRuntime(runtimeId);
+        }
     }
 
     @Override
