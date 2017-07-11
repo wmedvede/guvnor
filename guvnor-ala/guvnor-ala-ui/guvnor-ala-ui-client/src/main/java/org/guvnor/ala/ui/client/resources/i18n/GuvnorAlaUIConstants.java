@@ -91,4 +91,41 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String ProviderConfigEmptyView_ProviderTypeNotProperlyConfiguredMessage = "ProviderConfigEmptyView.ProviderTypeNotProperlyConfiguredMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeStartAction = "RuntimePresenter.RuntimeStartAction";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeStopAction = "RuntimePresenter.RuntimeStopAction";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeDeleteAction = "RuntimePresenter.RuntimeDeleteAction";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeStartSuccessMessage = "RuntimePresenter.RuntimeStartSuccessMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeStopSuccessMessage = "RuntimePresenter.RuntimeStopSuccessMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeDeleteSuccessMessage = "RuntimePresenter.RuntimeDeleteSuccessMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeDeleteFailedMessage = "RuntimePresenter.RuntimeDeleteFailedMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeConfirmForcedDeleteMessage = "RuntimePresenter.RuntimeConfirmForcedDeleteMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_PipelineExecutionStopAction = "RuntimePresenter.PipelineExecutionStopAction";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_PipelineExecutionDeleteAction = "RuntimePresenter.PipelineExecutionDeleteAction";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_PipelineExecutionStopSuccessMessage = "RuntimePresenter.PipelineExecutionStopSuccessMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_PipelineExecutionDeleteSuccessMessage = "RuntimePresenter.PipelineExecutionDeleteSuccessMessage";
+
 }

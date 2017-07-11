@@ -36,6 +36,8 @@ public class StagePresenter {
         void setExecutingState();
 
         void setErrorState();
+
+        void setStoppedState();
     }
 
     private final View view;
@@ -68,6 +70,8 @@ public class StagePresenter {
             view.setDoneState();
         } else if (state.equals(State.ERROR)) {
             view.setErrorState();
+        } else if (state.equals(State.STOPPED)) {
+            view.setStoppedState();
         }
     }
 }

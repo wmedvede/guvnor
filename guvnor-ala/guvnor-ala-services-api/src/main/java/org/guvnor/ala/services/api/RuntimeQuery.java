@@ -37,12 +37,19 @@ public class RuntimeQuery {
      */
     private String pipelineExecutionId;
 
+    /**
+     * Filter the results for a particular runtime. If null, no runtime filtering will be applied.
+     */
+    private String runtimeId;
+
     public RuntimeQuery(String providerId,
                         String pipelineId,
-                        String pipelineExecutionId) {
+                        String pipelineExecutionId,
+                        String runtimeId) {
         this.providerId = providerId;
         this.pipelineId = pipelineId;
         this.pipelineExecutionId = pipelineExecutionId;
+        this.runtimeId = runtimeId;
     }
 
     public String getProviderId() {
@@ -55,5 +62,9 @@ public class RuntimeQuery {
 
     public String getPipelineExecutionId() {
         return pipelineExecutionId;
+    }
+
+    public String getRuntimeId() {
+        return runtimeId;
     }
 }

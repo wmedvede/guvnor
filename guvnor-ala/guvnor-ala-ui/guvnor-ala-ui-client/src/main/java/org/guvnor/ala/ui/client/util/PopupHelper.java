@@ -25,6 +25,14 @@ import org.uberfire.mvp.Command;
 @ApplicationScoped
 public class PopupHelper {
 
+    public String ErrorTitle() {
+        return CommonConstants.INSTANCE.Error();
+    }
+
+    public String WarningTitle() {
+        return CommonConstants.INSTANCE.Warning();
+    }
+
     public void showInformationPopup(final String message) {
         showOkButtonPopup(CommonConstants.INSTANCE.Information(),
                           message);

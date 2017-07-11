@@ -34,6 +34,8 @@ import org.guvnor.ala.services.api.itemlist.RuntimeList;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.junit.Ignore;
 
+import static org.guvnor.ala.runtime.RuntimeState.RUNNING;
+import static org.guvnor.ala.runtime.RuntimeState.STOPPED;
 import static org.junit.Assert.*;
 
 public class RuntimeEndpointsTestIT {
@@ -100,7 +102,7 @@ public class RuntimeEndpointsTestIT {
         assertTrue(runtime instanceof DockerRuntime);
         DockerRuntime dockerRuntime = (DockerRuntime) runtime;
 
-        assertEquals("Running",
+        assertEquals(RUNNING,
                      dockerRuntime.getState().getState());
         proxy.stopRuntime(newRuntime);
 
@@ -115,7 +117,7 @@ public class RuntimeEndpointsTestIT {
         assertTrue(runtime instanceof DockerRuntime);
         dockerRuntime = (DockerRuntime) runtime;
 
-        assertEquals("Stopped",
+        assertEquals(STOPPED,
                      dockerRuntime.getState().getState());
 
         proxy.destroyRuntime(newRuntime);

@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
+import org.guvnor.ala.ui.client.provider.status.runtime.actions.RuntimeActionItemPresenter;
+import org.guvnor.ala.ui.client.provider.status.runtime.actions.RuntimeActionItemSeparatorPresenter;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.widget.pipeline.PipelinePresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.stage.StagePresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.stage.State;
@@ -36,22 +39,23 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.Runtime;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.RuntimeStatus;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.model.Stage;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.uberfire.mocks.CallerMock;
+import org.uberfire.mocks.EventSourceMock;
+import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKey;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeKey;
-import static org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenterHelper.buildStyle;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -87,9 +91,24 @@ public class RuntimePresenterTest {
     private ManagedInstance<TransitionPresenter> transitionPresenterInstance;
 
     @Mock
+    private ManagedInstance<RuntimeActionItemPresenter> actionItemPresenterInstance;
+
+    @Mock
+    private ManagedInstance<RuntimeActionItemSeparatorPresenter> actionItemSeparatorPresenterInstance;
+
+    @Mock
     private RuntimeService runtimeService;
 
     private Caller<RuntimeService> runtimeServiceCaller;
+
+    @Mock
+    private EventSourceMock<NotificationEvent> notificationEvent;
+
+    @Mock
+    private PopupHelper popupHelper;
+
+    @Mock
+    private TranslationService translationService;
 
     private RuntimePresenter presenter;
 
@@ -113,7 +132,12 @@ public class RuntimePresenterTest {
                                              pipelinePresenter,
                                              stagePresenterInstance,
                                              transitionPresenterInstance,
-                                             runtimeServiceCaller) {
+                                             actionItemPresenterInstance,
+                                             actionItemSeparatorPresenterInstance,
+                                             runtimeServiceCaller,
+                                             notificationEvent,
+                                             popupHelper,
+                                             translationService) {
 
             @Override
             protected StagePresenter newStagePresenter() {
@@ -289,7 +313,7 @@ public class RuntimePresenterTest {
                                                                        PipelineStatus.FINISHED));
 
         verify(view,
-               times(1)).setStatus(buildStyle(PipelineStatus.FINISHED));
+               times(1)).setStatus(RuntimePresenterHelper.buildIconStyle(PipelineStatus.FINISHED));
     }
 
     private void preparePipelineExecutionTraceSetup() {
@@ -352,7 +376,7 @@ public class RuntimePresenterTest {
                                       RUNTIME_NAME,
                                       null,
                                       mock(Source.class),
-                                      mock(RuntimeStatus.class),
+                                      mock(String.class),
                                       ENDPOINT,
                                       CREATED_DATE);
         return runtime;

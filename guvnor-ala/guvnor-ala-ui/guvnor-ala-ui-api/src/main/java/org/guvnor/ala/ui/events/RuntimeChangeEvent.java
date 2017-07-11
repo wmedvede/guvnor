@@ -21,19 +21,40 @@ import org.jboss.errai.common.client.api.annotations.MapsTo;
 import org.jboss.errai.common.client.api.annotations.Portable;
 
 /**
- * Event for notifying the deletion of a runtime.
+ * Event for notifying changes in a Runtime.
+ * @see RuntimeChange
  */
 @Portable
-public class RuntimeDeletedEvent {
+public class RuntimeChangeEvent {
+
+    private RuntimeChange change;
 
     private RuntimeKey runtimeKey;
 
-    public RuntimeDeletedEvent(@MapsTo("runtimeKey") final RuntimeKey runtimeKey) {
+    public RuntimeChangeEvent(@MapsTo("change") final RuntimeChange change,
+                              @MapsTo("runtimeKey") final RuntimeKey runtimeKey) {
+        this.change = change;
         this.runtimeKey = runtimeKey;
+    }
+
+    public RuntimeChange getChange() {
+        return change;
     }
 
     public RuntimeKey getRuntimeKey() {
         return runtimeKey;
+    }
+
+    public boolean isDelete() {
+        return change == RuntimeChange.DELETE;
+    }
+
+    public boolean isStart() {
+        return change == RuntimeChange.START;
+    }
+
+    public boolean isStop() {
+        return change == RuntimeChange.STOP;
     }
 
     @Override
@@ -45,13 +66,20 @@ public class RuntimeDeletedEvent {
             return false;
         }
 
-        RuntimeDeletedEvent that = (RuntimeDeletedEvent) o;
+        RuntimeChangeEvent that = (RuntimeChangeEvent) o;
 
+        if (change != that.change) {
+            return false;
+        }
         return runtimeKey != null ? runtimeKey.equals(that.runtimeKey) : that.runtimeKey == null;
     }
 
     @Override
     public int hashCode() {
-        return runtimeKey != null ? runtimeKey.hashCode() : 0;
+        int result = change != null ? change.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (runtimeKey != null ? runtimeKey.hashCode() : 0);
+        result = ~~result;
+        return result;
     }
 }
