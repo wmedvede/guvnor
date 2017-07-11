@@ -49,14 +49,6 @@ public class RuntimeActionItemPresenter {
     }
 
     public void setup(final String label,
-                      final Command command,
-                      final boolean enabled) {
-        view.setLabel(label);
-        this.command = command;
-        view.setEnabled(enabled);
-    }
-
-    public void setup(final String label,
                       final Command command) {
         view.setLabel(label);
         this.command = command;
