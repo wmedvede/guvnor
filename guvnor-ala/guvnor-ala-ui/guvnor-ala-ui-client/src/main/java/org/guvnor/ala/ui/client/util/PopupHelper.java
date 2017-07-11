@@ -33,6 +33,10 @@ public class PopupHelper {
         return CommonConstants.INSTANCE.Warning();
     }
 
+    public String InformationTitle() {
+        return CommonConstants.INSTANCE.Information();
+    }
+
     public void showInformationPopup(final String message) {
         showOkButtonPopup(CommonConstants.INSTANCE.Information(),
                           message);
