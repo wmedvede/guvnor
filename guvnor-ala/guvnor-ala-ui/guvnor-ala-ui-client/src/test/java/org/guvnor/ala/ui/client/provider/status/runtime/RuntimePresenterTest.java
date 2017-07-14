@@ -25,10 +25,7 @@ import org.guvnor.ala.ui.client.provider.status.runtime.actions.RuntimeActionIte
 import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.widget.pipeline.PipelinePresenter;
 import org.guvnor.ala.ui.client.widget.pipeline.stage.StagePresenter;
-import org.guvnor.ala.ui.client.widget.pipeline.stage.State;
 import org.guvnor.ala.ui.client.widget.pipeline.transition.TransitionPresenter;
-import org.guvnor.ala.ui.events.PipelineStatusChangeEvent;
-import org.guvnor.ala.ui.events.StageStatusChangeEvent;
 import org.guvnor.ala.ui.model.Pipeline;
 import org.guvnor.ala.ui.model.PipelineExecutionTrace;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
@@ -43,7 +40,6 @@ import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.model.Stage;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
-import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.junit.Before;
@@ -56,73 +52,88 @@ import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderKey;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderTypeKey;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Base test for the RuntimePresenter.
+ */
 @RunWith(GwtMockitoTestRunner.class)
 public class RuntimePresenterTest {
 
-    private static final String RUNTIME_NAME = "RUNTIME_NAME";
+    protected static final String RUNTIME_NAME = "RUNTIME_NAME";
 
-    private static final String RUNTIME_ID = "RUNTIME_ID";
+    protected static final String RUNTIME_ID = "RUNTIME_ID";
 
-    private static final String ENDPOINT = "ENDPOINT";
+    protected static final String RUNTIME_STATUS = "RUNTIME_STATUS";
 
-    private static final String CREATED_DATE = "CREATED_DATE";
+    protected static final String ENDPOINT = "ENDPOINT";
 
-    private static final String DEFAULT_PIPELINE_NAME = "<system>";
+    protected static final String CREATED_DATE = "CREATED_DATE";
 
-    private static final String PIPELINE_NAME = "PIPELINE_NAME";
+    protected static final String DEFAULT_PIPELINE_NAME = "<system>";
 
-    private static final String EXECUTION_ID = "EXECUTION_ID";
+    protected static final String PIPELINE_NAME = "PIPELINE_NAME";
 
-    private static final int STAGE_NUMBER = 10;
+    protected static final String EXECUTION_ID = "EXECUTION_ID";
 
-    @Mock
-    private RuntimePresenter.View view;
-
-    @Mock
-    private PipelinePresenter pipelinePresenter;
+    protected static final int STAGE_NUMBER = 10;
 
     @Mock
-    private ManagedInstance<StagePresenter> stagePresenterInstance;
+    protected RuntimePresenter.View view;
 
     @Mock
-    private ManagedInstance<TransitionPresenter> transitionPresenterInstance;
+    protected PipelinePresenter pipelinePresenter;
 
     @Mock
-    private ManagedInstance<RuntimeActionItemPresenter> actionItemPresenterInstance;
+    protected ManagedInstance<StagePresenter> stagePresenterInstance;
 
     @Mock
-    private ManagedInstance<RuntimeActionItemSeparatorPresenter> actionItemSeparatorPresenterInstance;
+    protected ManagedInstance<TransitionPresenter> transitionPresenterInstance;
 
     @Mock
-    private RuntimeService runtimeService;
-
-    private Caller<RuntimeService> runtimeServiceCaller;
+    protected ManagedInstance<RuntimeActionItemPresenter> actionItemPresenterInstance;
 
     @Mock
-    private EventSourceMock<NotificationEvent> notificationEvent;
+    protected ManagedInstance<RuntimeActionItemSeparatorPresenter> actionItemSeparatorPresenterInstance;
 
     @Mock
-    private PopupHelper popupHelper;
+    protected RuntimeService runtimeService;
+
+    protected Caller<RuntimeService> runtimeServiceCaller;
 
     @Mock
-    private TranslationService translationService;
+    protected EventSourceMock<NotificationEvent> notificationEvent;
 
-    private RuntimePresenter presenter;
+    @Mock
+    protected PopupHelper popupHelper;
 
-    private List<TransitionPresenter> transitionPresenters = new ArrayList<>();
+    @Mock
+    protected TranslationService translationService;
 
-    private List<StagePresenter> stagePresenters = new ArrayList<>();
+    protected RuntimePresenter presenter;
 
-    private Runtime runtime;
+    protected List<TransitionPresenter> transitionPresenters = new ArrayList<>();
 
-    private PipelineExecutionTrace trace;
+    protected List<StagePresenter> stagePresenters = new ArrayList<>();
 
-    private RuntimeListItem item;
+    protected List<RuntimeActionItemPresenter> actionItemPresenters = new ArrayList<>();
 
-    private List<Stage> displayableStages;
+    protected RuntimeActionItemPresenter startActionPresenter;
+
+    protected RuntimeActionItemPresenter stopActionPresenter;
+
+    protected RuntimeActionItemPresenter deleteActionPresenter;
+
+    protected RuntimeActionItemSeparatorPresenter separatorPresenter;
+
+    protected Runtime runtime;
+
+    protected PipelineExecutionTrace trace;
+
+    protected RuntimeListItem item;
+
+    protected List<Stage> displayableStages;
 
     @Before
     public void setUp() {
@@ -154,169 +165,59 @@ public class RuntimePresenterTest {
                 transitionPresenters.add(transitionPresenter);
                 return super.newTransitionPresenter();
             }
+
+            @Override
+            protected RuntimeActionItemPresenter newActionItemPresenter() {
+                RuntimeActionItemPresenter actionItemPresenter = mock(RuntimeActionItemPresenter.class);
+                RuntimeActionItemPresenter.View view = mock(RuntimeActionItemPresenter.View.class);
+                when(actionItemPresenter.getView()).thenReturn(view);
+                when(actionItemPresenterInstance.get()).thenReturn(actionItemPresenter);
+                actionItemPresenters.add(actionItemPresenter);
+                return super.newActionItemPresenter();
+            }
+
+            @Override
+            protected RuntimeActionItemSeparatorPresenter newSeparatorItem() {
+                separatorPresenter = mock(RuntimeActionItemSeparatorPresenter.class);
+                RuntimeActionItemSeparatorPresenter.View view = mock(RuntimeActionItemSeparatorPresenter.View.class);
+                when(separatorPresenter.getView()).thenReturn(view);
+                when(actionItemSeparatorPresenterInstance.get()).thenReturn(separatorPresenter);
+                return super.newSeparatorItem();
+            }
         });
         presenter.init();
         verify(view,
                times(1)).init(presenter);
-    }
+        verify(actionItemPresenterInstance,
+               times(3)).get();
+        verify(actionItemSeparatorPresenterInstance,
+               times(1)).get();
 
-    /**
-     * Tests the case when the item is a Runtime with no pipeline execution trace.
-     */
-    @Test
-    public void testSetupRuntimeWithNoTrace() {
-        runtime = mockRuntime();
-        item = new RuntimeListItem(RUNTIME_NAME,
-                                   runtime);
-        presenter.setup(item);
-
-        verify(pipelinePresenter,
-               times(1)).clearStages();
-        verify(view,
-               times(1)).setup(RUNTIME_NAME,
-                               CREATED_DATE,
-                               DEFAULT_PIPELINE_NAME);
-        verify(view,
-               times(1)).setEndpoint(ENDPOINT);
-        verify(pipelinePresenter,
-               never()).addStage(any(IsElement.class));
-    }
-
-    /**
-     * Tests the case when the item is a Runtime with pipeline execution trace.
-     */
-    @Test
-    public void testSetupRuntimeWithTrace() {
-        runtime = mockRuntime();
-
-        preparePipelineExecutionTraceSetup();
-
-        item = new RuntimeListItem(RUNTIME_NAME,
-                                   trace);
-        //set the trace on the runtime.
-        runtime.setPipelineTrace(trace);
-        item = new RuntimeListItem(RUNTIME_NAME,
-                                   runtime);
-        presenter.setup(item);
-
-        verify(pipelinePresenter,
-               times(2)).clearStages();
-        verify(view,
-               times(1)).setup(RUNTIME_NAME,
-                               CREATED_DATE,
-                               PIPELINE_NAME);
-        verify(view,
-               times(1)).setEndpoint(ENDPOINT);
-
-        verifyPipelineWasSet(trace,
-                             displayableStages);
-    }
-
-    /**
-     * Tests the case when the item is a PipelineExecutionTrace execution trace.
-     */
-    @Test
-    public void testSetupPipelineExecutionTrace() {
-
-        preparePipelineExecutionTraceSetup();
-
-        RuntimeListItem item = new RuntimeListItem(RUNTIME_NAME,
-                                                   trace);
-        presenter.setup(item);
-
-        verify(pipelinePresenter,
-               times(2)).clearStages();
-        verify(view,
-               times(1)).setup(RUNTIME_NAME,
-                               "",
-                               PIPELINE_NAME);
-        verifyPipelineWasSet(trace,
-                             displayableStages);
-    }
-
-    /**
-     * an item with a pipeline execution trace was initially set and the last stage status has changed.
-     */
-    @Test
-    public void testOnStageStatusChangeLastVisibleStageChanged() {
-
-        preparePipelineExecutionTraceSetup();
-
-        RuntimeListItem item = new RuntimeListItem(RUNTIME_NAME,
-                                                   trace);
-        //setup the presenter.
-        presenter.setup(item);
-        int initialStagePresentersSize = stagePresenters.size();
-
-        //emulate the last stage finishing.
-        Stage stage = displayableStages.get(displayableStages.size() - 1);
-
-        presenter.onStageStatusChange(new StageStatusChangeEvent(trace.getKey(),
-                                                                 stage.getName(),
-                                                                 PipelineStatus.FINISHED));
-
-        //the last stage status was changed form EXECUTING to to DONE
-        StagePresenter stagePresenter = stagePresenters.get(stagePresenters.size() - 1);
-        verify(stagePresenter,
-               times(1)).setState(State.EXECUTING);
-        verify(stagePresenter,
-               times(1)).setState(State.DONE);
-        //no additional stages were added.
-        verify(stagePresenterInstance,
-               times(initialStagePresentersSize)).get();
-    }
-
-    /**
-     * an item with a pipeline execution trace was initially set and a new stage status not yet drawn has changed.
-     */
-    @Test
-    public void testOnStageStatusChangeNewStageChanged() {
-
-        preparePipelineExecutionTraceSetup();
-
-        RuntimeListItem item = new RuntimeListItem(RUNTIME_NAME,
-                                                   trace);
-        //setup the presenter.
-        presenter.setup(item);
-        int initialStagePresentersSize = stagePresenters.size();
-
-        //emulate the next stage consecutive stage finishing.
-        Stage stage = item.getPipelineTrace().getPipeline().getStages().get(displayableStages.size());
-
-        presenter.onStageStatusChange(new StageStatusChangeEvent(trace.getKey(),
-                                                                 stage.getName(),
-                                                                 PipelineStatus.RUNNING));
-
-        //an additional stage was added.
-        verify(stagePresenterInstance,
-               times(initialStagePresentersSize + 1)).get();
-
-        //the newly stage is set to EXECUTING in the UI
-        StagePresenter stagePresenter = stagePresenters.get(stagePresenters.size() - 1);
-        verify(stagePresenter,
-               times(1)).setup(stage);
-        verify(stagePresenter,
-               times(1)).setState(State.EXECUTING);
+        startActionPresenter = actionItemPresenters.get(0);
+        stopActionPresenter = actionItemPresenters.get(1);
+        deleteActionPresenter = actionItemPresenters.get(2);
     }
 
     @Test
-    public void testOnPipelineStatusChange() {
-        preparePipelineExecutionTraceSetup();
-
-        RuntimeListItem item = new RuntimeListItem(RUNTIME_NAME,
-                                                   trace);
-        //setup the presenter.
-        presenter.setup(item);
-
-        //the pipeline finishes
-        presenter.onPipelineStatusChange(new PipelineStatusChangeEvent(trace.getKey(),
-                                                                       PipelineStatus.FINISHED));
-
-        verify(view,
-               times(1)).setStatus(RuntimePresenterHelper.buildIconStyle(PipelineStatus.FINISHED));
+    public void testDestroy() {
+        presenter.destroy();
+        verify(actionItemPresenterInstance,
+               times(1)).destroy(startActionPresenter);
+        verify(actionItemPresenterInstance,
+               times(1)).destroy(stopActionPresenter);
+        verify(actionItemPresenterInstance,
+               times(1)).destroy(deleteActionPresenter);
+        verify(actionItemSeparatorPresenterInstance,
+               times(1)).destroy(separatorPresenter);
     }
 
-    private void preparePipelineExecutionTraceSetup() {
+    @Test
+    public void testGetView() {
+        assertEquals(view,
+                     presenter.getView());
+    }
+
+    protected void preparePipelineExecutionTraceSetup() {
         Pipeline pipeline = mockPipeline(PIPELINE_NAME,
                                          STAGE_NUMBER);
         trace = mockPipelineExecutionTrace(EXECUTION_ID,
@@ -337,34 +238,7 @@ public class RuntimePresenterTest {
         displayableStages.add(pipeline.getStages().get(finishedStages));
     }
 
-    /**
-     * Verify that the pipeline was properly drawn on screen.
-     * @param trace the trace to test.
-     * @param displayableStages list of stages that we know by construction must be displayed.
-     */
-    private void verifyPipelineWasSet(PipelineExecutionTrace trace,
-                                      List<Stage> displayableStages) {
-
-        int stagesSize = displayableStages.size();
-        int transitionsSize = stagesSize > 0 ? (stagesSize - 1) : 0;
-
-        for (int i = 0; i < displayableStages.size(); i++) {
-            StagePresenter stagePresenter = stagePresenters.get(i);
-            verify(stagePresenter,
-                   times(1)).setup(displayableStages.get(i));
-        }
-
-        verify(stagePresenterInstance,
-               times(stagesSize)).get();
-
-        verify(transitionPresenterInstance,
-               times(transitionsSize)).get();
-
-        verify(pipelinePresenter,
-               times(stagesSize + transitionsSize)).addStage(any(IsElement.class));
-    }
-
-    private Runtime mockRuntime() {
+    protected Runtime mockRuntime() {
         ProviderTypeKey providerTypeKey = mockProviderTypeKey("1");
         ProviderKey providerKey = mockProviderKey(providerTypeKey,
                                                   "1");
@@ -376,14 +250,14 @@ public class RuntimePresenterTest {
                                       RUNTIME_NAME,
                                       null,
                                       mock(Source.class),
-                                      mock(String.class),
+                                      RUNTIME_STATUS,
                                       ENDPOINT,
                                       CREATED_DATE);
         return runtime;
     }
 
-    private Pipeline mockPipeline(String pipelineId,
-                                  int stages) {
+    protected Pipeline mockPipeline(String pipelineId,
+                                    int stages) {
         PipelineKey pipelineKey = new PipelineKey(pipelineId);
         Pipeline pipeline = new Pipeline(pipelineKey);
 
@@ -395,10 +269,10 @@ public class RuntimePresenterTest {
         return pipeline;
     }
 
-    private PipelineExecutionTrace mockPipelineExecutionTrace(String executionId,
-                                                              Pipeline pipeline,
-                                                              PipelineStatus initialPipelineStatus,
-                                                              PipelineStatus initialStagesStatus) {
+    protected PipelineExecutionTrace mockPipelineExecutionTrace(String executionId,
+                                                                Pipeline pipeline,
+                                                                PipelineStatus initialPipelineStatus,
+                                                                PipelineStatus initialStagesStatus) {
         PipelineExecutionTrace trace = new PipelineExecutionTrace(new PipelineExecutionTraceKey(executionId));
         trace.setPipeline(pipeline);
         trace.setPipelineStatus(initialPipelineStatus);

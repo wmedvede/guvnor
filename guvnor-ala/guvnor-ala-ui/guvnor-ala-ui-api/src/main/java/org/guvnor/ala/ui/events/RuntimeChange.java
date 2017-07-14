@@ -20,7 +20,7 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
 public enum RuntimeChange {
-    START,
-    STOP,
-    DELETE
+    STARTED,
+    STOPPED,
+    DELETED
 }

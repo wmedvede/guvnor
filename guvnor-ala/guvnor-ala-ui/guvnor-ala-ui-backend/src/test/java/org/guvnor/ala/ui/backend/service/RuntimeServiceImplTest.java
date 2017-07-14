@@ -26,7 +26,9 @@ import org.guvnor.ala.services.api.RuntimeQuery;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
+import org.guvnor.ala.ui.events.PipelineExecutionChange;
 import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
+import org.guvnor.ala.ui.events.RuntimeChange;
 import org.guvnor.ala.ui.events.RuntimeChangeEvent;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
@@ -34,6 +36,7 @@ import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.model.Source;
@@ -74,6 +77,8 @@ public class RuntimeServiceImplTest {
 
     private static final String PIPELINE = "PIPELINE";
 
+    private static final String PIPELINE_EXECUTION_ID = "PIPELINE_EXECUTION_ID";
+
     private static final PipelineKey PIPELINE_KEY = new PipelineKey(PIPELINE);
 
     @Mock
@@ -87,7 +92,6 @@ public class RuntimeServiceImplTest {
 
     private RuntimeService service;
 
-    //TODO update this test for usint the events.
     @Mock
     private EventSourceMock<RuntimeChangeEvent> runtimeChangeEvent;
 
@@ -134,9 +138,8 @@ public class RuntimeServiceImplTest {
     }
 
     @Test
-    public void getRuntimeItemExisting() {
-        String pipelineExecutionId = "executionId";
-        PipelineExecutionTraceKey traceKey = new PipelineExecutionTraceKey(pipelineExecutionId);
+    public void getRuntimeItemByPipelineExecutionKeyExisting() {
+        PipelineExecutionTraceKey traceKey = new PipelineExecutionTraceKey(PIPELINE_EXECUTION_ID);
         List<RuntimeQueryResultItem> singleResult = mockRuntimeQueryResultItemList(1);
         when(runtimeProvisioningService.executeQuery(any(RuntimeQuery.class))).thenReturn(singleResult);
         RuntimeListItem expectedItem = buildExpectedResult(singleResult).iterator().next();
@@ -146,12 +149,35 @@ public class RuntimeServiceImplTest {
     }
 
     @Test
-    public void getRuntimeItemNotExisting() {
-        String pipelineExecutionId = "executionId";
-        PipelineExecutionTraceKey traceKey = new PipelineExecutionTraceKey(pipelineExecutionId);
+    public void getRuntimeItemByPipelineExecutionKeyNotExisting() {
+        PipelineExecutionTraceKey traceKey = new PipelineExecutionTraceKey(PIPELINE_EXECUTION_ID);
         List<RuntimeQueryResultItem> singleResult = new ArrayList<>();
         when(runtimeProvisioningService.executeQuery(any(RuntimeQuery.class))).thenReturn(singleResult);
         RuntimeListItem result = service.getRuntimeItem(traceKey);
+        assertNull(result);
+    }
+
+    @Test
+    public void getRuntimeItemByRuntimeKeyExisting() {
+        ProviderKey providerKey = mock(ProviderKey.class);
+        RuntimeKey runtimeKey = new RuntimeKey(providerKey,
+                                               RUNTIME_ID);
+        List<RuntimeQueryResultItem> singleResult = mockRuntimeQueryResultItemList(1);
+        when(runtimeProvisioningService.executeQuery(any(RuntimeQuery.class))).thenReturn(singleResult);
+        RuntimeListItem expectedItem = buildExpectedResult(singleResult).iterator().next();
+        RuntimeListItem result = service.getRuntimeItem(runtimeKey);
+        assertEquals(expectedItem,
+                     result);
+    }
+
+    @Test
+    public void getRuntimeItemByRuntimeKeyNotExisting() {
+        ProviderKey providerKey = mock(ProviderKey.class);
+        RuntimeKey runtimeKey = new RuntimeKey(providerKey,
+                                               RUNTIME_ID);
+        List<RuntimeQueryResultItem> singleResult = new ArrayList<>();
+        when(runtimeProvisioningService.executeQuery(any(RuntimeQuery.class))).thenReturn(singleResult);
+        RuntimeListItem result = service.getRuntimeItem(runtimeKey);
         assertNull(result);
     }
 
@@ -267,6 +293,78 @@ public class RuntimeServiceImplTest {
         assertNull(info);
         verify(providerService,
                times(1)).getProvider(providerKey);
+    }
+
+    @Test
+    public void testStopPipelineExecution() {
+        PipelineExecutionTraceKey pipelineExecutionTraceKey = new PipelineExecutionTraceKey(PIPELINE_EXECUTION_ID);
+        service.stopPipelineExecution(pipelineExecutionTraceKey);
+        verify(pipelineService,
+               times(1)).stopPipelineExecution(PIPELINE_EXECUTION_ID);
+        verify(pipelineExecutionChangeEvent,
+               times(1)).fire(new PipelineExecutionChangeEvent(PipelineExecutionChange.STOPPED,
+                                                               pipelineExecutionTraceKey));
+    }
+
+    @Test
+    public void testDeletePipelineExecution() {
+        PipelineExecutionTraceKey pipelineExecutionTraceKey = new PipelineExecutionTraceKey(PIPELINE_EXECUTION_ID);
+        service.deletePipelineExecution(pipelineExecutionTraceKey);
+        verify(pipelineService,
+               times(1)).deletePipelineExecution(PIPELINE_EXECUTION_ID);
+        verify(pipelineExecutionChangeEvent,
+               times(1)).fire(new PipelineExecutionChangeEvent(PipelineExecutionChange.DELETED,
+                                                               pipelineExecutionTraceKey));
+    }
+
+    @Test
+    public void testStopRuntime() {
+        ProviderKey providerKey = mock(ProviderKey.class);
+        RuntimeKey runtimeKey = new RuntimeKey(providerKey,
+                                               RUNTIME_ID);
+        service.stopRuntime(runtimeKey);
+        verify(runtimeProvisioningService,
+               times(1)).stopRuntime(RUNTIME_ID);
+        verify(runtimeChangeEvent,
+               times(1)).fire(new RuntimeChangeEvent(RuntimeChange.STOPPED,
+                                                     runtimeKey));
+    }
+
+    @Test
+    public void testStartRuntime() {
+        ProviderKey providerKey = mock(ProviderKey.class);
+        RuntimeKey runtimeKey = new RuntimeKey(providerKey,
+                                               RUNTIME_ID);
+        service.startRuntime(runtimeKey);
+        verify(runtimeProvisioningService,
+               times(1)).startRuntime(RUNTIME_ID);
+        verify(runtimeChangeEvent,
+               times(1)).fire(new RuntimeChangeEvent(RuntimeChange.STARTED,
+                                                     runtimeKey));
+    }
+
+    @Test
+    public void testDeleteRuntimeNotForced() {
+        testDeleteRuntime(false);
+    }
+
+    @Test
+    public void testDeleteRuntimeForced() {
+        testDeleteRuntime(true);
+    }
+
+    private void testDeleteRuntime(boolean forced) {
+        ProviderKey providerKey = mock(ProviderKey.class);
+        RuntimeKey runtimeKey = new RuntimeKey(providerKey,
+                                               RUNTIME_ID);
+        service.deleteRuntime(runtimeKey,
+                              forced);
+        verify(runtimeProvisioningService,
+               times(1)).destroyRuntime(RUNTIME_ID,
+                                        forced);
+        verify(runtimeChangeEvent,
+               times(1)).fire(new RuntimeChangeEvent(RuntimeChange.DELETED,
+                                                     runtimeKey));
     }
 
     private List<RuntimeQueryResultItem> mockRuntimeQueryResultItemList(int count) {

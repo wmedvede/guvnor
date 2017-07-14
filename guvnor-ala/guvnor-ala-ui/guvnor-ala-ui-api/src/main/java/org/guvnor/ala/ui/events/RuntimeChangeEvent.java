@@ -46,15 +46,15 @@ public class RuntimeChangeEvent {
     }
 
     public boolean isDelete() {
-        return change == RuntimeChange.DELETE;
+        return change == RuntimeChange.DELETED;
     }
 
     public boolean isStart() {
-        return change == RuntimeChange.START;
+        return change == RuntimeChange.STARTED;
     }
 
     public boolean isStop() {
-        return change == RuntimeChange.STOP;
+        return change == RuntimeChange.STOPPED;
     }
 
     @Override

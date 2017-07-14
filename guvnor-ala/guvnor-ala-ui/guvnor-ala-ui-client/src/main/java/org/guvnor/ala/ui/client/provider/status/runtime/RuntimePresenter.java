@@ -56,7 +56,6 @@ import org.jboss.errai.common.client.api.RemoteCallback;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.uberfire.client.mvp.UberElement;
-import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 import org.uberfire.mvp.Command;
 import org.uberfire.workbench.events.NotificationEvent;
 
@@ -260,7 +259,7 @@ public class RuntimePresenter {
 
     private void processRuntimeStatus(final Runtime runtime) {
         view.clearActionItems();
-        disableActions();
+        enableActions(true);
         view.addActionItem(startAction.getView());
         view.addActionItem(stopAction.getView());
         view.addActionItem(separator.getView());
@@ -272,10 +271,6 @@ public class RuntimePresenter {
                          this::stopRuntime);
         deleteAction.setup(translationService.getTranslation(RuntimePresenter_RuntimeDeleteAction),
                            this::deleteRuntime);
-
-        startAction.setEnabled(true);
-        stopAction.setEnabled(true);
-        deleteAction.setEnabled(true);
 
         RuntimeStatus runtimeStatus = buildRuntimeStatus(runtime.getStatus());
         if (RUNNING == runtimeStatus) {
@@ -290,7 +285,7 @@ public class RuntimePresenter {
 
     private void processPipelineStatus(final PipelineStatus status) {
         view.clearActionItems();
-        disableActions();
+        enableActions(false);
         view.addActionItem(stopAction.getView());
         view.addActionItem(separator.getView());
         view.addActionItem(deleteAction.getView());
@@ -319,10 +314,10 @@ public class RuntimePresenter {
         view.setStatusTitle(status.name());
     }
 
-    private void disableActions() {
-        startAction.setEnabled(false);
-        stopAction.setEnabled(false);
-        deleteAction.setEnabled(false);
+    private void enableActions(boolean enabled) {
+        startAction.setEnabled(enabled);
+        stopAction.setEnabled(enabled);
+        deleteAction.setEnabled(enabled);
     }
 
     public void onStageStatusChange(@Observes final StageStatusChangeEvent event) {
@@ -381,14 +376,14 @@ public class RuntimePresenter {
         }
     }
 
-    private void refresh(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
+    protected void refresh(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
         runtimeService.call(getLoadItemSuccessCallback(),
-                            new DefaultErrorCallback()).getRuntimeItem(pipelineExecutionTraceKey);
+                            getDefaultErrorCallback()).getRuntimeItem(pipelineExecutionTraceKey);
     }
 
-    private void refresh(final RuntimeKey runtimeKey) {
+    protected void refresh(final RuntimeKey runtimeKey) {
         runtimeService.call(getLoadItemSuccessCallback(),
-                            new DefaultErrorCallback()).getRuntimeItem(runtimeKey);
+                            getDefaultErrorCallback()).getRuntimeItem(runtimeKey);
     }
 
     private RemoteCallback<RuntimeListItem> getLoadItemSuccessCallback() {
@@ -401,7 +396,7 @@ public class RuntimePresenter {
 
     protected void startRuntime() {
         runtimeService.call(getStartRuntimeSuccessCallback(),
-                            new DefaultErrorCallback()).startRuntime(item.getRuntime().getKey());
+                            getDefaultErrorCallback()).startRuntime(item.getRuntime().getKey());
     }
 
     private RemoteCallback<Void> getStartRuntimeSuccessCallback() {
@@ -414,7 +409,7 @@ public class RuntimePresenter {
         confirmAndExecute(popupHelper.InformationTitle(),
                           translationService.getTranslation(RuntimePresenter_RuntimeConfirmStopMessage),
                           () -> runtimeService.call(getStopRuntimeSuccessCallback(),
-                                                    new DefaultErrorCallback()).stopRuntime(item.getRuntime().getKey()));
+                                                    getDefaultErrorCallback()).stopRuntime(item.getRuntime().getKey()));
     }
 
     protected RemoteCallback<Void> getStopRuntimeSuccessCallback() {
@@ -435,8 +430,8 @@ public class RuntimePresenter {
         confirmAndExecute(popupHelper.WarningTitle(),
                           translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteMessage),
                           () -> runtimeService.call(getDeleteRuntimeSuccessCallback(),
-                                                    new DefaultErrorCallback()).deleteRuntime(item.getRuntime().getKey(),
-                                                                                              true));
+                                                    getDefaultErrorCallback()).deleteRuntime(item.getRuntime().getKey(),
+                                                                                             true));
     }
 
     private RemoteCallback<Void> getDeleteRuntimeSuccessCallback() {
@@ -463,7 +458,7 @@ public class RuntimePresenter {
                                   popupHelper.showInformationPopup(translationService.getTranslation(RuntimePresenter_PipelineExecutionAlreadyStoppedMessage));
                               } else {
                                   runtimeService.call(getStopPipelineSuccessCallback(),
-                                                      new DefaultErrorCallback()).stopPipelineExecution(item.getPipelineTrace().getKey());
+                                                      getDefaultErrorCallback()).stopPipelineExecution(item.getPipelineTrace().getKey());
                               }
                           });
     }
@@ -478,7 +473,7 @@ public class RuntimePresenter {
         confirmAndExecute(popupHelper.InformationTitle(),
                           translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmDeleteMessage),
                           () -> runtimeService.call(getDeletePipelineSuccessCallback(),
-                                                    new DefaultErrorCallback()).deletePipelineExecution(item.getPipelineTrace().getKey()));
+                                                    getDefaultErrorCallback()).deletePipelineExecution(item.getPipelineTrace().getKey()));
     }
 
     private RemoteCallback<Void> getDeletePipelineSuccessCallback() {
@@ -495,6 +490,10 @@ public class RuntimePresenter {
                                    yesCommand,
                                    () -> {
                                    });
+    }
+
+    private ErrorCallback<Message> getDefaultErrorCallback() {
+        return popupHelper.getPopupErrorCallback();
     }
 
     private boolean isFromCurrentPipeline(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {

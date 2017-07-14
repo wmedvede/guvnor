@@ -107,7 +107,6 @@ public class PipelineServiceBackendImpl
     @Override
     public void stopPipelineExecution(final String executionId) throws BusinessException {
         pipelineService.stopPipelineExecution(executionId);
-
     }
 
     @Override

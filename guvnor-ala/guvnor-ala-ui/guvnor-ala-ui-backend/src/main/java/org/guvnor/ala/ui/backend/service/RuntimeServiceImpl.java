@@ -206,7 +206,7 @@ public class RuntimeServiceImpl
         checkNotNull("pipelineExecutionTraceKey",
                      pipelineExecutionTraceKey);
         pipelineService.stopPipelineExecution(pipelineExecutionTraceKey.getId());
-        pipelineExecutionChangeEvent.fire(new PipelineExecutionChangeEvent(PipelineExecutionChange.STOP,
+        pipelineExecutionChangeEvent.fire(new PipelineExecutionChangeEvent(PipelineExecutionChange.STOPPED,
                                                                            pipelineExecutionTraceKey));
     }
 
@@ -215,7 +215,7 @@ public class RuntimeServiceImpl
         checkNotNull("pipelineExecutionTraceKey",
                      pipelineExecutionTraceKey);
         pipelineService.deletePipelineExecution(pipelineExecutionTraceKey.getId());
-        pipelineExecutionChangeEvent.fire(new PipelineExecutionChangeEvent(PipelineExecutionChange.DELETE,
+        pipelineExecutionChangeEvent.fire(new PipelineExecutionChangeEvent(PipelineExecutionChange.DELETED,
                                                                            pipelineExecutionTraceKey));
     }
 
@@ -224,7 +224,7 @@ public class RuntimeServiceImpl
         checkNotNull("runtimeKey",
                      runtimeKey);
         runtimeProvisioningService.stopRuntime(runtimeKey.getId());
-        runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.STOP,
+        runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.STOPPED,
                                                        runtimeKey));
     }
 
@@ -233,7 +233,7 @@ public class RuntimeServiceImpl
         checkNotNull("runtimeKey",
                      runtimeKey);
         runtimeProvisioningService.startRuntime(runtimeKey.getId());
-        runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.START,
+        runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.STARTED,
                                                        runtimeKey));
     }
 
@@ -244,7 +244,7 @@ public class RuntimeServiceImpl
                      runtimeKey);
         runtimeProvisioningService.destroyRuntime(runtimeKey.getId(),
                                                   forced);
-        runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.DELETE,
+        runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.DELETED,
                                                        runtimeKey));
     }
 }
