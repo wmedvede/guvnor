@@ -30,10 +30,16 @@ import org.guvnor.ala.ui.client.handler.ProviderConfigurationForm;
 import org.guvnor.ala.ui.client.provider.status.ProviderStatusPresenter;
 import org.guvnor.ala.ui.client.provider.status.empty.ProviderStatusEmptyPresenter;
 import org.guvnor.ala.ui.client.wizard.provider.empty.ProviderConfigEmptyPresenter;
+import org.guvnor.ala.ui.events.PipelineExecutionChange;
+import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
+import org.guvnor.ala.ui.events.RuntimeChange;
+import org.guvnor.ala.ui.events.RuntimeChangeEvent;
+import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.service.ProviderService;
@@ -130,16 +136,16 @@ public class ProviderPresenterTest {
 
         providerServiceCaller = spy(new CallerMock<>(providerService));
         runtimeServiceCaller = spy(new CallerMock<>(runtimeService));
-        presenter = new ProviderPresenter(view,
-                                          providerServiceCaller,
-                                          runtimeServiceCaller,
-                                          providerStatusEmptyPresenter,
-                                          providerStatusPresenter,
-                                          providerConfigEmptyPresenter,
-                                          handlerRegistry,
-                                          notification,
-                                          providerTypeSelectedEvent,
-                                          addNewRuntimeEvent);
+        presenter = spy(new ProviderPresenter(view,
+                                              providerServiceCaller,
+                                              runtimeServiceCaller,
+                                              providerStatusEmptyPresenter,
+                                              providerStatusPresenter,
+                                              providerConfigEmptyPresenter,
+                                              handlerRegistry,
+                                              notification,
+                                              providerTypeSelectedEvent,
+                                              addNewRuntimeEvent));
         presenter.init();
         verify(view,
                times(1)).init(presenter);
@@ -307,6 +313,84 @@ public class ProviderPresenterTest {
 
         verify(addNewRuntimeEvent,
                times(1)).fire(new AddNewRuntimeEvent(provider));
+    }
+
+    @Test
+    public void testOnRuntimeDeleted() {
+        //load the presenter.
+        prepareRuntimesInfo();
+        when(runtimeItems.isEmpty()).thenReturn(true);
+        presenter.onProviderSelected(new ProviderSelectedEvent(providerKey));
+
+        RuntimeKey runtimeKey = mock(RuntimeKey.class);
+        when(runtimeKey.getProviderKey()).thenReturn(providerKey);
+        when(providerStatusPresenter.removeItem(runtimeKey)).thenReturn(true);
+        //the provider status presenter is not empty after the removal.
+        when(providerStatusPresenter.isEmpty()).thenReturn(false);
+
+        presenter.onRuntimeChange(new RuntimeChangeEvent(RuntimeChange.DELETED,
+                                                         runtimeKey));
+        verify(providerStatusPresenter,
+               times(1)).removeItem(runtimeKey);
+    }
+
+    @Test
+    public void testOnRuntimeDeletedRefreshRequired() {
+        //load the presenter.
+        prepareRuntimesInfo();
+        when(runtimeItems.isEmpty()).thenReturn(true);
+        presenter.onProviderSelected(new ProviderSelectedEvent(providerKey));
+
+        RuntimeKey runtimeKey = mock(RuntimeKey.class);
+        when(runtimeKey.getProviderKey()).thenReturn(providerKey);
+        when(providerStatusPresenter.removeItem(runtimeKey)).thenReturn(true);
+        //the provider status presenter is empty after the removal.
+        when(providerStatusPresenter.isEmpty()).thenReturn(true);
+
+        presenter.onRuntimeChange(new RuntimeChangeEvent(RuntimeChange.DELETED,
+                                                         runtimeKey));
+        verify(providerStatusPresenter,
+               times(1)).removeItem(runtimeKey);
+        verify(presenter,
+               times(1)).refresh();
+    }
+
+    @Test
+    public void testPipelineExecutionDeleted() {
+        //load the presenter.
+        prepareRuntimesInfo();
+        when(runtimeItems.isEmpty()).thenReturn(true);
+        presenter.onProviderSelected(new ProviderSelectedEvent(providerKey));
+
+        PipelineExecutionTraceKey pipelineExecutionTraceKey = mock(PipelineExecutionTraceKey.class);
+        when(providerStatusPresenter.removeItem(pipelineExecutionTraceKey)).thenReturn(true);
+        //the provider status presenter is not empty after the removal.
+        when(providerStatusPresenter.isEmpty()).thenReturn(false);
+
+        presenter.onPipelineExecutionChange(new PipelineExecutionChangeEvent(PipelineExecutionChange.DELETED,
+                                                                             pipelineExecutionTraceKey));
+        verify(providerStatusPresenter,
+               times(1)).removeItem(pipelineExecutionTraceKey);
+    }
+
+    @Test
+    public void testPipelineExecutionDeletedRefreshRequired() {
+        //load the presenter.
+        prepareRuntimesInfo();
+        when(runtimeItems.isEmpty()).thenReturn(true);
+        presenter.onProviderSelected(new ProviderSelectedEvent(providerKey));
+
+        PipelineExecutionTraceKey pipelineExecutionTraceKey = mock(PipelineExecutionTraceKey.class);
+        when(providerStatusPresenter.removeItem(pipelineExecutionTraceKey)).thenReturn(true);
+        //the status presenter is empty after the removal.
+        when(providerStatusPresenter.isEmpty()).thenReturn(true);
+
+        presenter.onPipelineExecutionChange(new PipelineExecutionChangeEvent(PipelineExecutionChange.DELETED,
+                                                                             pipelineExecutionTraceKey));
+        verify(providerStatusPresenter,
+               times(1)).removeItem(pipelineExecutionTraceKey);
+        verify(presenter,
+               times(1)).refresh();
     }
 
     private void prepareRuntimesInfo() {

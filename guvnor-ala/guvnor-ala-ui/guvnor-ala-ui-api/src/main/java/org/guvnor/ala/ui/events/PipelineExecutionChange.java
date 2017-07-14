@@ -20,6 +20,6 @@ import org.jboss.errai.common.client.api.annotations.Portable;
 
 @Portable
 public enum PipelineExecutionChange {
-    STOP,
-    DELETE
+    STOPPED,
+    DELETED
 }

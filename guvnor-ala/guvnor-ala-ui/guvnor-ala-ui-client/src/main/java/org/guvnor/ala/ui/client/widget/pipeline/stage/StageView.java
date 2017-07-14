@@ -61,35 +61,35 @@ public class StageView
     }
 
     @Override
-    public void setExecutingState() {
+    public void setExecutingState(final String stateLabel) {
         container.getStyle().removeProperty("border-color");
         container.getStyle().setProperty("animation",
                                          "border-pulsate 2s infinite");
-        container.setTitle("RUNNING");
+        container.setTitle(stateLabel);
     }
 
     @Override
-    public void setDoneState() {
+    public void setDoneState(final String stateLabel) {
         container.getStyle().setProperty("border-color",
                                          DONE_COLOR);
         container.getStyle().removeProperty("animation");
-        container.setTitle("DONE");
+        container.setTitle(stateLabel);
     }
 
     @Override
-    public void setErrorState() {
+    public void setErrorState(final String stateLabel) {
         container.getStyle().setProperty("border-color",
                                          ERROR_COLOR);
         container.getStyle().removeProperty("animation");
-        container.setTitle("ERROR");
+        container.setTitle(stateLabel);
     }
 
     @Override
-    public void setStoppedState() {
+    public void setStoppedState(final String stateLabel) {
         container.getStyle().setProperty("border-color",
                                          STOPPED_COLOR);
         container.getStyle().removeProperty("animation");
-        container.setTitle("STOPPED");
+        container.setTitle(stateLabel);
     }
 
     @Override

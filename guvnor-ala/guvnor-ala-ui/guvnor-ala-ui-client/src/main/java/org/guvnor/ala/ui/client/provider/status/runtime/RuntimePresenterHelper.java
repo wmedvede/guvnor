@@ -67,11 +67,10 @@ public class RuntimePresenterHelper {
      * @param status the runtime status.
      * @return the UI representable status.
      */
-    static RuntimeStatus buildRuntimeStatus(String status) {
+    public static RuntimeStatus buildRuntimeStatus(String status) {
         if (status == null) {
             return RuntimeStatus.UNKNOWN;
         }
-
         switch (status) {
             case "RUNNING":
                 return RuntimeStatus.RUNNING;
@@ -133,14 +132,18 @@ public class RuntimePresenterHelper {
      * @return a State for configuring the StagePresenter.
      */
     public static State buildStageState(final PipelineStatus stageStatus) {
-        if (stageStatus == PipelineStatus.RUNNING) {
-            return State.EXECUTING;
-        } else if (stageStatus == PipelineStatus.ERROR) {
-            return State.ERROR;
-        } else if (stageStatus == PipelineStatus.STOPPED) {
-            return State.STOPPED;
-        } else {
+        if (stageStatus == null) {
             return State.DONE;
+        }
+        switch (stageStatus) {
+            case RUNNING:
+                return State.EXECUTING;
+            case ERROR:
+                return State.ERROR;
+            case STOPPED:
+                return State.STOPPED;
+            default:
+                return State.DONE;
         }
     }
 }
