@@ -45,11 +45,11 @@ public class PipelineExecutionChangeEvent {
     }
 
     public boolean isStop() {
-        return change == PipelineExecutionChange.STOP;
+        return change == PipelineExecutionChange.STOPPED;
     }
 
     public boolean isDelete() {
-        return change == PipelineExecutionChange.DELETE;
+        return change == PipelineExecutionChange.DELETED;
     }
 
     @Override
