@@ -38,7 +38,6 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
@@ -264,35 +263,6 @@ public class RuntimeServiceImplTest {
                               "irrelevant for the test",
                               mock(Source.class),
                               mock(PipelineKey.class));
-    }
-
-    @Test
-    public void testGetRuntimesInfoProviderExisting() {
-        ProviderTypeKey providerTypeKey = new ProviderTypeKey(PROVIDER_NAME,
-                                                              PROVIDER_VERSION);
-        ProviderKey providerKey = new ProviderKey(providerTypeKey,
-                                                  PROVIDER_ID);
-        Provider provider = mock(Provider.class);
-        when(providerService.getProvider(providerKey)).thenReturn(provider);
-        when(runtimeProvisioningService.executeQuery(any(RuntimeQuery.class))).thenReturn(queryItems);
-
-        RuntimesInfo info = service.getRuntimesInfo(providerKey);
-        assertNotNull(info);
-        assertEquals(provider,
-                     info.getProvider());
-        Collection<RuntimeListItem> expectedResult = buildExpectedResult(queryItems);
-        assertEquals(expectedResult,
-                     info.getRuntimeItems());
-    }
-
-    @Test
-    public void testGetRuntimesInfoProviderNotExisting() {
-        ProviderKey providerKey = mock(ProviderKey.class);
-        when(providerService.getProvider(providerKey)).thenReturn(null);
-        RuntimesInfo info = service.getRuntimesInfo(providerKey);
-        assertNull(info);
-        verify(providerService,
-               times(1)).getProvider(providerKey);
     }
 
     @Test
