@@ -40,7 +40,6 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
@@ -120,19 +119,6 @@ public class RuntimeServiceImpl
         return buildRuntimeQueryResult(runtimeProvisioningService.executeQuery(query)).stream()
                 .findFirst()
                 .orElse(null);
-    }
-
-    @Override
-    public RuntimesInfo getRuntimesInfo(final ProviderKey providerKey) {
-        checkNotNull("providerKey",
-                     providerKey);
-        final Provider provider = providerService.getProvider(providerKey);
-        if (provider == null) {
-            return null;
-        }
-        final Collection<RuntimeListItem> items = getRuntimeItems(providerKey);
-        return new RuntimesInfo(provider,
-                                items);
     }
 
     private Collection<RuntimeListItem> buildRuntimeQueryResult(List<RuntimeQueryResultItem> resultItems) {

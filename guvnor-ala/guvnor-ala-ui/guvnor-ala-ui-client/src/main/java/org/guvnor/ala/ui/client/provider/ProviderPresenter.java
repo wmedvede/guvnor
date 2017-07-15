@@ -41,7 +41,7 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.service.ProviderService;
-import org.guvnor.ala.ui.service.RuntimeService;
+import org.guvnor.ala.ui.service.ProvisioningScreensService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.api.RemoteCallback;
@@ -58,6 +58,8 @@ public class ProviderPresenter {
 
         void confirmRemove(final Command command);
 
+        void showProviderCantBeDeleted();
+
         void setProviderName(String name);
 
         void setStatus(IsElement view);
@@ -71,7 +73,7 @@ public class ProviderPresenter {
 
     private final View view;
     private final Caller<ProviderService> providerService;
-    private final Caller<RuntimeService> runtimeService;
+    private final Caller<ProvisioningScreensService> provisioningScreensService;
     private final ProviderStatusEmptyPresenter providerStatusEmptyPresenter;
     private final ProviderStatusPresenter providerStatusPresenter;
     private final ProviderConfigEmptyPresenter providerConfigEmptyPresenter;
@@ -87,7 +89,7 @@ public class ProviderPresenter {
     @Inject
     public ProviderPresenter(final View view,
                              final Caller<ProviderService> providerService,
-                             final Caller<RuntimeService> runtimeService,
+                             final Caller<ProvisioningScreensService> provisioningScreensService,
                              final ProviderStatusEmptyPresenter providerStatusEmptyPresenter,
                              final ProviderStatusPresenter providerStatusPresenter,
                              final ProviderConfigEmptyPresenter providerConfigEmptyPresenter,
@@ -97,7 +99,7 @@ public class ProviderPresenter {
                              final Event<AddNewRuntimeEvent> addNewRuntimeEvent) {
         this.view = view;
         this.providerService = providerService;
-        this.runtimeService = runtimeService;
+        this.provisioningScreensService = provisioningScreensService;
         this.providerStatusEmptyPresenter = providerStatusEmptyPresenter;
         this.providerStatusPresenter = providerStatusPresenter;
         this.providerConfigEmptyPresenter = providerConfigEmptyPresenter;
@@ -126,8 +128,8 @@ public class ProviderPresenter {
 
     private void load(final ProviderKey providerKey) {
         providerStatusPresenter.clear();
-        runtimeService.call(getLoadRuntimesInfoSuccessCallback(),
-                            new DefaultErrorCallback()).getRuntimesInfo(providerKey);
+        provisioningScreensService.call(getLoadRuntimesInfoSuccessCallback(),
+                                        new DefaultErrorCallback()).getRuntimesInfo(providerKey);
     }
 
     private RemoteCallback<RuntimesInfo> getLoadRuntimesInfoSuccessCallback() {
@@ -154,7 +156,18 @@ public class ProviderPresenter {
     }
 
     public void onRemoveProvider() {
-        view.confirmRemove(this::removeProvider);
+        provisioningScreensService.call(getRuntimesCheckSuccessCallback(),
+                                        new DefaultErrorCallback()).hasRuntimes(provider.getKey());
+    }
+
+    private RemoteCallback<Boolean> getRuntimesCheckSuccessCallback() {
+        return hasRuntimes -> {
+            if (hasRuntimes) {
+                view.showProviderCantBeDeleted();
+            } else {
+                view.confirmRemove(this::removeProvider);
+            }
+        };
     }
 
     public void removeProvider() {

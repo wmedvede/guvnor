@@ -43,7 +43,7 @@ import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.service.ProviderService;
-import org.guvnor.ala.ui.service.RuntimeService;
+import org.guvnor.ala.ui.service.ProvisioningScreensService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.IsElement;
 import org.junit.Before;
@@ -74,9 +74,9 @@ public class ProviderPresenterTest {
     private Caller<ProviderService> providerServiceCaller;
 
     @Mock
-    private RuntimeService runtimeService;
+    private ProvisioningScreensService provisioningScreensService;
 
-    private Caller<RuntimeService> runtimeServiceCaller;
+    private Caller<ProvisioningScreensService> provisioningScreensServiceCaller;
 
     @Mock
     private ProviderStatusEmptyPresenter providerStatusEmptyPresenter;
@@ -135,10 +135,10 @@ public class ProviderPresenterTest {
         when(providerStatusEmptyPresenter.getView()).thenReturn(providerStatusEmptyPresenterView);
 
         providerServiceCaller = spy(new CallerMock<>(providerService));
-        runtimeServiceCaller = spy(new CallerMock<>(runtimeService));
+        provisioningScreensServiceCaller = spy(new CallerMock<>(provisioningScreensService));
         presenter = spy(new ProviderPresenter(view,
                                               providerServiceCaller,
-                                              runtimeServiceCaller,
+                                              provisioningScreensServiceCaller,
                                               providerStatusEmptyPresenter,
                                               providerStatusPresenter,
                                               providerConfigEmptyPresenter,
@@ -253,8 +253,29 @@ public class ProviderPresenterTest {
     }
 
     @Test
-    public void testOnRemoveProvider() {
+    public void testOnRemoveProviderWithRuntimes() {
+        //emulate that the provider was previously loaded.
+        prepareRuntimesInfo();
+        presenter.onProviderSelected(new ProviderSelectedEvent(providerKey));
+
+        when(provisioningScreensService.hasRuntimes(providerKey)).thenReturn(true);
         presenter.onRemoveProvider();
+
+        verify(view,
+               times(1)).showProviderCantBeDeleted();
+    }
+
+    @Test
+    public void testOnRemoveProviderWithNoRuntimesSuccessful() {
+        //emulate that the provider was previously loaded.
+        prepareRuntimesInfo();
+        presenter.onProviderSelected(new ProviderSelectedEvent(providerKey));
+
+        when(provisioningScreensService.hasRuntimes(providerKey)).thenReturn(false);
+        presenter.onRemoveProvider();
+
+        verify(view,
+               never()).showProviderCantBeDeleted();
         verify(view,
                times(1)).confirmRemove(any(Command.class));
     }
@@ -404,7 +425,7 @@ public class ProviderPresenterTest {
         when(runtimesInfo.getProvider()).thenReturn(provider);
         when(runtimesInfo.getRuntimeItems()).thenReturn(runtimeItems);
         when(providerService.getProvider(providerKey)).thenReturn(provider);
-        when(runtimeService.getRuntimesInfo(providerKey)).thenReturn(runtimesInfo);
+        when(provisioningScreensService.getRuntimesInfo(providerKey)).thenReturn(runtimesInfo);
 
         when(handlerRegistry.isProviderEnabled(providerTypeKey)).thenReturn(true);
         when(handlerRegistry.getProviderHandler(providerTypeKey)).thenReturn(handler);
@@ -414,7 +435,7 @@ public class ProviderPresenterTest {
     }
 
     private void verifyRuntimesInfoLoaded(int currentTimes) {
-        verify(runtimeService,
+        verify(provisioningScreensService,
                times(currentTimes)).getRuntimesInfo(providerKey);
 
         verify(providerStatusPresenter,

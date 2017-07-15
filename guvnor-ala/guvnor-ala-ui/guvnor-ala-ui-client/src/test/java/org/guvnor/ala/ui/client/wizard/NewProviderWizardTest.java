@@ -27,7 +27,9 @@ import org.guvnor.ala.ui.client.wizard.provider.ProviderConfigurationPagePresent
 import org.guvnor.ala.ui.model.ProviderConfiguration;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.service.ProviderService;
+import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.common.client.api.ErrorCallback;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +57,9 @@ public class NewProviderWizardTest
 
     @Mock
     private ClientProviderHandlerRegistry handlerRegistry;
+
+    @Mock
+    private ErrorCallback<Message> defaultErrorCallback;
 
     @Mock
     private PopupHelper popupHelper;
@@ -85,6 +90,7 @@ public class NewProviderWizardTest
 
     @Before
     public void setUp() {
+        when(popupHelper.getPopupErrorCallback()).thenReturn(defaultErrorCallback);
         providerServiceCaller = spy(new CallerMock<>(providerService));
         wizard = new NewProviderWizard(configurationPage,
                                        handlerRegistry,
@@ -186,9 +192,11 @@ public class NewProviderWizardTest
         verify(providerService,
                times(1)).createProvider(providerType,
                                         providerConfiguration);
-        verify(notification,
-               times(1)).fire(new NotificationEvent(ERROR_MESSAGE,
-                                                    NotificationEvent.NotificationType.ERROR));
+        verify(popupHelper,
+               times(1)).getPopupErrorCallback();
+        verify(defaultErrorCallback,
+               times(1)).error(any(Message.class),
+                               any(Throwable.class));
         verify(providerTypeSelectedEvent,
                never()).fire(any(ProviderTypeSelectedEvent.class));
     }

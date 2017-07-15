@@ -78,10 +78,13 @@ public class GuvnorAlaUIConstants {
     public static final String ProviderView_ConfirmRemovePopupTitle = "ProviderView.ConfirmRemovePopupTitle";
 
     @TranslationKey(defaultValue = "")
-    public static final String ProviderTypeView_ProviderTypeRemovePopupTitle = "ProviderTypeView.ProviderTypeRemovePopupTitle";
+    public static final String ProviderView_ProviderCantBeDeletedMessage = "ProviderView.ProviderCantBeDeletedMessage";
 
     @TranslationKey(defaultValue = "")
-    public static final String ProviderTypeView_ProviderTypeRemovePopupText = "ProviderTypeView.ProviderTypeRemovePopupText";
+    public static final String ProviderTypeView_ProviderTypeDisablePopupTitle = "ProviderTypeView.ProviderTypeDisablePopupTitle";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ProviderTypeView_ProviderTypeDisablePopupText = "ProviderTypeView.ProviderTypeDisablePopupText";
 
     @TranslationKey(defaultValue = "")
     public static final String ProviderTypeNavigationView_TitleText = "ProviderTypeNavigationView.TitleText";
