@@ -31,6 +31,7 @@ import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.preferences.ProvisioningPreferences;
 import org.guvnor.ala.ui.service.ProviderTypeService;
+import org.guvnor.common.services.project.preferences.scope.GlobalPreferenceScope;
 import org.jboss.errai.bus.server.annotations.Service;
 
 import static org.guvnor.ala.registry.RuntimeRegistry.PROVIDER_TYPE_NAME_SORT;
@@ -46,15 +47,19 @@ public class ProviderTypeServiceImpl
 
     private ProvisioningPreferences provisioningPreferences;
 
+    private GlobalPreferenceScope globalPreferenceScope;
+
     public ProviderTypeServiceImpl() {
         //Empty constructor for Weld proxying
     }
 
     @Inject
     public ProviderTypeServiceImpl(final RuntimeProvisioningServiceBackend runtimeProvisioningService,
-                                   final ProvisioningPreferences provisioningPreferences) {
+                                   final ProvisioningPreferences provisioningPreferences,
+                                   final GlobalPreferenceScope globalPreferenceScope) {
         this.runtimeProvisioningService = runtimeProvisioningService;
         this.provisioningPreferences = provisioningPreferences;
+        this.globalPreferenceScope = globalPreferenceScope;
     }
 
     @Override
@@ -149,6 +154,6 @@ public class ProviderTypeServiceImpl
     private void saveProviderTypeEnablements(final Map<ProviderType, Boolean> providerTypeEnablements) {
         provisioningPreferences.load();
         provisioningPreferences.setProviderTypeEnablements(providerTypeEnablements);
-        provisioningPreferences.save();
+        provisioningPreferences.save(globalPreferenceScope.resolve());
     }
 }

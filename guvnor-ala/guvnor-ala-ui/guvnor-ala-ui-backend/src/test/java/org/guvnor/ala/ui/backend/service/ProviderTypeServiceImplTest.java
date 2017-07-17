@@ -28,11 +28,13 @@ import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProviderTypeStatus;
 import org.guvnor.ala.ui.preferences.ProvisioningPreferences;
+import org.guvnor.common.services.project.preferences.scope.GlobalPreferenceScope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.uberfire.preferences.shared.PreferenceScope;
 
 import static org.guvnor.ala.AlaSPITestCommons.mockProviderTypeListSPI;
 import static org.junit.Assert.*;
@@ -49,6 +51,13 @@ public class ProviderTypeServiceImplTest {
     @Mock
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
 
+    @Mock
+    private GlobalPreferenceScope globalPreferenceScope;
+
+    @Mock
+    private PreferenceScope preferenceScope;
+
+    @Mock
     private ProvisioningPreferences provisioningPreferences;
 
     @Mock
@@ -62,7 +71,8 @@ public class ProviderTypeServiceImplTest {
     public void setUp() {
         providerTypesSpi = mockProviderTypeListSPI(PROVIDER_TYPES_COUNT);
 
-        provisioningPreferences = new ProvisioningPreferences() {
+        when(globalPreferenceScope.resolve()).thenReturn(preferenceScope);
+        provisioningPreferences = spy(new ProvisioningPreferences() {
             {
                 setProviderTypeEnablements(new HashMap<>());
             }
@@ -73,17 +83,18 @@ public class ProviderTypeServiceImplTest {
             }
 
             @Override
-            public void save() {
+            public void save(PreferenceScope customScope) {
 
             }
-        };
+        });
 
         when(runtimeProvisioningService.getProviderTypes(anyInt(),
                                                          anyInt(),
                                                          anyString(),
                                                          anyBoolean())).thenReturn(providerTypesSpi);
         service = new ProviderTypeServiceImpl(runtimeProvisioningService,
-                                              provisioningPreferences);
+                                              provisioningPreferences,
+                                              globalPreferenceScope);
     }
 
     @Test
@@ -137,7 +148,9 @@ public class ProviderTypeServiceImplTest {
         Collection<ProviderType> result = service.getEnabledProviderTypes();
         assertEquals(pickedProviderTypes.size(),
                      result.size());
-        pickedProviderTypes.forEach(providerType -> result.contains(providerType));
+        pickedProviderTypes.forEach(providerType -> assertTrue(result.contains(providerType)));
+        verify(provisioningPreferences,
+               times(1)).load();
     }
 
     @Test
@@ -149,6 +162,8 @@ public class ProviderTypeServiceImplTest {
         service.enableProviderTypes(pickedProviderTypes);
         //they must now be enabled.
         pickedProviderTypes.forEach(providerType -> assertTrue(provisioningPreferences.getProviderTypeEnablements().get(providerType)));
+        verify(provisioningPreferences,
+               times(pickedProviderTypes.size())).save(preferenceScope);
     }
 
     @Test
@@ -158,13 +173,14 @@ public class ProviderTypeServiceImplTest {
         pickSomeProviders();
         pickedProviderTypes.forEach(providerType -> provisioningPreferences.getProviderTypeEnablements().put(providerType,
                                                                                                              Boolean.TRUE));
-
         //pick a provider type to disable and disable it
         ProviderType providerTypeToDisable = pickedProviderTypes.get(0);
 
         service.disableProviderType(providerTypeToDisable);
         //it must be now enabled.
         assertFalse(provisioningPreferences.getProviderTypeEnablements().get(providerTypeToDisable));
+        verify(provisioningPreferences,
+               times(1)).save(preferenceScope);
     }
 
     @Test
