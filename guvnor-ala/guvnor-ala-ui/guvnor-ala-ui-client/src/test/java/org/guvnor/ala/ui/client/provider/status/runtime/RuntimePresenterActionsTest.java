@@ -35,13 +35,19 @@ import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionAlreadyStoppedMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmDeleteMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmDeleteTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmStopMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmStopTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionDeleteSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionStopSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmDeleteMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmDeleteTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmForcedDeleteMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmForcedDeleteTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmStopMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmStopTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteFailedMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteFailedTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeStartSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeStopSuccessMessage;
@@ -67,9 +73,9 @@ public class RuntimePresenterActionsTest
 
     private static final String TITLE = "TITLE";
 
-    private static final String WARNING_TITLE = "WARNING_TITLE";
+    private static final String TITLE_2 = "TITLE_2";
 
-    private static final String ERROR_TITLE = "ERROR_TITLE";
+    private static final String TITLE_3 = "TITLE_3";
 
     @Mock
     private ErrorCallback<Message> defaultErrorCallback;
@@ -232,8 +238,8 @@ public class RuntimePresenterActionsTest
 
     private void prepareRuntimeStop() {
         prepareRuntime();
+        when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmStopTitle)).thenReturn(TITLE);
         when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmStopMessage)).thenReturn(CONFIRM_MESSAGE);
-        when(popupHelper.InformationTitle()).thenReturn(TITLE);
 
         presenter.stopRuntime();
         verify(popupHelper,
@@ -277,7 +283,7 @@ public class RuntimePresenterActionsTest
         //needs to use null instead of ERROR_MESSAGE because of the CallerMock
         when(translationService.format(RuntimePresenter_RuntimeDeleteFailedMessage,
                                        null)).thenReturn(CONFIRM_MESSAGE_2);
-        when(popupHelper.ErrorTitle()).thenReturn(ERROR_TITLE);
+        when(translationService.getTranslation(RuntimePresenter_RuntimeDeleteFailedTitle)).thenReturn(TITLE_2);
 
         doThrow(deleteException)
                 .when(runtimeService)
@@ -291,7 +297,7 @@ public class RuntimePresenterActionsTest
 
         //dialog asking if forced deletion is wanted
         verify(popupHelper,
-               times(1)).showYesNoPopup(eq(ERROR_TITLE),
+               times(1)).showYesNoPopup(eq(TITLE_2),
                                         eq(CONFIRM_MESSAGE_2),
                                         yesCommandCaptor.capture(),
                                         noCommandCaptor.capture());
@@ -312,9 +318,9 @@ public class RuntimePresenterActionsTest
         //needs to use null instead of ERROR_MESSAGE because of the CallerMock
         when(translationService.format(RuntimePresenter_RuntimeDeleteFailedMessage,
                                        null)).thenReturn(CONFIRM_MESSAGE_2);
-        when(popupHelper.ErrorTitle()).thenReturn(ERROR_TITLE);
+        when(translationService.getTranslation(RuntimePresenter_RuntimeDeleteFailedTitle)).thenReturn(TITLE_2);
 
-        when(popupHelper.WarningTitle()).thenReturn(WARNING_TITLE);
+        when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteTitle)).thenReturn(TITLE_3);
         when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteMessage)).thenReturn(CONFIRM_MESSAGE_3);
 
         doThrow(deleteException)
@@ -329,7 +335,7 @@ public class RuntimePresenterActionsTest
 
         //dialog asking if forced deletion is wanted
         verify(popupHelper,
-               times(1)).showYesNoPopup(eq(ERROR_TITLE),
+               times(1)).showYesNoPopup(eq(TITLE_2),
                                         eq(CONFIRM_MESSAGE_2),
                                         yesCommandCaptor.capture(),
                                         noCommandCaptor.capture());
@@ -338,7 +344,7 @@ public class RuntimePresenterActionsTest
 
         //last dialog confirming the forced deletion
         verify(popupHelper,
-               times(1)).showYesNoPopup(eq(WARNING_TITLE),
+               times(1)).showYesNoPopup(eq(TITLE_3),
                                         eq(CONFIRM_MESSAGE_3),
                                         yesCommandCaptor.capture(),
                                         noCommandCaptor.capture());
@@ -399,8 +405,8 @@ public class RuntimePresenterActionsTest
 
     private void prepareRuntimeDelete() {
         prepareRuntime();
+        when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmDeleteTitle)).thenReturn(TITLE);
         when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmDeleteMessage)).thenReturn(CONFIRM_MESSAGE);
-        when(popupHelper.InformationTitle()).thenReturn(TITLE);
 
         presenter.deleteRuntime();
         verify(popupHelper,
@@ -412,8 +418,8 @@ public class RuntimePresenterActionsTest
 
     private void prepareRuntimeForceDelete() {
         prepareRuntime();
+        when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteTitle)).thenReturn(TITLE);
         when(translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteMessage)).thenReturn(CONFIRM_MESSAGE);
-        when(popupHelper.WarningTitle()).thenReturn(TITLE);
 
         presenter.forceDeleteRuntime();
         verify(popupHelper,
@@ -470,8 +476,8 @@ public class RuntimePresenterActionsTest
     public void testStopPipelineConfirmYesButWasARuntime() {
         prepareRuntime();
 
+        when(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmStopTitle)).thenReturn(TITLE);
         when(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmStopMessage)).thenReturn(CONFIRM_MESSAGE);
-        when(popupHelper.InformationTitle()).thenReturn(TITLE);
 
         when(translationService.getTranslation(RuntimePresenter_PipelineExecutionAlreadyStoppedMessage)).thenReturn(ERROR_MESSAGE);
 
@@ -492,8 +498,8 @@ public class RuntimePresenterActionsTest
 
     private void preparePipelineStop() {
         preparePipeline();
+        when(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmStopTitle)).thenReturn(TITLE);
         when(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmStopMessage)).thenReturn(CONFIRM_MESSAGE);
-        when(popupHelper.InformationTitle()).thenReturn(TITLE);
 
         presenter.stopPipeline();
         verify(popupHelper,
@@ -547,8 +553,8 @@ public class RuntimePresenterActionsTest
 
     private void preparePipelineDelete() {
         preparePipeline();
+        when(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmDeleteTitle)).thenReturn(TITLE);
         when(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmDeleteMessage)).thenReturn(CONFIRM_MESSAGE);
-        when(popupHelper.InformationTitle()).thenReturn(TITLE);
 
         presenter.deletePipeline();
         verify(popupHelper,

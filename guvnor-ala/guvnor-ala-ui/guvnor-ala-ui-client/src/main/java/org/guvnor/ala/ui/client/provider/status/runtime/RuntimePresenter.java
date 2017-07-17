@@ -64,16 +64,22 @@ import static org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenterH
 import static org.guvnor.ala.ui.client.provider.status.runtime.RuntimePresenterHelper.buildStageState;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionAlreadyStoppedMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmDeleteMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmDeleteTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmStopMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionConfirmStopTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionDeleteAction;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionDeleteSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionStopAction;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_PipelineExecutionStopSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmDeleteMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmDeleteTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmForcedDeleteMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmForcedDeleteTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmStopMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeConfirmStopTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteAction;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteFailedMessage;
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteFailedTitle;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeDeleteSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeStartAction;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.RuntimePresenter_RuntimeStartSuccessMessage;
@@ -406,7 +412,7 @@ public class RuntimePresenter {
     }
 
     protected void stopRuntime() {
-        confirmAndExecute(popupHelper.InformationTitle(),
+        confirmAndExecute(translationService.getTranslation(RuntimePresenter_RuntimeConfirmStopTitle),
                           translationService.getTranslation(RuntimePresenter_RuntimeConfirmStopMessage),
                           () -> runtimeService.call(getStopRuntimeSuccessCallback(),
                                                     getDefaultErrorCallback()).stopRuntime(item.getRuntime().getKey()));
@@ -419,7 +425,7 @@ public class RuntimePresenter {
     }
 
     protected void deleteRuntime() {
-        confirmAndExecute(popupHelper.InformationTitle(),
+        confirmAndExecute(translationService.getTranslation(RuntimePresenter_RuntimeConfirmDeleteTitle),
                           translationService.getTranslation(RuntimePresenter_RuntimeConfirmDeleteMessage),
                           () -> runtimeService.call(getDeleteRuntimeSuccessCallback(),
                                                     getDeleteRuntimeErrorCallback()).deleteRuntime(item.getRuntime().getKey(),
@@ -427,7 +433,7 @@ public class RuntimePresenter {
     }
 
     protected void forceDeleteRuntime() {
-        confirmAndExecute(popupHelper.WarningTitle(),
+        confirmAndExecute(translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteTitle),
                           translationService.getTranslation(RuntimePresenter_RuntimeConfirmForcedDeleteMessage),
                           () -> runtimeService.call(getDeleteRuntimeSuccessCallback(),
                                                     getDefaultErrorCallback()).deleteRuntime(item.getRuntime().getKey(),
@@ -442,7 +448,7 @@ public class RuntimePresenter {
 
     private ErrorCallback<Message> getDeleteRuntimeErrorCallback() {
         return (message, throwable) -> {
-            confirmAndExecute(popupHelper.ErrorTitle(),
+            confirmAndExecute(translationService.getTranslation(RuntimePresenter_RuntimeDeleteFailedTitle),
                               translationService.format(RuntimePresenter_RuntimeDeleteFailedMessage,
                                                         throwable.getMessage()),
                               this::forceDeleteRuntime);
@@ -451,7 +457,7 @@ public class RuntimePresenter {
     }
 
     protected void stopPipeline() {
-        confirmAndExecute(popupHelper.InformationTitle(),
+        confirmAndExecute(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmStopTitle),
                           translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmStopMessage),
                           () -> {
                               if (item.isRuntime()) {
@@ -470,7 +476,7 @@ public class RuntimePresenter {
     }
 
     protected void deletePipeline() {
-        confirmAndExecute(popupHelper.InformationTitle(),
+        confirmAndExecute(translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmDeleteTitle),
                           translationService.getTranslation(RuntimePresenter_PipelineExecutionConfirmDeleteMessage),
                           () -> runtimeService.call(getDeletePipelineSuccessCallback(),
                                                     getDefaultErrorCallback()).deletePipelineExecution(item.getPipelineTrace().getKey()));
