@@ -165,21 +165,11 @@ public class VFSRegistryHelperTest {
         expectedException.expectMessage("No marshaller was found for class: " + value.getClass());
 
         registryHelper.storeEntry(mock(Path.class),
-                                  value,
-                                  true);
+                                  value);
     }
 
     @Test
-    public void testStoreEntryDeleteIfExists() throws Exception {
-        testStoreEntry(true);
-    }
-
-    @Test
-    public void testStoreEntryNotDeleteIfExists() throws Exception {
-        testStoreEntry(false);
-    }
-
-    private void testStoreEntry(boolean deleteIfExistsOption) throws Exception {
+    public void testStoreEntryWhenMarshallerExists() throws Exception {
         when(marshallerRegistry.get(value.getClass())).thenReturn(marshaller);
         when(marshaller.marshal(value)).thenReturn(MARSHALLED_VALUE);
 
@@ -189,15 +179,13 @@ public class VFSRegistryHelperTest {
         when(entryMarshaller.marshal(expectedEntry)).thenReturn(MARSHALLED_ENTRY);
 
         registryHelper.storeEntry(path,
-                                  value,
-                                  deleteIfExistsOption);
+                                  value);
 
         verify(marshallerRegistry,
                times(1)).get(value.getClass());
         verify(registryHelper,
                times(1)).writeBatch(path,
-                                    MARSHALLED_ENTRY,
-                                    deleteIfExistsOption);
+                                    MARSHALLED_ENTRY);
     }
 
     @Test
@@ -261,20 +249,10 @@ public class VFSRegistryHelperTest {
     }
 
     @Test
-    public void testWriteBatchDeleteIfExists() {
-        testWriteBatch(true);
-    }
-
-    @Test
-    public void testWriteBatchNotDeleteIfExits() {
-        testWriteBatch(false);
-    }
-
-    private void testWriteBatch(boolean deleteIfExists) {
+    public void testWriteBatch() {
         when(path.getFileSystem()).thenReturn(fileSystem);
         registryHelper.writeBatch(path,
-                                  MARSHALLED_VALUE,
-                                  deleteIfExists);
+                                  MARSHALLED_VALUE);
         verify(ioService,
                times(1)).startBatch(fileSystem);
         verify(ioService,
@@ -282,10 +260,6 @@ public class VFSRegistryHelperTest {
                                MARSHALLED_VALUE);
         verify(ioService,
                times(1)).endBatch();
-        if (deleteIfExists) {
-            verify(ioService,
-                   times(1)).deleteIfExists(path);
-        }
     }
 
     @Test

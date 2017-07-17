@@ -116,8 +116,7 @@ public class VFSRuntimeRegistryTest
         try {
             verify(registryHelper,
                    times(1)).storeEntry(providerTargetPath,
-                                        provider,
-                                        false);
+                                        provider);
         } catch (Exception e) {
             //need to catch this exception because parent class method don't throws exceptions,
             //but this will never happen in this scenario.
@@ -134,8 +133,7 @@ public class VFSRuntimeRegistryTest
         doThrow(new Exception("no matter the message here"))
                 .when(registryHelper)
                 .storeEntry(providerTargetPath,
-                            provider,
-                            false);
+                            provider);
 
         runtimeRegistry.registerProvider(provider);
     }
@@ -181,8 +179,7 @@ public class VFSRuntimeRegistryTest
         try {
             verify(registryHelper,
                    times(1)).storeEntry(runtimeTargetPath,
-                                        runtime,
-                                        false);
+                                        runtime);
         } catch (Exception e) {
             //need to catch this exception because parent class method don't throws exceptions,
             //but this will never happen in this scenario.
@@ -199,8 +196,7 @@ public class VFSRuntimeRegistryTest
         doThrow(new Exception("no matter the message here"))
                 .when(registryHelper)
                 .storeEntry(runtimeTargetPath,
-                            runtime,
-                            false);
+                            runtime);
 
         runtimeRegistry.registerRuntime(runtime);
     }
