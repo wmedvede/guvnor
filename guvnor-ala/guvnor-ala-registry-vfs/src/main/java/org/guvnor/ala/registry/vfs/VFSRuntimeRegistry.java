@@ -73,8 +73,7 @@ public class VFSRuntimeRegistry
         final Path path = buildProviderPath(provider.getId());
         try {
             registryHelper.storeEntry(path,
-                                      provider,
-                                      false);
+                                      provider);
         } catch (Exception e) {
             //uncommon error
             logger.error("Unexpected error was produced during provider marshalling/storing, provider: " + provider,
@@ -108,8 +107,7 @@ public class VFSRuntimeRegistry
         final Path path = buildRuntimePath(runtime.getId());
         try {
             registryHelper.storeEntry(path,
-                                      runtime,
-                                      false);
+                                      runtime);
         } catch (Exception e) {
             //uncommon error
             logger.error("Unexpected error was produced during runtime marshalling/storing, runtime: " + runtime,

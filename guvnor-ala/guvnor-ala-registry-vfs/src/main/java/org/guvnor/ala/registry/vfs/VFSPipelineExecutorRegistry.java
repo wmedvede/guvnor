@@ -69,8 +69,7 @@ public class VFSPipelineExecutorRegistry
         final Path path = buildTracePath(trace.getTaskId());
         try {
             registryHelper.storeEntry(path,
-                                      trace,
-                                      true);
+                                      trace);
         } catch (Exception e) {
             //uncommon error
             logger.error("Unexpected error was produced during trace marshalling/storing, trace: " + trace,

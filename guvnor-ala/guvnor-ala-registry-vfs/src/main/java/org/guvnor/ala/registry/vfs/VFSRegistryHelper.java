@@ -111,13 +111,10 @@ public class VFSRegistryHelper {
      * Stores an Object marshalled value as a VFSRegistryEntry in the target path.
      * @param path a path for storing the generated VFSRegistryEntry.
      * @param value an object value to marshall and store.
-     * @param deleteIfExists true if an eventual existing entry in the target path must be deleted prior to writing the
-     * new entry, false y any other case.
      * @throws Exception exceptions might be thrown in cases of filesystem or marshalling errors.
      */
     public void storeEntry(final Path path,
-                           final Object value,
-                           final boolean deleteIfExists) throws Exception {
+                           final Object value) throws Exception {
         final Marshaller marshaller = marshallerRegistry.get(value.getClass());
         if (marshaller == null) {
             throw new Exception("No marshaller was found for class: " + value.getClass());
@@ -129,8 +126,7 @@ public class VFSRegistryHelper {
                                                             marshalledValue);
         final String content = entryMarshaller.marshal(entry);
         writeBatch(path,
-                   content,
-                   deleteIfExists);
+                   content);
     }
 
     /**
@@ -175,16 +171,11 @@ public class VFSRegistryHelper {
      * Writes a content on a target path by performing a batch delete operation.
      * @param path a path to write.
      * @param content a content to write.
-     * @param deleteIfExists true if an eventual previously existing file must be deleted first, false in any other case.
      */
     public void writeBatch(final Path path,
-                           final String content,
-                           final boolean deleteIfExists) {
+                           final String content) {
         try {
             ioService.startBatch(path.getFileSystem());
-            if (deleteIfExists) {
-                ioService.deleteIfExists(path);
-            }
             ioService.write(path,
                             content);
         } finally {

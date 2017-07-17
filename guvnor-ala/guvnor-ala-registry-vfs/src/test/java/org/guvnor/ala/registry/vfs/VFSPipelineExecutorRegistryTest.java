@@ -100,8 +100,7 @@ public class VFSPipelineExecutorRegistryTest
         try {
             verify(registryHelper,
                    times(1)).storeEntry(traceTargetPath,
-                                        trace,
-                                        true);
+                                        trace);
         } catch (Exception e) {
             //need to catch this exception because parent class method don't throws exceptions,
             //but this will never happen in this scenario.
@@ -119,8 +118,7 @@ public class VFSPipelineExecutorRegistryTest
         doThrow(new Exception("no matter the message here"))
                 .when(registryHelper)
                 .storeEntry(traceTargetPath,
-                            trace,
-                            true);
+                            trace);
         pipelineExecutorRegistry.register(trace);
     }
 
