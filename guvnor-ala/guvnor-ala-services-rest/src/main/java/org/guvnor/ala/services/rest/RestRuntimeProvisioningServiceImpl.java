@@ -236,6 +236,7 @@ public class RestRuntimeProvisioningServiceImpl
         final PipelineExecutorTraceFilter traceFilter = PipelineExecutorTraceFilter.newInstance()
                 .withPipelineExecutionId(query.getPipelineExecutionId())
                 .withRuntimeId(query.getRuntimeId())
+                .withRuntimeName(query.getRuntimeName())
                 .withProviderId(query.getProviderId())
                 .withPipelineId(query.getPipelineId());
 
@@ -257,7 +258,8 @@ public class RestRuntimeProvisioningServiceImpl
                                                                  true);
             RuntimeFilter runtimeFilter = RuntimeFilter.newInstance()
                     .withProviderId(query.getProviderId())
-                    .withRuntimeId(query.getRuntimeId());
+                    .withRuntimeId(query.getRuntimeId())
+                    .withRuntimeName(query.getRuntimeName());
 
             runtimes.forEach(runtime -> {
                 if (runtimeFilter.test(runtime)) {
@@ -407,6 +409,8 @@ public class RestRuntimeProvisioningServiceImpl
 
         private String runtimeId;
 
+        private String runtimeName;
+
         private PipelineExecutorTraceFilter() {
 
         }
@@ -435,6 +439,11 @@ public class RestRuntimeProvisioningServiceImpl
             return this;
         }
 
+        public PipelineExecutorTraceFilter withRuntimeName(String runtimeName) {
+            this.runtimeName = runtimeName;
+            return this;
+        }
+
         @Override
         public boolean test(PipelineExecutorTrace pipelineExecutorTrace) {
             if (pipelineExecutionId != null) {
@@ -443,6 +452,10 @@ public class RestRuntimeProvisioningServiceImpl
             if (runtimeId != null) {
                 return (pipelineExecutorTrace.getTask().getOutput() instanceof RuntimeId) &&
                         runtimeId.equals(((RuntimeId) pipelineExecutorTrace.getTask().getOutput()).getId());
+            }
+            if (runtimeName != null) {
+                return (pipelineExecutorTrace.getTask().getOutput() instanceof RuntimeId) &&
+                        runtimeName.equals(((RuntimeId) pipelineExecutorTrace.getTask().getOutput()).getName());
             }
             if (providerId != null) {
                 if (pipelineExecutorTrace.getTask().getTaskDef().getProviderId() == null) {
@@ -466,6 +479,8 @@ public class RestRuntimeProvisioningServiceImpl
 
         private String runtimeId;
 
+        private String runtimeName;
+
         private RuntimeFilter() {
 
         }
@@ -484,10 +499,18 @@ public class RestRuntimeProvisioningServiceImpl
             return this;
         }
 
+        public RuntimeFilter withRuntimeName(String runtimeName) {
+            this.runtimeName = runtimeName;
+            return this;
+        }
+
         @Override
         public boolean test(Runtime runtime) {
             if (runtimeId != null) {
                 return runtimeId.equals(runtime.getId());
+            }
+            if (runtimeName != null) {
+                return runtimeName.equals(runtime.getName());
             }
             if (providerId != null && !providerId.equals(runtime.getProviderId().getId())) {
                 return false;

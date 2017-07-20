@@ -23,11 +23,14 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.wizard.pipeline.SelectPipelinePagePresenter;
 import org.guvnor.ala.ui.client.wizard.source.SourceConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
+import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.Source;
+import org.guvnor.ala.ui.service.ProvisioningScreensService;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
@@ -43,8 +46,9 @@ public class NewDeployWizard
 
     private final SelectPipelinePagePresenter selectPipelinePage;
     private final SourceConfigurationPagePresenter sourceConfigPage;
-
+    private final PopupHelper popupHelper;
     private final Caller<RuntimeService> runtimeService;
+    private final Caller<ProvisioningScreensService> provisioningScreensService;
 
     private final Event<RefreshRuntimeEvent> refreshRuntimeEvent;
 
@@ -53,15 +57,19 @@ public class NewDeployWizard
     @Inject
     public NewDeployWizard(final SelectPipelinePagePresenter selectPipelinePage,
                            final SourceConfigurationPagePresenter sourceConfigPage,
+                           final PopupHelper popupHelper,
                            final TranslationService translationService,
                            final Caller<RuntimeService> runtimeService,
+                           final Caller<ProvisioningScreensService> provisioningScreensService,
                            final Event<NotificationEvent> notification,
                            final Event<RefreshRuntimeEvent> refreshRuntimeEvent) {
         super(translationService,
               notification);
+        this.popupHelper = popupHelper;
         this.selectPipelinePage = selectPipelinePage;
         this.sourceConfigPage = sourceConfigPage;
         this.runtimeService = runtimeService;
+        this.provisioningScreensService = provisioningScreensService;
         this.refreshRuntimeEvent = refreshRuntimeEvent;
     }
 
@@ -101,8 +109,25 @@ public class NewDeployWizard
         final String runtime = sourceConfigPage.getRuntime();
         final Source source = sourceConfigPage.buildSource();
 
+        provisioningScreensService.call((Boolean exists) -> {
+                                            if (exists) {
+                                                popupHelper.showErrorPopup("A runtime with the given name already exists");
+                                            } else {
+                                                createRuntime(provider.getKey(),
+                                                              runtime,
+                                                              source,
+                                                              pipeline);
+                                            }
+                                        }
+        ).existsRuntimeName(runtime);
+    }
+
+    private void createRuntime(ProviderKey providerKey,
+                               String runtime,
+                               Source source,
+                               PipelineKey pipeline) {
         runtimeService.call((Void aVoid) -> onPipelineStartSuccess(),
-                            (message, throwable) -> onPipelineStartError()).createRuntime(provider.getKey(),
+                            (message, throwable) -> onPipelineStartError()).createRuntime(providerKey,
                                                                                           runtime,
                                                                                           source,
                                                                                           pipeline);

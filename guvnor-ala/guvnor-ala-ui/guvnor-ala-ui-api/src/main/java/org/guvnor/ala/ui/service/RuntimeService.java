@@ -24,6 +24,7 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
+import org.guvnor.ala.ui.model.RuntimeServiceQuery;
 import org.guvnor.ala.ui.model.Source;
 import org.jboss.errai.bus.server.annotations.Remote;
 
@@ -36,6 +37,13 @@ public interface RuntimeService {
      * @return a list of RuntimeListItem.
      */
     Collection<RuntimeListItem> getRuntimeItems(final ProviderKey providerKey);
+
+    /**
+     * Gets information about runtimes by filtering according to the query parameters.
+     * @param runtimeServiceQuery a query with the filtering parameters.
+     * @return a list of RuntimeListItem.
+     */
+    Collection<RuntimeListItem> getRuntimeItems(final RuntimeServiceQuery runtimeServiceQuery);
 
     /**
      * Gets the runtime information for a given pipeline execution.

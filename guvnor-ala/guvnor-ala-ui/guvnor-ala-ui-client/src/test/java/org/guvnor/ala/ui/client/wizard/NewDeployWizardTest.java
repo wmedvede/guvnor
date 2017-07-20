@@ -21,12 +21,14 @@ import java.util.Collection;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
 import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.wizard.pipeline.SelectPipelinePagePresenter;
 import org.guvnor.ala.ui.client.wizard.source.SourceConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.Source;
+import org.guvnor.ala.ui.service.ProvisioningScreensService;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.junit.Assert;
@@ -60,9 +62,18 @@ public class NewDeployWizardTest
     private SourceConfigurationPagePresenter sourceConfigPage;
 
     @Mock
+    private PopupHelper popupHelper;
+
+    @Mock
     private RuntimeService runtimeService;
 
     private Caller<RuntimeService> runtimeServiceCaller;
+
+    @Mock
+    private ProvisioningScreensService provisioningScreensService;
+
+    @Mock
+    private Caller<ProvisioningScreensService> provisioningScreensServiceCaller;
 
     @Mock
     private EventSourceMock<RefreshRuntimeEvent> refreshRuntimeEvent;
@@ -89,10 +100,13 @@ public class NewDeployWizardTest
         when(translationService.getTranslation(NewDeployWizard_PipelineStartErrorMessage)).thenReturn(ERROR_MESSAGE);
 
         runtimeServiceCaller = spy(new CallerMock<>(runtimeService));
+        provisioningScreensServiceCaller = spy(new CallerMock<>(provisioningScreensService));
         wizard = new NewDeployWizard(selectPipelinePage,
                                      sourceConfigPage,
+                                     popupHelper,
                                      translationService,
                                      runtimeServiceCaller,
+                                     provisioningScreensServiceCaller,
                                      notification,
                                      refreshRuntimeEvent) {
             {

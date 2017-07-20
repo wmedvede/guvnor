@@ -41,6 +41,7 @@ import org.guvnor.ala.ui.model.RuntimeListItem;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
+import org.guvnor.common.services.project.model.Project;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,13 +73,16 @@ public class RuntimeServiceImplTest {
 
     private static final String BRANCH = "BRANCH";
 
-    private static final String PROJECT = "PROJECT";
+    private static final String PROJECT_NAME = "PROJECT_NAME";
 
     private static final String PIPELINE = "PIPELINE";
 
     private static final String PIPELINE_EXECUTION_ID = "PIPELINE_EXECUTION_ID";
 
     private static final PipelineKey PIPELINE_KEY = new PipelineKey(PIPELINE);
+
+    @Mock
+    private Project project;
 
     @Mock
     private RuntimeProvisioningServiceBackend runtimeProvisioningService;
@@ -108,7 +112,7 @@ public class RuntimeServiceImplTest {
 
     @Before
     public void setUp() {
-
+        when(project.getProjectName()).thenReturn(PROJECT_NAME);
         queryItems = mockRuntimeQueryResultItemList(QUERY_ITEMS_SIZE);
         pipelineNames = mockPipelineNames(QUERY_ITEMS_SIZE);
         pipelineKeys = mockPipelineKeys(pipelineNames);
@@ -206,7 +210,7 @@ public class RuntimeServiceImplTest {
         InternalGitSource gitSource = new InternalGitSource(OU,
                                                             REPOSITORY,
                                                             BRANCH,
-                                                            PROJECT);
+                                                            project);
 
         when(providerService.getProvider(providerKey)).thenReturn(provider);
 

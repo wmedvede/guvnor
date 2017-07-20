@@ -40,6 +40,7 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
+import org.guvnor.ala.ui.model.RuntimeServiceQuery;
 import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
@@ -96,6 +97,14 @@ public class RuntimeServiceImpl
     }
 
     @Override
+    public Collection<RuntimeListItem> getRuntimeItems(final RuntimeServiceQuery runtimeServiceQuery) {
+        checkNotNull("runtimeServiceQuery",
+                     runtimeServiceQuery);
+        final RuntimeQuery query = buildRuntimeQuery(runtimeServiceQuery);
+        return buildRuntimeQueryResult(runtimeProvisioningService.executeQuery(query));
+    }
+
+    @Override
     public RuntimeListItem getRuntimeItem(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {
         checkNotNull("pipelineExecutionTraceKey",
                      pipelineExecutionTraceKey);
@@ -126,6 +135,23 @@ public class RuntimeServiceImpl
                 .map(item -> RuntimeListItemBuilder.newInstance().withItem(item).build())
                 .collect(Collectors.toList());
         return result;
+    }
+
+    private RuntimeQuery buildRuntimeQuery(final RuntimeServiceQuery runtimeServiceQuery) {
+        final RuntimeQueryBuilder queryBuilder = RuntimeQueryBuilder.newInstance();
+        if (runtimeServiceQuery.getProviderKey() != null) {
+            queryBuilder.withProviderId(runtimeServiceQuery.getProviderKey().getId());
+        }
+        if (runtimeServiceQuery.getRuntimeKey() != null) {
+            queryBuilder.withRuntimeId(runtimeServiceQuery.getRuntimeKey().getId());
+        }
+        if (runtimeServiceQuery.getPipelineExecutionTraceKey() != null) {
+            queryBuilder.withPipelineExecutionId(runtimeServiceQuery.getPipelineExecutionTraceKey().getId());
+        }
+        if (runtimeServiceQuery.getRuntimeName() != null) {
+            queryBuilder.withRuntimeName(runtimeServiceQuery.getRuntimeName());
+        }
+        return queryBuilder.build();
     }
 
     @Override
