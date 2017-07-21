@@ -127,6 +127,5 @@ public class OpenShiftRuntimeExecExecutor<T extends OpenShiftRuntimeConfig> impl
             throw new RuntimeOperationException("Error Destroying runtime: " + runtimeId.getId(), ex);
         }
         runtimeRegistry.deregisterRuntime(runtimeId);
-
     }
 }
