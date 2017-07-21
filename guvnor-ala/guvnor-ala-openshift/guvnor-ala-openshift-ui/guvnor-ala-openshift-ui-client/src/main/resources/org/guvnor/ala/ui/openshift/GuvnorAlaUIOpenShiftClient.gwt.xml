@@ -21,6 +21,8 @@
 
   <inherits name="org.uberfire.ext.widgets.common.UberfireWidgetsCommons"/>
 
+  <inherits name="org.guvnor.common.services.project.GuvnorProjectAPI" />
+
   <inherits name="org.guvnor.ala.ui.GuvnorAlaUIAPI"/>
   <inherits name="org.guvnor.ala.ui.GuvnorAlaUIClient"/>
   <inherits name="org.guvnor.ala.ui.openshift.GuvnorAlaUIOpenShiftAPI"/>

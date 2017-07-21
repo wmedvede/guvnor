@@ -139,7 +139,7 @@ public class OpenShiftExecutorTest {
         final String prjName = createProjectName("tpal1");
         final String appName = "myapp";
         final String svcName = appName + "-execserv";
-        
+
         String templateParams = new OpenShiftParameters()
                 .param("APPLICATION_NAME", appName)
                 .param("IMAGE_STREAM_NAMESPACE", prjName)

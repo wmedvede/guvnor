@@ -72,7 +72,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
             String resourceTemplateParamValues,
             String resourceTemplateUri,
             String serviceName) {
-        this.runtimeName =runtimeName;
+        this.runtimeName = runtimeName;
         this.providerId = providerId;
         this.applicationName = applicationName;
         this.projectName = projectName;
