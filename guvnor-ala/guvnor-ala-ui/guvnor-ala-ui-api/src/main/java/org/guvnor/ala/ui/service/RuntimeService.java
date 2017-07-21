@@ -17,6 +17,7 @@
 package org.guvnor.ala.ui.service;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -62,15 +63,14 @@ public interface RuntimeService {
      * Creates a runtime by associating it with a given provider. A provider may have multiple runtimes associated.
      * @param providerKey the provider key for creating the runtime.
      * @param runtimeName a name for the runtime to be created.
-     * @param source a source configuration from where to get all the information relative to the sources to use.
      * @param pipelineKey the key of a pipeline to use for performing all the required operations for building the
      * runtime.
      * @return returns the pipeline execution id.
      */
     PipelineExecutionTraceKey createRuntime(final ProviderKey providerKey,
                                             final String runtimeName,
-                                            final Source source,
-                                            final PipelineKey pipelineKey);
+                                            final PipelineKey pipelineKey,
+                                            final Map<String, String> params);
 
     /**
      * Stops a running pipeline execution.

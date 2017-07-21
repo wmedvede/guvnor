@@ -123,6 +123,10 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-ala-openshift-ui-client</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

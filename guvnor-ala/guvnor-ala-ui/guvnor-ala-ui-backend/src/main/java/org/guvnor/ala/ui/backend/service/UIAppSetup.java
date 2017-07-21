@@ -16,37 +16,29 @@
 
 package org.guvnor.ala.ui.backend.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.guvnor.ala.build.maven.config.MavenBuildConfig;
-import org.guvnor.ala.build.maven.config.MavenBuildExecConfig;
-import org.guvnor.ala.build.maven.config.MavenProjectConfig;
-import org.guvnor.ala.config.BinaryConfig;
-import org.guvnor.ala.config.BuildConfig;
-import org.guvnor.ala.config.Config;
-import org.guvnor.ala.config.ProjectConfig;
-import org.guvnor.ala.config.ProviderConfig;
-import org.guvnor.ala.config.RuntimeConfig;
-import org.guvnor.ala.config.SourceConfig;
-import org.guvnor.ala.pipeline.Input;
-import org.guvnor.ala.pipeline.Pipeline;
-import org.guvnor.ala.pipeline.PipelineFactory;
-import org.guvnor.ala.pipeline.Stage;
+import org.guvnor.ala.openshift.config.impl.OpenShiftProviderConfigImpl;
+import org.guvnor.ala.openshift.model.OpenShiftProviderType;
 import org.guvnor.ala.registry.PipelineRegistry;
-import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
-import org.guvnor.ala.source.git.config.GitConfig;
-import org.guvnor.ala.wildfly.config.WildflyProviderConfig;
-import org.guvnor.ala.wildfly.config.impl.ContextAwareWildflyRuntimeExecConfig;
-import org.guvnor.ala.wildfly.model.WildflyProviderType;
+import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
+import org.guvnor.ala.ui.model.ProviderConfiguration;
+import org.guvnor.ala.ui.model.ProviderKey;
+import org.guvnor.ala.ui.model.ProviderType;
+import org.guvnor.ala.ui.model.ProviderTypeKey;
+import org.guvnor.ala.ui.service.ProviderService;
 import org.uberfire.commons.services.cdi.Startup;
 import org.uberfire.commons.services.cdi.StartupType;
 
-import static org.guvnor.ala.pipeline.StageUtil.config;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_MASTER;
 
 /**
  * TODO, remove this auxiliary component.
@@ -58,119 +50,93 @@ public class UIAppSetup {
 
     private PipelineRegistry pipelineRegistry;
 
+    private ProviderService providerService;
+
+    PipelineServiceBackend pipelineServiceBackend;
+
     public UIAppSetup() {
         //Empty constructor for Weld proxying
     }
 
     @Inject
-    public UIAppSetup(PipelineRegistry pipelineRegistry) {
+    public UIAppSetup(PipelineRegistry pipelineRegistry,
+                      ProviderService providerService,
+                      PipelineServiceBackend pipelineServiceBackend) {
         this.pipelineRegistry = pipelineRegistry;
+        this.providerService = providerService;
+        this.pipelineServiceBackend = pipelineServiceBackend;
     }
 
     @PostConstruct
     private void init() {
-        initPipelines();
+        initOpenshiftProvider();
     }
 
-    protected void initPipelines() {
 
-        // Create Wildfly Pipeline Configuration
-        final GitConfig gitConfig = new GitConfig() {
-            @Override
-            public String toString() {
-                return "GitConfig";
-            }
-        };
+    private void initOpenshiftProvider() {
 
-        final Stage<Input, SourceConfig> sourceConfigStage = config("Git Source",
-                                                                    f -> gitConfig);
+        OpenShiftProviderConfigImpl providerConfig = new OpenShiftProviderConfigImpl();
+        //WE MUST clear first.
+        providerConfig.clear();
 
-        final MavenProjectConfig projectConfig = new MavenProjectConfig() {
-            @Override
-            public String toString() {
-                return "MavenProjectConfig";
-            }
-        };
-        final Stage<SourceConfig, ProjectConfig> projectConfigStage = config("Maven Project",
-                                                                             f -> projectConfig);
+        providerConfig.setName("openshift-provider-test");
+        providerConfig.setKubernetesMaster("https://ce-os-rhel-master.usersys.redhat.com:8443");
+        providerConfig.setKubernetesAuthBasicUsername("admin");
+        providerConfig.setKubernetesAuthBasicPassword("admin");
 
-        final MavenBuildConfig mavenBuildConfig = new MavenBuildConfig() {
-            @Override
-            public String toString() {
-                return "MavenBuildConfig";
-            }
+        //providerConfig.setKubernetesNamespace(namespace);
 
-            @Override
-            public List<String> getGoals() {
-                final List<String> result = new ArrayList<>();
-                result.add("clean");
-                result.add("package");
-                return result;
-            }
+        final Map<String, Object> values = new HashMap<>();
+        values.put(KUBERNETES_MASTER.inputKey(),
+                   "https://ce-os-rhel-master.usersys.redhat.com:8443");
 
-            @Override
-            public Properties getProperties() {
-                final Properties result = new Properties();
-                result.setProperty("failIfNoTests",
-                                   "false");
-                return result;
-            }
-        };
-        final Stage<ProjectConfig, BuildConfig> buildConfigStage = config("Maven Build Config",
-                                                                          f -> mavenBuildConfig);
+        /*
+        values.put(KUBERNETES_NAMESPACE.inputKey(),
+                   namespace);
+        */
 
-        final MavenBuildExecConfig mavenBuildExecConfig = new MavenBuildExecConfig() {
-            @Override
-            public String toString() {
-                return "MavenBuildExecConfig";
-            }
-        };
-        final Stage<BuildConfig, BinaryConfig> buildExecStage = config("Maven Build",
-                                                                       f -> mavenBuildExecConfig);
+        values.put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(),
+                   "admin");
+        values.put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(),
+                   "admin");
 
-        final WildflyProviderConfig wildflyProviderConfig = new WildflyProviderConfig() {
-            @Override
-            public String toString() {
-                return "WildflyProviderConfig";
-            }
-        };
+        ProviderConfiguration providerConfiguration = new ProviderConfiguration("openshift-provider-test",
+                                                                                values);
 
-        final Stage<BinaryConfig, ProviderConfig> providerConfigStage = config("Wildfly Provider Config",
-                                                                               f -> wildflyProviderConfig);
+        ProviderTypeKey providerTypeKey = new ProviderTypeKey(OpenShiftProviderType.instance().getProviderTypeName(),
+                            OpenShiftProviderType.instance().getVersion());
+        ProviderKey providerKey = new ProviderKey(providerTypeKey,
+                                                  "openshift-provider-test");
 
-        final ContextAwareWildflyRuntimeExecConfig wildflyRuntimeExecConfig = new ContextAwareWildflyRuntimeExecConfig() {
-            @Override
-            public String toString() {
-                return "WildflyRuntimeExecConfig";
-            }
-        };
+        if (providerService.getProvider(providerKey) == null) {
+            providerService.createProvider(new ProviderType(new ProviderTypeKey(OpenShiftProviderType.instance().getProviderTypeName(),
+                                                                                OpenShiftProviderType.instance().getVersion()),
+                                                            "OpenShift"),
+                                           providerConfiguration);
+        }
 
-        final Stage<ProviderConfig, RuntimeConfig> runtimeExecStage = config("Wildfly Runtime Exec",
-                                                                             f -> wildflyRuntimeExecConfig);
+        /*
+        Taken from OpenShiftRuntimeExecutorTest
+        put(KUBERNETES_MASTER.inputKey(), "https://ce-os-rhel-master.usersys.redhat.com:8443");
+        put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(), "admin");
+        put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(), "admin");
+            / unnecessary for this test
+            put(RESOURCE_TEMPLATE_NAME.inputKey(), "bpmsuite70-execserv");
+            put(RESOURCE_TEMPLATE_PARAM_DELIMITER.inputKey(), ",");
+            put(RESOURCE_TEMPLATE_PARAM_ASSIGNER.inputKey(), "=");
+             /
+        put(KUBERNETES_NAMESPACE.inputKey(), namespace);
+        */
+    }
 
-        final Pipeline pipeline1 = PipelineFactory
-                .startFrom(sourceConfigStage)
-                .andThen(projectConfigStage)
-                .andThen(buildConfigStage)
-                .andThen(buildExecStage)
-                .andThen(providerConfigStage)
-                .andThen(runtimeExecStage).buildAs("pipeline from stages");
-
-        final List<Config> configs = new ArrayList<>();
-        configs.add(gitConfig);
-        configs.add(projectConfig);
-        configs.add(mavenBuildConfig);
-        configs.add(mavenBuildExecConfig);
-        configs.add(wildflyProviderConfig);
-        configs.add(wildflyRuntimeExecConfig);
-
-        final PipelineConfigImpl pipelineConfig = new PipelineConfigImpl("pipeline from configs",
-                                                                         configs);
-        final Pipeline pipeline2 = PipelineFactory.startFrom(null).build(pipelineConfig);
-
-        pipelineRegistry.registerPipeline(pipeline1,
-                                          WildflyProviderType.instance());
-        pipelineRegistry.registerPipeline(pipeline2,
-                                          WildflyProviderType.instance());
+    private String createNamespace() {
+        return new StringBuilder()
+                .append("guvnor-ala-")
+                .append(System.getProperty("user.name",
+                                           "anonymous").replaceAll("[^A-Za-z0-9]",
+                                                                   "-"))
+                .append("-test-")
+                .append(new SimpleDateFormat("YYYYMMddHHmmss").format(new Date()))
+                .toString();
     }
 }
