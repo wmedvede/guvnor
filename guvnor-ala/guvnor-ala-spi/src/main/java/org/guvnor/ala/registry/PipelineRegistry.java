@@ -18,6 +18,7 @@ package org.guvnor.ala.registry;
 
 import java.util.List;
 
+import org.guvnor.ala.pipeline.InputProcessor;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.runtime.providers.ProviderType;
 
@@ -85,4 +86,19 @@ public interface PipelineRegistry {
      * @return a provider type in cases where the pipeline was associated to one, null in any other case.
      */
     ProviderType getProviderType(final String pipelineId);
+
+    /**
+     * Registers an input processor by associating it with a pipeline.
+     * @param pipeline pipeline for registering the input processor with.
+     * @param inputProcessor the input processor to associate with the given pipeline.
+     */
+    void registerInputProcessor(final Pipeline pipeline,
+                                final InputProcessor inputProcessor);
+
+    /**
+     * Gets the input processor associated with a given pipeline.
+     * @param pipelineId the pipeline id for getting
+     * @return the input processor associated with the given pipeline, null y any other case.
+     */
+    InputProcessor getInputProcessor(final String pipelineId);
 }

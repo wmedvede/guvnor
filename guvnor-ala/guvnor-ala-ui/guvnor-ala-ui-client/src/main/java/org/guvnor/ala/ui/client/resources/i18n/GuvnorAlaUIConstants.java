@@ -16,6 +16,7 @@
 
 package org.guvnor.ala.ui.client.resources.i18n;
 
+import org.guvnor.ala.ui.client.wizard.project.GAVConfigurationParamsView;
 import org.jboss.errai.ui.shared.api.annotations.TranslationKey;
 
 public class GuvnorAlaUIConstants {
@@ -60,6 +61,12 @@ public class GuvnorAlaUIConstants {
     public static final String SourceConfigurationPageView_SelectOption_placeholder = "SourceConfigurationPageView.SelectOption-placeholder";
 
     @TranslationKey(defaultValue = "")
+    public static final String GAVConfigurationParamsView_Title = "GAVConfigurationParamsView.Title";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ArtifactSelectorView_SelectColumn = "ArtifactSelectorView.SelectColumn";
+
+    @TranslationKey(defaultValue = "")
     public static final String ProviderView_RemoveProviderSuccessMessage = "ProviderView.RemoveProviderSuccessMessage";
 
     @TranslationKey(defaultValue = "")
@@ -99,7 +106,13 @@ public class GuvnorAlaUIConstants {
     public static final String RuntimePresenter_RuntimeDeleteAction = "RuntimePresenter.RuntimeDeleteAction";
 
     @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeStartingMessage = "RuntimePresenter.RuntimeStartingMessage";
+
+    @TranslationKey(defaultValue = "")
     public static final String RuntimePresenter_RuntimeStartSuccessMessage = "RuntimePresenter.RuntimeStartSuccessMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeStoppingMessage = "RuntimePresenter.RuntimeStoppingMessage";
 
     @TranslationKey(defaultValue = "")
     public static final String RuntimePresenter_RuntimeStopSuccessMessage = "RuntimePresenter.RuntimeStopSuccessMessage";
@@ -109,6 +122,12 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String RuntimePresenter_RuntimeConfirmStopMessage = "RuntimePresenter.RuntimeConfirmStopMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeDeletingMessage = "RuntimePresenter.RuntimeDeletingMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RuntimePresenter_RuntimeDeletingForcedMessage = "RuntimePresenter.RuntimeDeletingForcedMessage";
 
     @TranslationKey(defaultValue = "")
     public static final String RuntimePresenter_RuntimeDeleteSuccessMessage = "RuntimePresenter.RuntimeDeleteSuccessMessage";

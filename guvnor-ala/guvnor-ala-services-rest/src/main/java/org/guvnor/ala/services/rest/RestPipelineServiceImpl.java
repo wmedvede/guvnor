@@ -16,16 +16,21 @@
 
 package org.guvnor.ala.services.rest;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.pipeline.InputProcessor;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineConfig;
 import org.guvnor.ala.pipeline.PipelineFactory;
+import org.guvnor.ala.pipeline.SystemPipelineDescriptor;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskManager;
 import org.guvnor.ala.pipeline.execution.impl.PipelineExecutorTaskDefImpl;
@@ -53,10 +58,27 @@ public class RestPipelineServiceImpl implements PipelineService {
     @Inject
     public RestPipelineServiceImpl(PipelineExecutorTaskManager executorTaskManager,
                                    PipelineRegistry pipelineRegistry,
-                                   RuntimeRegistry runtimeRegistry) {
+                                   RuntimeRegistry runtimeRegistry,
+                                   final @Any Instance<SystemPipelineDescriptor> pipelineDescriptorInstance) {
         this.executorTaskManager = executorTaskManager;
         this.pipelineRegistry = pipelineRegistry;
         this.runtimeRegistry = runtimeRegistry;
+        registerPipelines(pipelineDescriptorInstance.iterator());
+    }
+
+    private void registerPipelines(Iterator<SystemPipelineDescriptor> iterator) {
+        iterator.forEachRemaining(pipelineDescriptor -> {
+            if (pipelineDescriptor.getProviderType().isPresent()) {
+                pipelineRegistry.registerPipeline(pipelineDescriptor.getPipeline(),
+                                                  pipelineDescriptor.getProviderType().get());
+            } else {
+                pipelineRegistry.registerPipeline(pipelineDescriptor.getPipeline());
+            }
+            if (pipelineDescriptor.getInputProcessor().isPresent()) {
+                pipelineRegistry.registerInputProcessor(pipelineDescriptor.getPipeline(),
+                                                        pipelineDescriptor.getInputProcessor().get());
+            }
+        });
     }
 
     @Override
@@ -137,10 +159,15 @@ public class RestPipelineServiceImpl implements PipelineService {
                               final Input input,
                               final boolean async) throws BusinessException {
         final Pipeline pipeline = pipelineRegistry.getPipelineByName(pipelineId);
+        Input processedInput = input;
         if (pipeline == null) {
             throw new BusinessException("Pipeline: " + pipelineId + " was not found.");
         }
-        String providerName = input.get(ProviderConfig.PROVIDER_NAME);
+        final InputProcessor inputProcessor = pipelineRegistry.getInputProcessor(pipeline.getName());
+        if (inputProcessor != null) {
+            processedInput = inputProcessor.processInput(input);
+        }
+        String providerName = processedInput.get(ProviderConfig.PROVIDER_NAME);
         Provider provider = null;
         ProviderType providerType = null;
         PipelineExecutorTaskDef taskDef;
@@ -154,15 +181,15 @@ public class RestPipelineServiceImpl implements PipelineService {
 
         if (provider != null) {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input,
+                                                      processedInput,
                                                       provider);
         } else if (providerType != null) {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input,
+                                                      processedInput,
                                                       providerType);
         } else {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input);
+                                                      processedInput);
         }
 
         return executorTaskManager.execute(taskDef,
