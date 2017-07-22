@@ -16,14 +16,31 @@
 
 package org.guvnor.ala.ui.backend.service;
 
+import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.guvnor.ala.build.maven.config.MavenProjectConfig;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
+import org.guvnor.ala.openshift.config.OpenShiftParameters;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.source.git.config.GitConfig;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.Source;
+
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.APPLICATION_NAME;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_MASTER;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_NAMESPACE;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_SECRETS_URI;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_STREAMS_URI;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_TEMPLATE_PARAM_VALUES;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_TEMPLATE_URI;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.SERVICE_NAME;
 
 /**
  * Helper class for building the pipeline input parameters given a runtime name, a provider and the sources.
@@ -77,6 +94,75 @@ public class PipelineInputBuilder {
             input.put(MavenProjectConfig.PROJECT_DIR,
                       ((InternalGitSource) source).getProject());
         }
+
+        hackOpenShiftParameters(input);
         return input;
     }
+
+    private void hackOpenShiftParameters(Input input) {
+
+        final String namespace = createNamespace();
+
+        final String application = input.get(RuntimeConfig.RUNTIME_NAME);
+
+        String templateParams = new OpenShiftParameters()
+                .param("APPLICATION_NAME",
+                       application)
+                .param("IMAGE_STREAM_NAMESPACE",
+                       namespace)
+                .param("KIE_ADMIN_PWD",
+                       "admin1!")
+                .param("KIE_SERVER_PWD",
+                       "execution1!")
+                .toString();
+
+        input.put(KUBERNETES_MASTER.inputKey(),
+            "https://ce-os-rhel-master.usersys.redhat.com:8443");
+        input.put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(),
+            "admin");
+        input.put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(),
+            "admin");
+            /* unnecessary for this test
+            put(RESOURCE_TEMPLATE_NAME.inputKey(), "bpmsuite70-execserv");
+            put(RESOURCE_TEMPLATE_PARAM_DELIMITER.inputKey(), ",");
+            put(RESOURCE_TEMPLATE_PARAM_ASSIGNER.inputKey(), "=");
+             */
+            try {
+
+                input.put(KUBERNETES_NAMESPACE.inputKey(),
+                          namespace);
+                input.put(RESOURCE_SECRETS_URI.inputKey(),
+                          getUri("bpmsuite-app-secret.json"));
+                input.put(RESOURCE_STREAMS_URI.inputKey(),
+                          getUri("jboss-image-streams.json"));
+                input.put(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey(),
+                          templateParams);
+                input.put(RESOURCE_TEMPLATE_URI.inputKey(),
+                          getUri("bpmsuite70-execserv.json"));
+                input.put(APPLICATION_NAME.inputKey(),
+                          application);
+                input.put(SERVICE_NAME.inputKey(),
+                          application + "-execserv");
+            } catch (Exception e) {
+                System.out.println("INPUT BUILDING EXCEPTION: " + e.getMessage());
+                e.printStackTrace();
+            }
+    }
+
+    private String getUri(String resourcePath) throws URISyntaxException {
+        if (!resourcePath.startsWith("/")) {
+            resourcePath = "/" + resourcePath;
+        }
+        return getClass().getResource(resourcePath).toURI().toString();
+    }
+
+    private String createNamespace() {
+        return new StringBuilder()
+                .append("guvnor-ala-")
+                .append(System.getProperty("user.name", "anonymous").replaceAll("[^A-Za-z0-9]", "-"))
+                .append("-test-")
+                .append(new SimpleDateFormat("YYYYMMddHHmmss").format(new Date()))
+                .toString();
+    }
+
 }
