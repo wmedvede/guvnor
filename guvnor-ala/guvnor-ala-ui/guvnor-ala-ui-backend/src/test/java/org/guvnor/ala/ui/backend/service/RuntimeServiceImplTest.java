@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.services.api.RuntimeQuery;
+import org.guvnor.ala.services.api.RuntimeQueryBuilder;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
@@ -30,6 +31,7 @@ import org.guvnor.ala.ui.events.PipelineExecutionChange;
 import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
 import org.guvnor.ala.ui.events.RuntimeChange;
 import org.guvnor.ala.ui.events.RuntimeChangeEvent;
+import org.guvnor.ala.ui.exceptions.ServiceException;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -199,7 +201,7 @@ public class RuntimeServiceImplTest {
     }
 
     @Test
-    public void testCreateRuntimeWhenProviderExists() {
+    public void testCreateRuntimeSuccessful() {
         Provider provider = mock(Provider.class);
 
         ProviderTypeKey providerTypeKey = new ProviderTypeKey(PROVIDER_NAME,
@@ -212,7 +214,12 @@ public class RuntimeServiceImplTest {
                                                             BRANCH,
                                                             project);
 
+        List<RuntimeQueryResultItem> items = mock(List.class);
         when(providerService.getProvider(providerKey)).thenReturn(provider);
+        when(runtimeProvisioningService.executeQuery(RuntimeQueryBuilder.newInstance()
+                                                             .withRuntimeName(RUNTIME_ID)
+                                                             .build())).thenReturn(items);
+        when(items.isEmpty()).thenReturn(true);
 
         Input expectedInput = PipelineInputBuilder.newInstance()
                 .withProvider(providerKey)
@@ -250,6 +257,35 @@ public class RuntimeServiceImplTest {
     }
 
     @Test
+    public void testCreateRuntimeWhenProviderExistsButRuntimeNameExitsts() {
+        Provider provider = mock(Provider.class);
+        ProviderTypeKey providerTypeKey = new ProviderTypeKey(PROVIDER_NAME,
+                                                              PROVIDER_VERSION);
+        ProviderKey providerKey = new ProviderKey(providerTypeKey,
+                                                  PROVIDER_ID);
+
+        List<RuntimeQueryResultItem> items = mock(List.class);
+        //the provider exists, so validation continues
+        when(providerService.getProvider(providerKey)).thenReturn(provider);
+        //but the runtime name already exists.
+        when(runtimeProvisioningService.executeQuery(RuntimeQueryBuilder.newInstance()
+                                                             .withRuntimeName(RUNTIME_ID)
+                                                             .build())).thenReturn(items);
+        when(items.isEmpty()).thenReturn(false);
+
+        expectedException.expectMessage("A runtime with the given name already exists: " + RUNTIME_ID);
+        service.createRuntime(providerKey,
+                              RUNTIME_ID,
+                              mock(Source.class),
+                              PIPELINE_KEY);
+
+        verify(pipelineService,
+               never()).runPipeline(anyString(),
+                                    any(Input.class),
+                                    eq(true));
+    }
+
+    @Test
     public void testCreateRuntimeWhenUnExpectedError() {
         Provider provider = mock(Provider.class);
 
@@ -260,7 +296,7 @@ public class RuntimeServiceImplTest {
         when(providerService.getProvider(providerKey)).thenReturn(provider);
         when(pipelineService.runPipeline(anyString(),
                                          any(Input.class),
-                                         eq(true))).thenThrow(new RuntimeException(ERROR_MESSAGE));
+                                         eq(true))).thenThrow(new ServiceException(ERROR_MESSAGE));
 
         expectedException.expectMessage(ERROR_MESSAGE);
         service.createRuntime(providerKey,

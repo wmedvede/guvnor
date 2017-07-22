@@ -33,6 +33,7 @@ import org.guvnor.ala.ui.events.PipelineExecutionChange;
 import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
 import org.guvnor.ala.ui.events.RuntimeChange;
 import org.guvnor.ala.ui.events.RuntimeChangeEvent;
+import org.guvnor.ala.ui.exceptions.ServiceException;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
@@ -191,12 +192,8 @@ public class RuntimeServiceImpl
         checkNotNull("pipelineKey",
                      pipelineKey);
 
-        final Provider provider = providerService.getProvider(providerKey);
-        if (provider == null) {
-            //uncommon case
-            logger.error("No provider was found for providerKey: " + providerKey);
-            throw new RuntimeException("No provider was found for providerKey: " + providerKey);
-        }
+        validateForCreateRuntime(providerKey,
+                                 runtimeName);
         try {
             final Input input = PipelineInputBuilder.newInstance()
                     .withRuntimeName(runtimeName)
@@ -258,5 +255,21 @@ public class RuntimeServiceImpl
                                                   forced);
         runtimeChangeEvent.fire(new RuntimeChangeEvent(RuntimeChange.DELETED,
                                                        runtimeKey));
+    }
+
+    private void validateForCreateRuntime(final ProviderKey providerKey,
+                                          final String runtimeName) {
+        final Provider provider = providerService.getProvider(providerKey);
+        if (provider == null) {
+            //uncommon case
+            logger.error("No provider was found for providerKey: " + providerKey);
+            throw new ServiceException("No provider was found for providerKey: " + providerKey);
+        }
+        final Collection<RuntimeQueryResultItem> items = runtimeProvisioningService.executeQuery(RuntimeQueryBuilder.newInstance()
+                                                                                                         .withRuntimeName(runtimeName)
+                                                                                                         .build());
+        if (!items.isEmpty()) {
+            throw new ServiceException("A runtime with the given name already exists: " + runtimeName);
+        }
     }
 }

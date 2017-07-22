@@ -26,7 +26,6 @@ import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.ProvidersInfo;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.RuntimeServiceQueryBuilder;
 import org.guvnor.ala.ui.model.RuntimesInfo;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.ProviderTypeService;
@@ -91,14 +90,5 @@ public class ProvisioningScreensServiceImpl
         checkNotNull("providerKey",
                      providerKey);
         return !runtimeService.getRuntimeItems(providerKey).isEmpty();
-    }
-
-    @Override
-    public boolean existsRuntimeName(final String runtimeName) {
-        checkNotNull("runtimeName",
-                     runtimeName);
-        return !runtimeService.getRuntimeItems(RuntimeServiceQueryBuilder.newInstance()
-                                                       .withRuntimeName(runtimeName)
-                                                       .build()).isEmpty();
     }
 }

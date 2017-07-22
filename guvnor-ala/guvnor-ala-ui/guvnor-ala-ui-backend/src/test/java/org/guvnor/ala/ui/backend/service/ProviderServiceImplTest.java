@@ -164,7 +164,7 @@ public class ProviderServiceImplTest {
         String existingId = providers.get(1).getKey().getId();
         when(providerConfiguration.getId()).thenReturn(existingId);
 
-        expectedException.expectMessage("A provider already exists for this provider id: " + existingId);
+        expectedException.expectMessage("A provider with the given name already exists: " + existingId);
         service.createProvider(providerType,
                                providerConfiguration);
 
