@@ -31,7 +31,6 @@ import org.guvnor.ala.ui.events.PipelineExecutionChange;
 import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
 import org.guvnor.ala.ui.events.RuntimeChange;
 import org.guvnor.ala.ui.events.RuntimeChangeEvent;
-import org.guvnor.ala.ui.exceptions.ServiceException;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -296,7 +295,7 @@ public class RuntimeServiceImplTest {
         when(providerService.getProvider(providerKey)).thenReturn(provider);
         when(pipelineService.runPipeline(anyString(),
                                          any(Input.class),
-                                         eq(true))).thenThrow(new ServiceException(ERROR_MESSAGE));
+                                         eq(true))).thenThrow(new RuntimeException(ERROR_MESSAGE));
 
         expectedException.expectMessage(ERROR_MESSAGE);
         service.createRuntime(providerKey,
