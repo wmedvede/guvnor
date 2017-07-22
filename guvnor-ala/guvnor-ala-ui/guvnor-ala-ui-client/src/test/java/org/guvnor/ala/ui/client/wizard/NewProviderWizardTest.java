@@ -43,7 +43,6 @@ import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.ERROR_MESSAGE;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.SUCCESS_MESSAGE;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.mockProviderType;
 import static org.guvnor.ala.ui.ProvisioningManagementTestCommons.prepareServiceCallerError;
-import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateErrorMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderCreateSuccessMessage;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage;
 import static org.mockito.Mockito.*;
@@ -115,7 +114,6 @@ public class NewProviderWizardTest
                                        providerType.getName()))
                 .thenReturn(ERROR_MESSAGE);
         when(translationService.getTranslation(NewProviderWizard_ProviderCreateSuccessMessage)).thenReturn(SUCCESS_MESSAGE);
-        when(translationService.getTranslation(NewProviderWizard_ProviderCreateErrorMessage)).thenReturn(ERROR_MESSAGE);
     }
 
     @Test

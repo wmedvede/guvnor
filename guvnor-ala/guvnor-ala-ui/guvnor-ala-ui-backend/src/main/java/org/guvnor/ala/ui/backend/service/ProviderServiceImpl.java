@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
 import org.guvnor.ala.ui.backend.service.converter.ProviderConverterFactory;
+import org.guvnor.ala.ui.exceptions.ServiceException;
 import org.guvnor.ala.ui.model.AbstractHasKeyObject;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
@@ -87,10 +88,8 @@ public class ProviderServiceImpl
         checkNotEmpty("configuration.values",
                       configuration.getValues());
 
-        if (existsProvider(configuration.getId())) {
-            //uncommon case
-            throw new RuntimeException("A provider already exists for this provider id: " + configuration.getId());
-        }
+        validateForCreateProvider(configuration);
+
         @SuppressWarnings("unchecked")
         final ProviderConfig providerConfig =
                 (ProviderConfig) providerConverterFactory.getProviderConfigConverter(providerType.getKey()).toDomain(configuration);
@@ -138,12 +137,11 @@ public class ProviderServiceImpl
         return providerConverterFactory.getProviderConverter().toModel(provider);
     }
 
-    private boolean existsProvider(final String id) {
+    private void validateForCreateProvider(ProviderConfiguration configuration) {
         for (final Provider provider : getAllProviders()) {
-            if (id.equals(provider.getKey().getId())) {
-                return true;
+            if (configuration.getId().equals(provider.getKey().getId())) {
+                throw new ServiceException("A provider with the given name already exists: " + configuration.getId());
             }
         }
-        return false;
     }
 }

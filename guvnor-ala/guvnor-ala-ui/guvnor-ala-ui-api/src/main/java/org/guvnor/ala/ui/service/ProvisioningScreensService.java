@@ -48,10 +48,4 @@ public interface ProvisioningScreensService {
      * @return true if there are runtimes associated to the given provider, false in any other case.
      */
     boolean hasRuntimes(final ProviderKey providerKey);
-
-    /**
-     * @param runtimeName a runtime name to check.
-     * @return true if there are runtimes with the given name, false in any other case.
-     */
-    boolean existsRuntimeName(final String runtimeName);
 }

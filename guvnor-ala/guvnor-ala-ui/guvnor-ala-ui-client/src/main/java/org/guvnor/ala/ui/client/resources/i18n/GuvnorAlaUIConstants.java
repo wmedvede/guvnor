@@ -40,10 +40,7 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String NewProviderWizard_ProviderCreateSuccessMessage = "NewProviderWizard.ProviderCreateSuccessMessage";
-
-    @TranslationKey(defaultValue = "")
-    public static final String NewProviderWizard_ProviderCreateErrorMessage = "NewProviderWizard.ProviderCreateErrorMessage";
-
+    
     @TranslationKey(defaultValue = "")
     public static final String NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage = "NewProviderWizard.ProviderNotProperlyConfiguredInSystemErrorMessage";
 
@@ -52,9 +49,6 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String NewDeployWizard_PipelineStartSuccessMessage = "NewDeployWizard.PipelineStartSuccessMessage";
-
-    @TranslationKey(defaultValue = "")
-    public static final String NewDeployWizard_PipelineStartErrorMessage = "NewDeployWizard.PipelineStartErrorMessage";
 
     @TranslationKey(defaultValue = "")
     public static final String SelectPipelinePageView_Title = "SelectPipelinePageView.Title";

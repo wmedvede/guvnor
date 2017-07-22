@@ -78,4 +78,40 @@ public class RuntimeQuery {
     public String getRuntimeName() {
         return runtimeName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RuntimeQuery query = (RuntimeQuery) o;
+
+        if (providerId != null ? !providerId.equals(query.providerId) : query.providerId != null) {
+            return false;
+        }
+        if (pipelineId != null ? !pipelineId.equals(query.pipelineId) : query.pipelineId != null) {
+            return false;
+        }
+        if (pipelineExecutionId != null ? !pipelineExecutionId.equals(query.pipelineExecutionId) : query.pipelineExecutionId != null) {
+            return false;
+        }
+        if (runtimeId != null ? !runtimeId.equals(query.runtimeId) : query.runtimeId != null) {
+            return false;
+        }
+        return runtimeName != null ? runtimeName.equals(query.runtimeName) : query.runtimeName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = providerId != null ? providerId.hashCode() : 0;
+        result = 31 * result + (pipelineId != null ? pipelineId.hashCode() : 0);
+        result = 31 * result + (pipelineExecutionId != null ? pipelineExecutionId.hashCode() : 0);
+        result = 31 * result + (runtimeId != null ? runtimeId.hashCode() : 0);
+        result = 31 * result + (runtimeName != null ? runtimeName.hashCode() : 0);
+        return result;
+    }
 }
