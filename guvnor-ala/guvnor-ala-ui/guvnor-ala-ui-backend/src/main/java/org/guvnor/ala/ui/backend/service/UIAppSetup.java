@@ -51,6 +51,7 @@ import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
 import org.guvnor.ala.services.api.backend.PipelineServiceBackend;
 import org.guvnor.ala.source.git.config.GitConfig;
 import org.guvnor.ala.ui.model.ProviderConfiguration;
+import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderType;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.service.ProviderService;
@@ -246,10 +247,17 @@ public class UIAppSetup {
         ProviderConfiguration providerConfiguration = new ProviderConfiguration("openshift-provider-test",
                                                                                 values);
 
-        providerService.createProvider(new ProviderType(new ProviderTypeKey(OpenShiftProviderType.instance().getProviderTypeName(),
-                                                                            OpenShiftProviderType.instance().getVersion()),
-                                                        "OpenShift"),
-                                       providerConfiguration);
+        ProviderTypeKey providerTypeKey = new ProviderTypeKey(OpenShiftProviderType.instance().getProviderTypeName(),
+                            OpenShiftProviderType.instance().getVersion());
+        ProviderKey providerKey = new ProviderKey(providerTypeKey,
+                                                  "openshift-provider-test");
+
+        if (providerService.getProvider(providerKey) == null) {
+            providerService.createProvider(new ProviderType(new ProviderTypeKey(OpenShiftProviderType.instance().getProviderTypeName(),
+                                                                                OpenShiftProviderType.instance().getVersion()),
+                                                            "OpenShift"),
+                                           providerConfiguration);
+        }
 
         /*
         Taken from OpenShiftRuntimeExecutorTest
