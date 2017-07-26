@@ -43,7 +43,7 @@ public class OpenShiftAccessTest {
         OpenShiftProviderConfigImpl providerConfig = new OpenShiftProviderConfigImpl().clear();
         providerConfig.setKubernetesMaster("https://localhost:8443");
         providerConfig.setKubernetesOapiVersion("v2");
-        OpenShiftConfig clientConfig = OpenShiftAccessInterfaceImpl.buildClientConfig(providerConfig);
+        OpenShiftConfig clientConfig = OpenShiftAccessInterfaceImpl.buildClientConfig(providerConfig, "namespace");
         assertEquals("https://localhost:8443/", clientConfig.getMasterUrl());
         assertEquals("https://localhost:8443/oapi/v2/", clientConfig.getOpenShiftUrl());
     }

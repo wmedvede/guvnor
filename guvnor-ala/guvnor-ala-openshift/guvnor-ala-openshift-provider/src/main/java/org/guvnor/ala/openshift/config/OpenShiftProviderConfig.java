@@ -24,7 +24,7 @@ public interface OpenShiftProviderConfig extends ProviderConfig {
      * @return String with the provider name. By default "local"
      */
     default String getName() {
-        return "local";
+        return "${input." + PROVIDER_NAME + "}";
     }
 
     default String getAllProxy() {

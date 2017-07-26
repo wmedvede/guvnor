@@ -15,6 +15,8 @@
  */
 package org.guvnor.ala.openshift.access;
 
+import org.guvnor.ala.config.RuntimeConfig;
+import org.guvnor.ala.openshift.config.OpenShiftRuntimeConfig;
 import org.guvnor.ala.runtime.providers.ProviderId;
 import org.uberfire.commons.lifecycle.Disposable;
 
@@ -29,6 +31,6 @@ public interface OpenShiftAccessInterface extends Disposable {
      * @return OpenshiftClient for the ProviderId, if it doesn't exist it creates a new OpenshiftClient
      * @see OpenshiftClient
      */
-    OpenShiftClient getOpenShiftClient( final ProviderId providerId );
+    OpenShiftClient getOpenShiftClient(final ProviderId providerId, final String namespace );
 
 }

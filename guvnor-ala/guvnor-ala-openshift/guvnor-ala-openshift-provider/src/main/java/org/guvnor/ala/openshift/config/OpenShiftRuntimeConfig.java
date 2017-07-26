@@ -61,4 +61,5 @@ public interface OpenShiftRuntimeConfig extends ProvisioningConfig, RuntimeConfi
         return OpenShiftProperty.SERVICE_NAME.inputExpression();
     }
 
+
 }

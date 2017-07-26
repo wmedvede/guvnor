@@ -75,7 +75,7 @@ public class OpenShiftRuntimeExecExecutor<T extends OpenShiftRuntimeConfig> impl
             return Optional.empty();
         }
         OpenShiftProvider openshiftProvider = _openshiftProvider.get();
-        OpenShiftClient openshiftClient = openshift.getOpenShiftClient( openshiftProvider );
+        OpenShiftClient openshiftClient = openshift.getOpenShiftClient( openshiftProvider, runtimeConfig.getRuntimeName() );
 
         LOG.info( "Creating runtime...");
         OpenShiftRuntimeState runtimeState;
@@ -127,7 +127,7 @@ public class OpenShiftRuntimeExecExecutor<T extends OpenShiftRuntimeConfig> impl
         OpenShiftProvider openshiftProvider = _openshiftProvider.get();
         try {
             LOG.info( "Destroying runtime: " + runtimeId.getId() );
-            openshift.getOpenShiftClient( openshiftProvider ).destroy( runtimeId.getId() );
+            openshift.getOpenShiftClient( openshiftProvider, runtimeId.getName()  ).destroy( runtimeId.getId());
             LOG.info( "Destroyed runtime: " + runtimeId.getId() );
         } catch (OpenShiftClientException ex) {
             throw new RuntimeOperationException( "Error Destroying runtime: " + runtimeId.getId(), ex );

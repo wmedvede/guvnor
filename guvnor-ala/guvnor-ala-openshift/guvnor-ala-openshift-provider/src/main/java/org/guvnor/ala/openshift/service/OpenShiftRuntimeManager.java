@@ -29,73 +29,83 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class OpenShiftRuntimeManager implements RuntimeManager {
-    
+
     private final RuntimeRegistry runtimeRegistry;
     private final OpenShiftAccessInterface openshift;
-    private static final Logger LOG = LoggerFactory.getLogger( OpenShiftRuntimeManager.class );
-    
+    private static final Logger LOG = LoggerFactory.getLogger(OpenShiftRuntimeManager.class);
+
     @Inject
-    public OpenShiftRuntimeManager( final RuntimeRegistry runtimeRegistry,
-            final OpenShiftAccessInterface openshift ) {
+    public OpenShiftRuntimeManager(final RuntimeRegistry runtimeRegistry,
+                                   final OpenShiftAccessInterface openshift) {
         this.runtimeRegistry = runtimeRegistry;
         this.openshift = openshift;
     }
-    
+
     @Override
-    public boolean supports( final RuntimeId runtimeId ) {
+    public boolean supports(final RuntimeId runtimeId) {
         return runtimeId instanceof OpenShiftRuntime
-                || runtimeRegistry.getRuntimeById( runtimeId.getId() ) instanceof OpenShiftRuntime;
+                || runtimeRegistry.getRuntimeById(runtimeId.getId()) instanceof OpenShiftRuntime;
     }
-    
+
     @Override
-    public void start( RuntimeId runtimeId ) throws RuntimeOperationException {
-        OpenShiftRuntime runtime = ( OpenShiftRuntime ) runtimeRegistry.getRuntimeById( runtimeId.getId() );
+    public void start(RuntimeId runtimeId) throws RuntimeOperationException {
+        OpenShiftRuntime runtime = (OpenShiftRuntime) runtimeRegistry.getRuntimeById(runtimeId.getId());
         try {
-            LOG.info( "Starting runtime: " + runtimeId.getId() );
-            openshift.getOpenShiftClient( runtime.getProviderId() ).start( runtime.getId() );
-            refresh( runtimeId );
-            LOG.info( "Started runtime: " + runtimeId.getId() );
-        } catch ( OpenShiftClientException ex ) {
-            LOG.error( "Error Starting runtime: " + runtimeId.getId(), ex );
-            throw new RuntimeOperationException( "Error Starting runtime: " + runtimeId.getId(), ex );
+            LOG.info("Starting runtime: " + runtimeId.getId());
+            openshift.getOpenShiftClient(runtime.getProviderId(),
+                                         runtime.getName()).start(runtime.getId());
+            refresh(runtimeId);
+            LOG.info("Started runtime: " + runtimeId.getId());
+        } catch (OpenShiftClientException ex) {
+            LOG.error("Error Starting runtime: " + runtimeId.getId(),
+                      ex);
+            throw new RuntimeOperationException("Error Starting runtime: " + runtimeId.getId(),
+                                                ex);
         }
     }
 
     @Override
-    public void stop( RuntimeId runtimeId ) throws RuntimeOperationException {
-        OpenShiftRuntime runtime = ( OpenShiftRuntime ) runtimeRegistry.getRuntimeById( runtimeId.getId() );
+    public void stop(RuntimeId runtimeId) throws RuntimeOperationException {
+        OpenShiftRuntime runtime = (OpenShiftRuntime) runtimeRegistry.getRuntimeById(runtimeId.getId());
         try {
-            LOG.info( "Stopping runtime: " + runtimeId.getId() );
-            openshift.getOpenShiftClient( runtime.getProviderId() ).stop( runtime.getId() );
-            refresh( runtimeId );
-            LOG.info( "Stopped runtime: " + runtimeId.getId() );
-        } catch ( OpenShiftClientException ex ) {
-            LOG.error( "Error Stopping runtime: " + runtimeId.getId(), ex );
-            throw new RuntimeOperationException( "Error Stopping runtime: " + runtimeId.getId(), ex );
+            LOG.info("Stopping runtime: " + runtimeId.getId());
+            openshift.getOpenShiftClient(runtime.getProviderId(),
+                                         runtime.getName()).stop(runtime.getId());
+            refresh(runtimeId);
+            LOG.info("Stopped runtime: " + runtimeId.getId());
+        } catch (OpenShiftClientException ex) {
+            LOG.error("Error Stopping runtime: " + runtimeId.getId(),
+                      ex);
+            throw new RuntimeOperationException("Error Stopping runtime: " + runtimeId.getId(),
+                                                ex);
         }
     }
 
     @Override
-    public void restart( RuntimeId runtimeId ) throws RuntimeOperationException {
-        OpenShiftRuntime runtime = ( OpenShiftRuntime ) runtimeRegistry.getRuntimeById( runtimeId.getId() );
+    public void restart(RuntimeId runtimeId) throws RuntimeOperationException {
+        OpenShiftRuntime runtime = (OpenShiftRuntime) runtimeRegistry.getRuntimeById(runtimeId.getId());
         try {
-            LOG.info( "Restarting runtime: " + runtimeId.getId() );
-            openshift.getOpenShiftClient( runtime.getProviderId() ).restart( runtime.getId() );
-            refresh( runtimeId );
-            LOG.info( "Restarted runtime: " + runtimeId.getId() );
-        } catch ( OpenShiftClientException ex ) {
-            LOG.error( "Error Restarting runtime: " + runtimeId.getId(), ex );
-            throw new RuntimeOperationException( "Error Restarting runtime: " + runtimeId.getId(), ex );
+            LOG.info("Restarting runtime: " + runtimeId.getId());
+            openshift.getOpenShiftClient(runtime.getProviderId(),
+                                         runtime.getName()).restart(runtime.getId());
+            refresh(runtimeId);
+            LOG.info("Restarted runtime: " + runtimeId.getId());
+        } catch (OpenShiftClientException ex) {
+            LOG.error("Error Restarting runtime: " + runtimeId.getId(),
+                      ex);
+            throw new RuntimeOperationException("Error Restarting runtime: " + runtimeId.getId(),
+                                                ex);
         }
     }
 
     @Override
-    public void refresh( RuntimeId runtimeId ) throws RuntimeOperationException {
-        OpenShiftRuntime runtime = ( OpenShiftRuntime ) runtimeRegistry.getRuntimeById( runtimeId.getId() );
+    public void refresh(RuntimeId runtimeId) throws RuntimeOperationException {
+        OpenShiftRuntime runtime = (OpenShiftRuntime) runtimeRegistry.getRuntimeById(runtimeId.getId());
         if (runtime != null) {
             try {
                 //LOG.info( "Refreshing runtime: " + runtimeId.getId() );
-                OpenShiftRuntimeState runtimeState = openshift.getOpenShiftClient( runtime.getProviderId() ).getRuntimeState( runtime.getId() );
+                OpenShiftRuntimeState runtimeState = openshift.getOpenShiftClient(runtime.getProviderId(),
+                                                                                  runtime.getName()).getRuntimeState(runtime.getId());
                 OpenShiftRuntime newRuntime = new OpenShiftRuntime(
                         runtime.getId(),
                         runtime.getName(),
@@ -103,27 +113,31 @@ public class OpenShiftRuntimeManager implements RuntimeManager {
                         runtime.getProviderId(),
                         runtime.getEndpoint(),
                         runtime.getInfo(),
-                        runtimeState );
-                runtimeRegistry.registerRuntime( newRuntime );
-            } catch ( OpenShiftClientException ex ) {
-                LOG.error( "Error Refreshing runtime: " + runtimeId.getId(), ex );
-                throw new RuntimeOperationException( "Error Refreshing runtime: " + runtimeId.getId(), ex );
+                        runtimeState);
+                runtimeRegistry.registerRuntime(newRuntime);
+            } catch (OpenShiftClientException ex) {
+                LOG.error("Error Refreshing runtime: " + runtimeId.getId(),
+                          ex);
+                throw new RuntimeOperationException("Error Refreshing runtime: " + runtimeId.getId(),
+                                                    ex);
             }
         }
     }
 
     @Override
-    public void pause( RuntimeId runtimeId ) throws RuntimeOperationException {
-        OpenShiftRuntime runtime = ( OpenShiftRuntime ) runtimeRegistry.getRuntimeById( runtimeId.getId() );
+    public void pause(RuntimeId runtimeId) throws RuntimeOperationException {
+        OpenShiftRuntime runtime = (OpenShiftRuntime) runtimeRegistry.getRuntimeById(runtimeId.getId());
         try {
-            LOG.info( "Pausing runtime: " + runtimeId.getId() );
-            openshift.getOpenShiftClient( runtime.getProviderId() ).pause( runtime.getId() );
-            refresh( runtimeId );
-            LOG.info( "Paused runtime: " + runtimeId.getId() );
-        } catch ( OpenShiftClientException ex ) {
-            LOG.error( "Error Pausing runtime: " + runtimeId.getId(), ex );
-            throw new RuntimeOperationException( "Error Pausing runtime: " + runtimeId.getId(), ex );
+            LOG.info("Pausing runtime: " + runtimeId.getId());
+            openshift.getOpenShiftClient(runtime.getProviderId(),
+                                         runtime.getName()).pause(runtime.getId());
+            refresh(runtimeId);
+            LOG.info("Paused runtime: " + runtimeId.getId());
+        } catch (OpenShiftClientException ex) {
+            LOG.error("Error Pausing runtime: " + runtimeId.getId(),
+                      ex);
+            throw new RuntimeOperationException("Error Pausing runtime: " + runtimeId.getId(),
+                                                ex);
         }
     }
-
 }
