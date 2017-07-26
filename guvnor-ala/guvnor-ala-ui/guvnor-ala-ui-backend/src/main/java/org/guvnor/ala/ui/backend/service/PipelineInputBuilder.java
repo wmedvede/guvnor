@@ -103,9 +103,10 @@ public class PipelineInputBuilder {
 
     private void hackOpenShiftParameters(Input input) {
 
-        final String namespace = createNamespace();
-
         final String application = input.get(RuntimeConfig.RUNTIME_NAME);
+
+        final String namespace = createNamespace(application);
+
 
         String templateParams = new OpenShiftParameters()
                 .param("APPLICATION_NAME",
@@ -158,13 +159,19 @@ public class PipelineInputBuilder {
         return getClass().getResource(resourcePath).toURI().toString();
     }
 
-    private String createNamespace() {
+    private String createNamespace(String runtimeName) {
         return new StringBuilder()
-                .append("guvnor-ala-")
+               //.append("guvnor-ala-")
+                .append(runtimeName)
+                .toString();
+        /*
                 .append(System.getProperty("user.name", "anonymous").replaceAll("[^A-Za-z0-9]", "-"))
                 .append("-test-")
+                .append(runtimeName)
+                .append("-")
                 .append(new SimpleDateFormat("YYYYMMddHHmmss").format(new Date()))
                 .toString();
+                */
     }
 
 }

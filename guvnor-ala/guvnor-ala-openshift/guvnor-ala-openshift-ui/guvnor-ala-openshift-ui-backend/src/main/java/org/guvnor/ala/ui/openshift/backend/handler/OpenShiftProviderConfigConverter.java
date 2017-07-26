@@ -29,7 +29,6 @@ import static org.guvnor.ala.config.ProviderConfig.PROVIDER_NAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_MASTER;
-import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_NAMESPACE;
 import static org.guvnor.ala.ui.backend.service.util.ServiceUtil.getStringValue;
 
 @ApplicationScoped
@@ -55,14 +54,12 @@ public class OpenShiftProviderConfigConverter
         if (modelValue == null) {
             return null;
         }
-
-        //TODO check this integration point, there might be more parameters.
         OpenShiftProviderConfigImpl openShiftProviderConfig = new OpenShiftProviderConfigImpl();
+        openShiftProviderConfig.clear();
+
         openShiftProviderConfig.setName(modelValue.getId());
         openShiftProviderConfig.setKubernetesMaster(getStringValue(modelValue.getValues(),
                                                                    KUBERNETES_MASTER.inputKey()));
-        openShiftProviderConfig.setKubernetesNamespace(getStringValue(modelValue.getValues(),
-                                                                      KUBERNETES_NAMESPACE.inputKey()));
         openShiftProviderConfig.setKubernetesAuthBasicUsername(getStringValue(modelValue.getValues(),
                                                                               KUBERNETES_AUTH_BASIC_USERNAME.inputKey()));
         openShiftProviderConfig.setKubernetesAuthBasicPassword(getStringValue(modelValue.getValues(),
@@ -82,8 +79,6 @@ public class OpenShiftProviderConfigConverter
 
         values.put(KUBERNETES_MASTER.inputKey(),
                    domainValue.getKubernetesMaster());
-        values.put(KUBERNETES_NAMESPACE.inputKey(),
-                   domainValue.getKubernetesNamespace());
         values.put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(),
                    domainValue.getKubernetesAuthBasicUsername());
         values.put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(),

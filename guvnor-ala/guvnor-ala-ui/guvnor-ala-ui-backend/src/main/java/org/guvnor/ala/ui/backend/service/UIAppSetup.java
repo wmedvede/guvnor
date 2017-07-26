@@ -40,7 +40,6 @@ import org.guvnor.ala.config.SourceConfig;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
 import org.guvnor.ala.openshift.config.impl.ContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.OpenShiftProviderConfigImpl;
-import org.guvnor.ala.openshift.model.OpenShiftProvider;
 import org.guvnor.ala.openshift.model.OpenShiftProviderType;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
@@ -61,11 +60,9 @@ import org.guvnor.ala.wildfly.model.WildflyProviderType;
 import org.uberfire.commons.services.cdi.Startup;
 import org.uberfire.commons.services.cdi.StartupType;
 
-import static org.guvnor.ala.config.ProviderConfig.PROVIDER_NAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_MASTER;
-import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_NAMESPACE;
 import static org.guvnor.ala.pipeline.StageUtil.config;
 
 /**
@@ -228,17 +225,25 @@ public class UIAppSetup {
         String namespace = createNamespace();
 
         OpenShiftProviderConfigImpl providerConfig = new OpenShiftProviderConfigImpl();
+        //WE MUST clear first.
+        providerConfig.clear();
+
         providerConfig.setName("openshift-provider-test");
         providerConfig.setKubernetesMaster("https://ce-os-rhel-master.usersys.redhat.com:8443");
         providerConfig.setKubernetesAuthBasicUsername("admin");
         providerConfig.setKubernetesAuthBasicPassword("admin");
-        providerConfig.setKubernetesNamespace(namespace);
+
+        //providerConfig.setKubernetesNamespace(namespace);
 
         final Map<String, Object> values = new HashMap<>();
         values.put(KUBERNETES_MASTER.inputKey(),
                    "https://ce-os-rhel-master.usersys.redhat.com:8443");
+
+        /*
         values.put(KUBERNETES_NAMESPACE.inputKey(),
                    namespace);
+        */
+
         values.put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(),
                    "admin");
         values.put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(),
