@@ -32,6 +32,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
 
     @JsonIgnore
     private Map<String, ?> context;
+    private String runtimeName;
     private ProviderId providerId;
     private String applicationName;
     private String projectName;
@@ -45,6 +46,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
     private String serviceName;
 
     public ContextAwareOpenShiftRuntimeExecConfig() {
+        this.runtimeName = OpenShiftRuntimeExecConfig.super.getRuntimeName();
         this.applicationName = OpenShiftRuntimeExecConfig.super.getApplicationName();
         this.projectName = OpenShiftRuntimeExecConfig.super.getProjectName();
         this.resourceSecretsUri = OpenShiftRuntimeExecConfig.super.getResourceSecretsUri();
@@ -58,6 +60,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
     }
 
     public ContextAwareOpenShiftRuntimeExecConfig(
+            String runtimeName,
             ProviderId providerId,
             String applicationName,
             String projectName,
@@ -69,6 +72,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
             String resourceTemplateParamValues,
             String resourceTemplateUri,
             String serviceName) {
+        this.runtimeName = runtimeName;
         this.providerId = providerId;
         this.applicationName = applicationName;
         this.projectName = projectName;
@@ -88,6 +92,11 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
         final OpenShiftProvider provider = (OpenShiftProvider) context.get(OpenShiftProvider.CONTEXT_KEY);
         this.providerId = provider;
         // TODO: other props?
+    }
+
+    @Override
+    public String getRuntimeName() {
+        return runtimeName;
     }
 
     @Override
@@ -192,23 +201,25 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements ContextAware, Ope
     @Override
     public String toString() {
         return "ContextAwareOpenShiftRuntimeConfig{" +
-            ", providerId=" + providerId +
-            ", applicationName=" + applicationName +
-            ", projectName" + projectName +
-            ", resourceSecretsUri=" + resourceSecretsUri +
-            ", resourceStreamsUri=" + resourceStreamsUri +
-            ", resourceTemplateName=" + resourceTemplateName +
-            ", resourceTemplateParamDelimiter=" + resourceTemplateParamDelimiter +
-            ", resourceTemplateParamAssigner=" + resourceTemplateParamAssigner +
-            ", resourceTemplateParamValues=" + resourceTemplateParamValues +
-            ", resourceTemplateUri=" + resourceTemplateUri +
-            ", serviceName=" + serviceName +
-            "}";
+                ", runtimeName=" + runtimeName +
+                ", providerId=" + providerId +
+                ", applicationName=" + applicationName +
+                ", projectName" + projectName +
+                ", resourceSecretsUri=" + resourceSecretsUri +
+                ", resourceStreamsUri=" + resourceStreamsUri +
+                ", resourceTemplateName=" + resourceTemplateName +
+                ", resourceTemplateParamDelimiter=" + resourceTemplateParamDelimiter +
+                ", resourceTemplateParamAssigner=" + resourceTemplateParamAssigner +
+                ", resourceTemplateParamValues=" + resourceTemplateParamValues +
+                ", resourceTemplateUri=" + resourceTemplateUri +
+                ", serviceName=" + serviceName +
+                "}";
     }
 
     @Override
     public OpenShiftRuntimeExecConfig asNewClone(final OpenShiftRuntimeExecConfig source) {
         return new ContextAwareOpenShiftRuntimeExecConfig(
+                source.getRuntimeName(),
                 source.getProviderId(),
                 source.getApplicationName(),
                 source.getProjectName(),
