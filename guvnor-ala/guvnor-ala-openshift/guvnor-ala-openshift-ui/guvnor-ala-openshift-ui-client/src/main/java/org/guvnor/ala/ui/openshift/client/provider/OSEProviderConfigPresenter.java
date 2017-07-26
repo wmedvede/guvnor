@@ -32,21 +32,16 @@ import org.uberfire.client.mvp.UberElement;
 
 import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
 
-/**
- * TODO, this presenter is still in progress until we define the Openshift provider properly, etc.
- */
 @Dependent
 public class OSEProviderConfigPresenter
         extends AbstractHasContentChangeHandlers
         implements ProviderConfigurationForm {
 
-    protected static final String MASTER_URL = "master-url";
+    protected static final String MASTER_URL = "kubernetes-master";
 
-    protected static final String USER = "username";
+    protected static final String USER = "kubernetes-auth-basic-username";
 
-    protected static final String PASSWORD = "password";
-
-    protected static final String PASSWORD_MASK = "****";
+    protected static final String PASSWORD = "kubernetes-auth-basic-password";
 
     public interface View
             extends UberElement<OSEProviderConfigPresenter> {
@@ -126,7 +121,8 @@ public class OSEProviderConfigPresenter
                                          MASTER_URL));
         view.setUsername(getStringValue(provider.getConfiguration().getValues(),
                                         USER));
-        view.setPassword(PASSWORD_MASK);
+        view.setPassword(getStringValue(provider.getConfiguration().getValues(),
+                                        PASSWORD));
     }
 
     public String getProviderName() {
@@ -146,8 +142,11 @@ public class OSEProviderConfigPresenter
     }
 
     public void isValid(final Callback<Boolean> callback) {
-        //TODO invalid until we define the Openshift provider properly.
-        callback.callback(false);
+        boolean isValid = !isEmpty(view.getProviderName()) &&
+                !isEmpty(view.getMasterURL()) &&
+                !isEmpty(view.getUsername()) &&
+                !isEmpty(view.getPassword());
+        callback.callback(isValid);
     }
 
     @Override
