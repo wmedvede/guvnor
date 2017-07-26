@@ -16,16 +16,17 @@
 package org.guvnor.ala.openshift.executor;
 
 import java.util.Optional;
-
 import javax.inject.Inject;
 
 import org.guvnor.ala.config.Config;
 import org.guvnor.ala.config.ProviderConfig;
+import org.guvnor.ala.exceptions.ProvisioningException;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
 import org.guvnor.ala.openshift.model.OpenShiftProvider;
 import org.guvnor.ala.openshift.model.OpenShiftProviderImpl;
 import org.guvnor.ala.pipeline.FunctionConfigExecutor;
 import org.guvnor.ala.registry.RuntimeRegistry;
+import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderBuilder;
 import org.guvnor.ala.runtime.providers.ProviderDestroyer;
 import org.guvnor.ala.runtime.providers.ProviderId;
@@ -37,17 +38,41 @@ public class OpenShiftProviderConfigExecutor implements
 
     private RuntimeRegistry runtimeRegistry;
 
+    public OpenShiftProviderConfigExecutor() {
+    }
+
     @Inject
     public OpenShiftProviderConfigExecutor( final RuntimeRegistry runtimeRegistry ) {
         this.runtimeRegistry = runtimeRegistry;
     }
 
-    @Override
-    public Optional<OpenShiftProvider> apply( final OpenShiftProviderConfig openshiftProviderConfig ) {
-        final OpenShiftProviderImpl provider = new OpenShiftProviderImpl( openshiftProviderConfig.getName(), openshiftProviderConfig );
-        runtimeRegistry.registerProvider( provider );
-        return Optional.of( provider );
+    /**
+     * Esto lo agregué a saco para poder tener el cambio de David en local.
+     */
+    public Optional<OpenShiftProvider> apply(final OpenShiftProviderConfig openshiftProviderConfig) {
+        if (openshiftProviderConfig.getName() == null || openshiftProviderConfig.getName().isEmpty()) {
+            throw new ProvisioningException("No name was provided for the OpenShiftProviderConfig.getName() " +
+                                                    "configuration parameter. You might probably have to properly set " +
+                                                    "the pipeline input parameter: " + ProviderConfig.PROVIDER_NAME);
+        }
+        Provider provider = runtimeRegistry.getProvider(openshiftProviderConfig.getName());
+        OpenShiftProvider openshiftProvider;
+        if (provider != null) {
+            if (!(provider instanceof OpenShiftProvider)) {
+                throw new ProvisioningException("The provider: " + openshiftProviderConfig.getName() +
+                                                        " must be an instance of " + OpenShiftProviderConfig.class +
+                                                        " but is: " + provider.getClass());
+            } else {
+                openshiftProvider = (OpenShiftProvider) provider;
+            }
+        } else {
+            openshiftProvider = new OpenShiftProviderImpl(openshiftProviderConfig.getName(),
+                                                          openshiftProviderConfig);
+            runtimeRegistry.registerProvider(openshiftProvider);
+        }
+        return Optional.of(openshiftProvider);
     }
+
 
     @Override
     public Class<? extends Config> executeFor() {

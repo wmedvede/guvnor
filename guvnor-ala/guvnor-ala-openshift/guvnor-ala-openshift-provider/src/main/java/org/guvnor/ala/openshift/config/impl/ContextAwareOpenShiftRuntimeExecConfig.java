@@ -32,6 +32,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements
 
     @JsonIgnore
     private Map<String, ?> context;
+    private String runtimeName;
     private ProviderId providerId;
     private String applicationName;
     private String resourceSecretsUri;
@@ -44,6 +45,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements
     private String serviceName;
 
     public ContextAwareOpenShiftRuntimeExecConfig() {
+        this.runtimeName = OpenShiftRuntimeExecConfig.super.getRuntimeName();
         this.applicationName = OpenShiftRuntimeExecConfig.super.getApplicationName();
         this.resourceSecretsUri = OpenShiftRuntimeExecConfig.super.getResourceSecretsUri();
         this.resourceStreamsUri = OpenShiftRuntimeExecConfig.super.getResourceStreamsUri();
@@ -56,6 +58,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements
     }
 
     public ContextAwareOpenShiftRuntimeExecConfig(
+            String runtimeName,
             ProviderId providerId,
             String applicationName,
             String resourceSecretsUri,
@@ -66,6 +69,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements
             String resourceTemplateParamValues,
             String resourceTemplateUri,
             String serviceName ) {
+        this.runtimeName = runtimeName;
         this.providerId = providerId;
         this.applicationName = applicationName;
         this.resourceSecretsUri = resourceSecretsUri;
@@ -84,6 +88,11 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements
         final OpenShiftProvider provider = (OpenShiftProvider) context.get( OpenShiftProvider.CONTEXT_KEY );
         this.providerId = provider;
         // TODO: other props?
+    }
+
+    @Override
+    public String getRuntimeName() {
+        return runtimeName;
     }
 
     @Override
@@ -194,6 +203,7 @@ public class ContextAwareOpenShiftRuntimeExecConfig implements
     @Override
     public OpenShiftRuntimeExecConfig asNewClone( final OpenShiftRuntimeExecConfig source ) {
         return new ContextAwareOpenShiftRuntimeExecConfig(
+                source.getRuntimeName(),
                 source.getProviderId(),
                 source.getApplicationName(),
                 source.getResourceSecretsUri(),

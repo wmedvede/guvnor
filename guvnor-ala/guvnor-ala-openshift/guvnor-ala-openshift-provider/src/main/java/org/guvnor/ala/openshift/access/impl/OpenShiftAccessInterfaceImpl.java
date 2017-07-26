@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.guvnor.ala.openshift.access.OpenShiftAccessInterface;
 import org.guvnor.ala.openshift.access.OpenShiftClient;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
+import org.guvnor.ala.openshift.config.OpenShiftRuntimeConfig;
+import org.guvnor.ala.openshift.config.impl.OpenShiftRuntimeConfigImpl;
 import org.guvnor.ala.openshift.model.OpenShiftProvider;
 import org.guvnor.ala.runtime.providers.ProviderId;
 import org.slf4j.Logger;
@@ -44,22 +46,19 @@ public class OpenShiftAccessInterfaceImpl
     private final Map<String, OpenShiftClient> clientMap = new ConcurrentHashMap<>();
 
     @Override
-    public OpenShiftClient getOpenShiftClient( final ProviderId providerId ) {
-        if ( !clientMap.containsKey( providerId.getId() ) ) {
-            clientMap.put( providerId.getId(), buildClient( providerId ) );
-        }
-        return clientMap.get( providerId.getId() );
+    public OpenShiftClient getOpenShiftClient(final ProviderId providerId, String namespace ) {
+        return buildClient( providerId, namespace );
     }
 
-    private OpenShiftClient buildClient( final ProviderId providerId ) {
+    private OpenShiftClient buildClient( final ProviderId providerId, String namespace ) {
         assert ( providerId instanceof OpenShiftProvider );
         OpenShiftProviderConfig providerConfig = (OpenShiftProviderConfig)((OpenShiftProvider)providerId).getConfig();
-        OpenShiftConfig clientConfig = buildClientConfig(providerConfig);
+        OpenShiftConfig clientConfig = buildClientConfig(providerConfig, namespace);
         return new OpenShiftClient(new DefaultOpenShiftClient(clientConfig));
     }
 
     // static and package-protected for junit testing purposes
-    static OpenShiftConfig buildClientConfig(OpenShiftProviderConfig config) {
+    static OpenShiftConfig buildClientConfig(OpenShiftProviderConfig config, String namespace) {
         OpenShiftConfigBuilder builder = new OpenShiftConfigBuilder(OpenShiftConfig.wrap(Config.autoConfigure()));
         /*
          * Kubernetes configuration properties; see io.fabric8.kubernetes.client.Config
@@ -175,7 +174,8 @@ public class OpenShiftAccessInterfaceImpl
         if (kubernetesMaster != null) {
             builder = builder.withMasterUrl(kubernetesMaster);
         }
-        String kubernetesNamespace = trimToNull(config.getKubernetesNamespace());
+        /// MODIFICADO POR MI String kubernetesNamespace = trimToNull(config.getKubernetesNamespace());
+        String kubernetesNamespace = namespace;
         if (kubernetesNamespace != null) {
             builder = builder.withNamespace(kubernetesNamespace);
         }
