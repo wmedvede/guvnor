@@ -39,6 +39,7 @@ import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.config.SourceConfig;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
 import org.guvnor.ala.openshift.config.impl.ContextAwareOpenShiftRuntimeExecConfig;
+import org.guvnor.ala.openshift.config.impl.KieServerContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.OpenShiftProviderConfigImpl;
 import org.guvnor.ala.openshift.model.OpenShiftProviderType;
 import org.guvnor.ala.pipeline.Input;
@@ -209,7 +210,7 @@ public class UIAppSetup {
 
         final Stage<ProviderConfig, RuntimeConfig> runtimeExec =
                 config("OpenShift Runtime Config",
-                       (s) -> new ContextAwareOpenShiftRuntimeExecConfig());
+                       (s) -> new KieServerContextAwareOpenShiftRuntimeExecConfig());
 
         final Pipeline pipe = PipelineFactory
                 .startFrom(providerConfig)
