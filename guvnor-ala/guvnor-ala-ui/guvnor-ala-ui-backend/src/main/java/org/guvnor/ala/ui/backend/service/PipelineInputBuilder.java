@@ -102,9 +102,7 @@ public class PipelineInputBuilder {
     private void hackOpenShiftParameters(Input input) {
 
         final String application = input.get(RuntimeConfig.RUNTIME_NAME);
-
-        final String namespace = createNamespace(application);
-
+        final String namespace = application;
 
         String templateParams = new OpenShiftParameters()
                 .param("APPLICATION_NAME",
@@ -117,12 +115,21 @@ public class PipelineInputBuilder {
                        "execution1!")
                 .toString();
 
+        /*
+
+        This parameters goes only when the pipeline also will create the provider
+        in out case we are using an already existing provider.
+
         input.put(KUBERNETES_MASTER.inputKey(),
             "https://ce-os-rhel-master.usersys.redhat.com:8443");
         input.put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(),
             "admin");
         input.put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(),
             "admin");
+
+         */
+
+
             /* unnecessary for this test
             put(RESOURCE_TEMPLATE_NAME.inputKey(), "bpmsuite70-execserv");
             put(RESOURCE_TEMPLATE_PARAM_DELIMITER.inputKey(), ",");
@@ -130,16 +137,23 @@ public class PipelineInputBuilder {
              */
             try {
 
+                //This namespace here is for my experiments, David added the project name to the Runtime configuration
                 input.put(KUBERNETES_NAMESPACE.inputKey(),
                           namespace);
+
                 input.put(RESOURCE_SECRETS_URI.inputKey(),
                           getUri("bpmsuite-app-secret.json"));
                 input.put(RESOURCE_STREAMS_URI.inputKey(),
                           getUri("jboss-image-streams.json"));
                 input.put(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey(),
                           templateParams);
+
+                /*
+                comentado para ver si la configuracion de valores por defecto va bien.
                 input.put(RESOURCE_TEMPLATE_URI.inputKey(),
                           getUri("bpmsuite70-execserv.json"));
+                */
+
                 input.put(APPLICATION_NAME.inputKey(),
                           application);
                 input.put(SERVICE_NAME.inputKey(),
@@ -156,20 +170,4 @@ public class PipelineInputBuilder {
         }
         return getClass().getResource(resourcePath).toURI().toString();
     }
-
-    private String createNamespace(String runtimeName) {
-        return new StringBuilder()
-               //.append("guvnor-ala-")
-                .append(runtimeName)
-                .toString();
-        /*
-                .append(System.getProperty("user.name", "anonymous").replaceAll("[^A-Za-z0-9]", "-"))
-                .append("-test-")
-                .append(runtimeName)
-                .append("-")
-                .append(new SimpleDateFormat("YYYYMMddHHmmss").format(new Date()))
-                .toString();
-                */
-    }
-
 }
