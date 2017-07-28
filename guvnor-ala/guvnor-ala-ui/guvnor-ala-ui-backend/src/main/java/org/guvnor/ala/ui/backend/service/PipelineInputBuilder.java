@@ -17,29 +17,23 @@
 package org.guvnor.ala.ui.backend.service;
 
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Map;
 
 import org.guvnor.ala.build.maven.config.MavenProjectConfig;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.openshift.config.OpenShiftParameters;
 import org.guvnor.ala.pipeline.Input;
-import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.source.git.config.GitConfig;
 import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.Source;
 
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.APPLICATION_NAME;
-import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
-import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
-import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_MASTER;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_NAMESPACE;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_SECRETS_URI;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_STREAMS_URI;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_TEMPLATE_PARAM_VALUES;
-import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_TEMPLATE_URI;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.SERVICE_NAME;
 
 /**
@@ -52,6 +46,8 @@ public class PipelineInputBuilder {
     private ProviderKey providerKey;
 
     private Source source;
+
+    private Map<String, String> params;
 
     public static PipelineInputBuilder newInstance() {
         return new PipelineInputBuilder();
@@ -72,6 +68,11 @@ public class PipelineInputBuilder {
 
     public PipelineInputBuilder withSource(final Source source) {
         this.source = source;
+        return this;
+    }
+
+    public PipelineInputBuilder withParams(final Map<String, String> params) {
+        this.params = params;
         return this;
     }
 
@@ -96,8 +97,10 @@ public class PipelineInputBuilder {
                           ((InternalGitSource) source).getProject().getProjectName());
             }
         }
+        if (params != null) {
+            input.putAll(params);
+        }
 
-        hackOpenShiftParameters(input);
         return input;
     }
 
@@ -137,18 +140,18 @@ public class PipelineInputBuilder {
             put(RESOURCE_TEMPLATE_PARAM_DELIMITER.inputKey(), ",");
             put(RESOURCE_TEMPLATE_PARAM_ASSIGNER.inputKey(), "=");
              */
-            try {
+        try {
 
-                //This namespace here is for my experiments, David added the project name to the Runtime configuration
-                input.put(KUBERNETES_NAMESPACE.inputKey(),
-                          namespace);
+            //This namespace here is for my experiments, David added the project name to the Runtime configuration
+            input.put(KUBERNETES_NAMESPACE.inputKey(),
+                      namespace);
 
-                input.put(RESOURCE_SECRETS_URI.inputKey(),
-                          getUri("bpmsuite-app-secret.json"));
-                input.put(RESOURCE_STREAMS_URI.inputKey(),
-                          getUri("jboss-image-streams.json"));
-                input.put(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey(),
-                          templateParams);
+            input.put(RESOURCE_SECRETS_URI.inputKey(),
+                      getUri("bpmsuite-app-secret.json"));
+            input.put(RESOURCE_STREAMS_URI.inputKey(),
+                      getUri("jboss-image-streams.json"));
+            input.put(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey(),
+                      templateParams);
 
                 /*
                 comentado para ver si la configuracion de valores por defecto va bien.
@@ -156,14 +159,14 @@ public class PipelineInputBuilder {
                           getUri("bpmsuite70-execserv.json"));
                 */
 
-                input.put(APPLICATION_NAME.inputKey(),
-                          application);
-                input.put(SERVICE_NAME.inputKey(),
-                          application + "-execserv");
-            } catch (Exception e) {
-                System.out.println("INPUT BUILDING EXCEPTION: " + e.getMessage());
-                e.printStackTrace();
-            }
+            input.put(APPLICATION_NAME.inputKey(),
+                      application);
+            input.put(SERVICE_NAME.inputKey(),
+                      application + "-execserv");
+        } catch (Exception e) {
+            System.out.println("INPUT BUILDING EXCEPTION: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private String getUri(String resourcePath) throws URISyntaxException {
