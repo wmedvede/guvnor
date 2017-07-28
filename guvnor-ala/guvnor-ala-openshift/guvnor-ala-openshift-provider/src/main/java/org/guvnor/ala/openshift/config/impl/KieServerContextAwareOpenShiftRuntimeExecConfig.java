@@ -46,6 +46,7 @@ public class KieServerContextAwareOpenShiftRuntimeExecConfig
     public KieServerContextAwareOpenShiftRuntimeExecConfig(String runtimeName,
                                                            ProviderId providerId,
                                                            String applicationName,
+                                                           String projectName,
                                                            String resourceSecretsUri,
                                                            String resourceStreamsUri,
                                                            String resourceTemplateName,
@@ -57,6 +58,7 @@ public class KieServerContextAwareOpenShiftRuntimeExecConfig
         super(runtimeName,
               providerId,
               applicationName,
+              projectName,
               resourceSecretsUri,
               resourceStreamsUri,
               resourceTemplateName,
@@ -73,6 +75,7 @@ public class KieServerContextAwareOpenShiftRuntimeExecConfig
 
         Input input = (Input) context.get("input");
         if (input != null) {
+            final String runtimeName = input.get(RUNTIME_NAME);
 
             try {
                 if (!input.containsKey(RESOURCE_SECRETS_URI.inputKey())) {
@@ -99,27 +102,68 @@ public class KieServerContextAwareOpenShiftRuntimeExecConfig
             }
 
             if (!input.containsKey(APPLICATION_NAME.inputKey())) {
-                setApplicationName(getRuntimeName());
+                setApplicationName(runtimeName);
             }
 
             if (!input.containsKey(SERVICE_NAME.inputKey())) {
-                setServiceName(getRuntimeName() + "-execserv");
+                setServiceName(runtimeName + "-execserv");
             }
 
             if (!input.containsKey(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey())) {
-                String templateParams = new OpenShiftParameters()
-                        .param("APPLICATION_NAME",
-                               getApplicationName())
-                        .param("IMAGE_STREAM_NAMESPACE",
-                               getApplicationName())
-                        .param("KIE_ADMIN_PWD",
-                               "admin1!")
-                        .param("KIE_SERVER_PWD",
-                               "execution1!")
-                        .toString();
-                setResourceTemplateParamValues(templateParams);
+
+                OpenShiftParameters params = new OpenShiftParameters();
+
+                String applicationName = setOpenShiftParam(input,
+                                                           params,
+                                                           "APPLICATION_NAME",
+                                                           runtimeName);
+
+                setOpenShiftParam(input,
+                                  params,
+                                  "IMAGE_STREAM_NAMESPACE",
+                                  applicationName);
+
+                setOpenShiftParam(input,
+                                  params,
+                                  "KIE_ADMIN_USER",
+                                  null);
+
+                setOpenShiftParam(input,
+                                  params,
+                                  "KIE_ADMIN_PWD",
+                                  null);
+
+                setOpenShiftParam(input,
+                                  params,
+                                  "KIE_SERVER_USER",
+                                  null);
+
+                setOpenShiftParam(input,
+                                  params,
+                                  "KIE_SERVER_PWD",
+                                  null);
+
+                String templateParams = params.toString();
+                if (templateParams != null && !templateParams.isEmpty()) {
+                    setResourceTemplateParamValues(templateParams);
+                }
             }
         }
+    }
+
+    private String setOpenShiftParam(Input input,
+                                     OpenShiftParameters parameters,
+                                     String paramName,
+                                     String defaultValue) {
+        String value = input.get(paramName);
+        if (value == null) {
+            value = defaultValue;
+        }
+        if (value != null) {
+            parameters.param(paramName,
+                             value);
+        }
+        return value;
     }
 
     private String getUri(String resourcePath) throws URISyntaxException {

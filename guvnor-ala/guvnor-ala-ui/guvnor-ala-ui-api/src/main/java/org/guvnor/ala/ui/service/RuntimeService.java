@@ -17,6 +17,7 @@
 package org.guvnor.ala.ui.service;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -70,7 +71,8 @@ public interface RuntimeService {
     PipelineExecutionTraceKey createRuntime(final ProviderKey providerKey,
                                             final String runtimeName,
                                             final Source source,
-                                            final PipelineKey pipelineKey);
+                                            final PipelineKey pipelineKey,
+                                            final Map<String, String> params);
 
     /**
      * Stops a running pipeline execution.

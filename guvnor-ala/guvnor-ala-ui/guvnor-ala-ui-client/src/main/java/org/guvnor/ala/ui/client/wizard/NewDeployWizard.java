@@ -17,13 +17,19 @@
 package org.guvnor.ala.ui.client.wizard;
 
 import java.util.Collection;
+import java.util.Iterator;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
 import org.guvnor.ala.ui.client.util.PopupHelper;
+import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsPagePresenter;
+import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsForm;
 import org.guvnor.ala.ui.client.wizard.pipeline.SelectPipelinePagePresenter;
 import org.guvnor.ala.ui.client.wizard.source.SourceConfigurationPagePresenter;
 import org.guvnor.ala.ui.model.PipelineKey;
@@ -32,6 +38,7 @@ import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
+import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 import org.uberfire.workbench.events.NotificationEvent;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDeployWizard_PipelineStartSuccessMessage;
@@ -43,6 +50,8 @@ public class NewDeployWizard
 
     private final SelectPipelinePagePresenter selectPipelinePage;
     private final SourceConfigurationPagePresenter sourceConfigPage;
+    private final PipelineParamsPagePresenter pipelineParamsPage;
+    private final Instance<PipelineParamsForm> pipelineParamForms;
     private final PopupHelper popupHelper;
     private final Caller<RuntimeService> runtimeService;
 
@@ -50,9 +59,13 @@ public class NewDeployWizard
 
     private Provider provider;
 
+    private PipelineParamsForm paramsForm;
+
     @Inject
     public NewDeployWizard(final SelectPipelinePagePresenter selectPipelinePage,
                            final SourceConfigurationPagePresenter sourceConfigPage,
+                           final PipelineParamsPagePresenter pipelineParamsPage,
+                           final @Any Instance<PipelineParamsForm> pipelineParamForms,
                            final PopupHelper popupHelper,
                            final TranslationService translationService,
                            final Caller<RuntimeService> runtimeService,
@@ -63,19 +76,21 @@ public class NewDeployWizard
         this.popupHelper = popupHelper;
         this.selectPipelinePage = selectPipelinePage;
         this.sourceConfigPage = sourceConfigPage;
+        this.pipelineParamsPage = pipelineParamsPage;
+        this.pipelineParamForms = pipelineParamForms;
         this.runtimeService = runtimeService;
         this.refreshRuntimeEvent = refreshRuntimeEvent;
     }
 
     @PostConstruct
     public void init() {
-        pages.add(selectPipelinePage);
-        pages.add(sourceConfigPage);
+        setDefaultPages();
     }
 
     public void start(final Provider provider,
                       final Collection<PipelineKey> pipelines) {
         this.provider = provider;
+        setDefaultPages();
         clear();
         selectPipelinePage.setup(pipelines);
         sourceConfigPage.setup();
@@ -107,7 +122,53 @@ public class NewDeployWizard
                             popupHelper.getPopupErrorCallback()).createRuntime(provider.getKey(),
                                                                                runtime,
                                                                                source,
-                                                                               pipeline);
+                                                                               pipeline,
+                                                                               paramsForm != null ? paramsForm.buildParams() : null);
+    }
+
+    @Override
+    public void onStatusChange(final @Observes WizardPageStatusChangeEvent event) {
+        boolean restart = false;
+        if (event.getPage() == selectPipelinePage) {
+            PipelineParamsForm oldParamsForm = paramsForm;
+            if (selectPipelinePage.getPipeline() != null) {
+                paramsForm = getParamsForm(selectPipelinePage.getPipeline());
+                if (paramsForm != null) {
+                    paramsForm.clear();
+                    pipelineParamsPage.setPipelineParamsForm(paramsForm);
+                    setDefaultPages();
+                    pages.add(pipelineParamsPage);
+                    restart = true;
+                } else if (oldParamsForm != null) {
+                    setDefaultPages();
+                    restart = true;
+                }
+            } else if (pages.size() > 2) {
+                paramsForm = null;
+                setDefaultPages();
+                restart = true;
+            }
+            if (oldParamsForm != null) {
+                oldParamsForm.clear();
+            }
+        }
+
+        if (restart) {
+            super.start();
+        } else {
+            super.onStatusChange(event);
+        }
+    }
+
+    private PipelineParamsForm getParamsForm(final PipelineKey pipelineKey) {
+        Iterator<PipelineParamsForm> forms = pipelineParamForms.iterator();
+        while (forms.hasNext()) {
+            PipelineParamsForm form = forms.next();
+            if (form.accept(pipelineKey)) {
+                return form;
+            }
+        }
+        return null;
     }
 
     private void onPipelineStartSuccess() {
@@ -115,6 +176,12 @@ public class NewDeployWizard
                                                 NotificationEvent.NotificationType.SUCCESS));
         NewDeployWizard.super.complete();
         refreshRuntimeEvent.fire(new RefreshRuntimeEvent(provider.getKey()));
+    }
+
+    private void setDefaultPages() {
+        pages.clear();
+        pages.add(selectPipelinePage);
+        pages.add(sourceConfigPage);
     }
 
     private void clear() {

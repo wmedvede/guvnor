@@ -18,6 +18,7 @@ package org.guvnor.ala.ui.backend.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -156,7 +157,8 @@ public class RuntimeServiceImpl
     public PipelineExecutionTraceKey createRuntime(final ProviderKey providerKey,
                                                    final String runtimeName,
                                                    final Source source,
-                                                   final PipelineKey pipelineKey) {
+                                                   final PipelineKey pipelineKey,
+                                                   final Map<String, String> params) {
         checkNotNull("providerKey",
                      providerKey);
         checkNotNull("runtimeName",
@@ -173,6 +175,7 @@ public class RuntimeServiceImpl
                     .withRuntimeName(runtimeName)
                     .withProvider(providerKey)
                     .withSource(source)
+                    .withParams(params)
                     .build();
             return new PipelineExecutionTraceKey(pipelineService.runPipeline(pipelineKey.getId(),
                                                                              input,
