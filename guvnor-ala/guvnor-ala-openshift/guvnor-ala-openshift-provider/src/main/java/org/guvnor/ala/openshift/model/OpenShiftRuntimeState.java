@@ -19,9 +19,9 @@ import org.guvnor.ala.runtime.base.BaseRuntimeState;
 
 public class OpenShiftRuntimeState extends BaseRuntimeState {
 
-    public static final String NA = "NA";
+    public static final String NA = UNKNOWN;
     public static final String READY = "Ready";
-    public static final String STARTED = "Started";
+    public static final String STARTED = RUNNING;
 
     public OpenShiftRuntimeState() {
     }
