@@ -228,7 +228,8 @@ public class RuntimeServiceImplTest {
         service.createRuntime(providerKey,
                               RUNTIME_ID,
                               gitSource,
-                              PIPELINE_KEY);
+                              PIPELINE_KEY,
+                              null);
 
         verify(pipelineService,
                times(1)).runPipeline(PIPELINE,
@@ -247,7 +248,8 @@ public class RuntimeServiceImplTest {
         service.createRuntime(providerKey,
                               RUNTIME_ID,
                               mock(Source.class),
-                              PIPELINE_KEY);
+                              PIPELINE_KEY,
+                              null);
 
         verify(pipelineService,
                never()).runPipeline(anyString(),
@@ -276,7 +278,8 @@ public class RuntimeServiceImplTest {
         service.createRuntime(providerKey,
                               RUNTIME_ID,
                               mock(Source.class),
-                              PIPELINE_KEY);
+                              PIPELINE_KEY,
+                              null);
 
         verify(pipelineService,
                never()).runPipeline(anyString(),
@@ -301,7 +304,8 @@ public class RuntimeServiceImplTest {
         service.createRuntime(providerKey,
                               "irrelevant for the test",
                               mock(Source.class),
-                              mock(PipelineKey.class));
+                              mock(PipelineKey.class),
+                              null);
     }
 
     @Test

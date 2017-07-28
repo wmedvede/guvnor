@@ -99,6 +99,8 @@ public class NewDeployWizardTest
         runtimeServiceCaller = spy(new CallerMock<>(runtimeService));
         wizard = new NewDeployWizard(selectPipelinePage,
                                      sourceConfigPage,
+                                     null,
+                                     null,
                                      popupHelper,
                                      translationService,
                                      runtimeServiceCaller,
@@ -128,7 +130,8 @@ public class NewDeployWizardTest
                times(1)).createRuntime(provider.getKey(),
                                        RUNTIME,
                                        source,
-                                       PIPELINE1_KEY);
+                                       PIPELINE1_KEY,
+                                       null);
         verify(notification,
                times(1)).fire(new NotificationEvent(SUCCESS_MESSAGE,
                                                     NotificationEvent.NotificationType.SUCCESS));
@@ -157,7 +160,8 @@ public class NewDeployWizardTest
                times(1)).createRuntime(provider.getKey(),
                                        RUNTIME,
                                        source,
-                                       PIPELINE1_KEY);
+                                       PIPELINE1_KEY,
+                                       null);
 
         verify(defaultErrorCallback,
                times(1)).error(any(Message.class),

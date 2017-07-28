@@ -16,6 +16,10 @@
 
 package org.guvnor.ala.ui.openshift.client.resources.i18n;
 
+import org.jboss.errai.ui.shared.api.annotations.TranslationKey;
+
 public class GuvnorAlaOpenShiftUIConstants {
 
+    @TranslationKey(defaultValue = "")
+    public static final String OSEPipelineParamsFormView_Title = "OSEPipelineParamsFormView.Title";
 }
