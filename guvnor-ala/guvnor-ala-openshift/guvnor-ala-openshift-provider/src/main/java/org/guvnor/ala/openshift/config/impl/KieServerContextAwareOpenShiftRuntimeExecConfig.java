@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.APPLICATION_NAME;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.PROJECT_NAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_SECRETS_URI;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_STREAMS_URI;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.RESOURCE_TEMPLATE_PARAM_VALUES;
@@ -101,27 +102,39 @@ public class KieServerContextAwareOpenShiftRuntimeExecConfig
                 logger.warn("It was not possible to get the " + RESOURCE_TEMPLATE_URI.inputKey());
             }
 
+            String projectName;
+            if (!input.containsKey(PROJECT_NAME.inputKey())) {
+                projectName = runtimeName;
+                setProjectName(runtimeName);
+            } else {
+                projectName = input.get(PROJECT_NAME.inputKey());
+            }
+
+            String applicationName;
             if (!input.containsKey(APPLICATION_NAME.inputKey())) {
-                setApplicationName(runtimeName);
+                applicationName = runtimeName;
+                setApplicationName(applicationName);
+            } else {
+                applicationName = input.get(APPLICATION_NAME.inputKey());
             }
 
             if (!input.containsKey(SERVICE_NAME.inputKey())) {
-                setServiceName(runtimeName + "-execserv");
+                setServiceName(applicationName + "-execserv");
             }
 
             if (!input.containsKey(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey())) {
 
                 OpenShiftParameters params = new OpenShiftParameters();
 
-                String applicationName = setOpenShiftParam(input,
-                                                           params,
-                                                           "APPLICATION_NAME",
-                                                           runtimeName);
+                setOpenShiftParam(input,
+                                  params,
+                                  "APPLICATION_NAME",
+                                  applicationName);
 
                 setOpenShiftParam(input,
                                   params,
                                   "IMAGE_STREAM_NAMESPACE",
-                                  applicationName);
+                                  projectName);
 
                 setOpenShiftParam(input,
                                   params,
