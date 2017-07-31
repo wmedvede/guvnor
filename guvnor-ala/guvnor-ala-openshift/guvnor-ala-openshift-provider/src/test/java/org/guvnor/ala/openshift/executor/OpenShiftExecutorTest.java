@@ -16,6 +16,7 @@
 package org.guvnor.ala.openshift.executor;
 
 import static java.util.Arrays.asList;
+import static org.guvnor.ala.config.RuntimeConfig.RUNTIME_NAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.APPLICATION_NAME;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
 import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
@@ -46,6 +47,7 @@ import org.guvnor.ala.openshift.config.OpenShiftParameters;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
 import org.guvnor.ala.openshift.config.OpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.ContextAwareOpenShiftRuntimeExecConfig;
+import org.guvnor.ala.openshift.config.impl.KieServerContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.OpenShiftProviderConfigImpl;
 import org.guvnor.ala.openshift.config.impl.OpenShiftRuntimeConfigImpl;
 import org.guvnor.ala.openshift.model.OpenShiftRuntime;
@@ -70,7 +72,7 @@ public class OpenShiftExecutorTest {
      * Make sure we can reuse the provider for two different runtimes.
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testProviderConfigReuse() throws Exception {
         OpenShiftProviderConfigImpl providerConfig = new OpenShiftProviderConfigImpl().clear();
         providerConfig.setName(getClass().getSimpleName());
@@ -112,7 +114,7 @@ public class OpenShiftExecutorTest {
      * Tests the ALA pipeline and runtime lifecycle
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testPipelineAndLifecycle() throws Exception {
         final RuntimeRegistry runtimeRegistry = new InMemoryRuntimeRegistry();
         final OpenShiftAccessInterface openshiftAccessInterface = new OpenShiftAccessInterfaceImpl();
@@ -177,6 +179,87 @@ public class OpenShiftExecutorTest {
         openshiftRuntimeExecExecutor.destroy( openshiftRuntime );
         openshiftRuntime = getRuntime(runtimeRegistry, runtimeManager, openshiftRuntime, false);
         assertNull( openshiftRuntime );
+
+        openshiftAccessInterface.dispose();
+    }
+
+    /**
+     * Tests the ALA pipeline and runtime lifecycle
+     * @throws Exception
+     */
+    @Test
+    public void testKieServerContextSettings() throws Exception {
+        final RuntimeRegistry runtimeRegistry = new InMemoryRuntimeRegistry();
+        final OpenShiftAccessInterface openshiftAccessInterface = new OpenShiftAccessInterfaceImpl();
+
+        final Stage<Input, ProviderConfig> providerConfig =
+                config( "OpenShift Provider Config", (s) -> new OpenShiftProviderConfig() {} );
+
+        final Stage<ProviderConfig, RuntimeConfig> runtimeExec =
+                config("OpenShift Runtime Config", (s) -> new KieServerContextAwareOpenShiftRuntimeExecConfig() );
+
+        final Pipeline pipe = PipelineFactory
+                .startFrom( providerConfig )
+                .andThen( runtimeExec )
+                .buildAs( "my pipe" );
+
+        final OpenShiftRuntimeExecExecutor<OpenShiftRuntimeExecConfig> openshiftRuntimeExecExecutor = new OpenShiftRuntimeExecExecutor<>( runtimeRegistry, openshiftAccessInterface );
+        final PipelineExecutor executor = new PipelineExecutor( asList(
+                new OpenShiftProviderConfigExecutor( runtimeRegistry ),
+                openshiftRuntimeExecExecutor ) );
+
+        final String pvrName = getClass().getSimpleName();
+        final String prjName = "guvnor-app1";//createProjectName("testc");
+        final String appName = "myapp";
+        final String svcName = appName + "-execserv";
+
+        String templateParams = new OpenShiftParameters()
+                //.param("APPLICATION_NAME", appName)
+                //.param("IMAGE_STREAM_NAMESPACE", prjName)
+                .param("KIE_SERVER_USER", "uno")
+                .param("KIE_SERVER_PWD", "dos!")
+                .toString();
+
+        Input input = new Input() {{
+            // provider properties
+            put(KUBERNETES_MASTER.inputKey(), "https://ce-os-rhel-master.usersys.redhat.com:8443");
+            put(KUBERNETES_AUTH_BASIC_USERNAME.inputKey(), "admin");
+            put(KUBERNETES_AUTH_BASIC_PASSWORD.inputKey(), "admin");
+            put(PROVIDER_NAME.inputKey(), pvrName);
+
+            // runtime properties
+            put(RUNTIME_NAME, "guvnor-app1");
+            //put(APPLICATION_NAME.inputKey(), appName);
+            //put(PROJECT_NAME.inputKey(), prjName);
+
+            put("KIE_SERVER_USER", "uno");
+            put("KIE_SERVER_PWD", "dos!");
+
+            //put(RESOURCE_SECRETS_URI.inputKey(), getUri("bpmsuite-app-secret.json"));
+            //put(RESOURCE_STREAMS_URI.inputKey(), getUri("jboss-image-streams.json"));
+            //put(RESOURCE_TEMPLATE_PARAM_VALUES.inputKey(), templateParams);
+            //put(RESOURCE_TEMPLATE_URI.inputKey(), getUri("bpmsuite70-execserv.json"));
+            //put(SERVICE_NAME.inputKey(), svcName);
+        }};
+        executor.execute( input, pipe, (Runtime b) -> System.out.println( b ) );
+
+        OpenShiftRuntimeManager runtimeManager = new OpenShiftRuntimeManager( runtimeRegistry, openshiftAccessInterface );
+        OpenShiftRuntime openshiftRuntime = getRuntime(runtimeRegistry, runtimeManager, null, true);
+        assertEquals( OpenShiftRuntimeState.READY, openshiftRuntime.getState().getState() );
+
+        runtimeManager.start( openshiftRuntime );
+        openshiftRuntime = getRuntime(runtimeRegistry, runtimeManager, openshiftRuntime, true);
+        assertEquals( OpenShiftRuntimeState.STARTED, openshiftRuntime.getState().getState() );
+
+        /*
+        runtimeManager.stop( openshiftRuntime );
+        openshiftRuntime = getRuntime(runtimeRegistry, runtimeManager, openshiftRuntime, true);
+        assertEquals( OpenShiftRuntimeState.READY, openshiftRuntime.getState().getState() );
+
+        openshiftRuntimeExecExecutor.destroy( openshiftRuntime );
+        openshiftRuntime = getRuntime(runtimeRegistry, runtimeManager, openshiftRuntime, false);
+        assertNull( openshiftRuntime );
+        */
 
         openshiftAccessInterface.dispose();
     }
