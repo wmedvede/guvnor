@@ -16,9 +16,12 @@
 
 package org.guvnor.ala.services.rest;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.guvnor.ala.config.ProviderConfig;
@@ -26,6 +29,8 @@ import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineConfig;
 import org.guvnor.ala.pipeline.PipelineFactory;
+import org.guvnor.ala.pipeline.PipelineInitializer;
+import org.guvnor.ala.pipeline.ProviderTypePipelineInitializer;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskManager;
 import org.guvnor.ala.pipeline.execution.impl.PipelineExecutorTaskDefImpl;
@@ -53,10 +58,23 @@ public class RestPipelineServiceImpl implements PipelineService {
     @Inject
     public RestPipelineServiceImpl(PipelineExecutorTaskManager executorTaskManager,
                                    PipelineRegistry pipelineRegistry,
-                                   RuntimeRegistry runtimeRegistry) {
+                                   RuntimeRegistry runtimeRegistry,
+                                   final @Any Instance<PipelineInitializer> initializerInstance) {
         this.executorTaskManager = executorTaskManager;
         this.pipelineRegistry = pipelineRegistry;
         this.runtimeRegistry = runtimeRegistry;
+        registerPipelines(initializerInstance.iterator());
+    }
+
+    private void registerPipelines(Iterator<PipelineInitializer> iterator) {
+        iterator.forEachRemaining(pipelineInitializer -> {
+            if (pipelineInitializer instanceof ProviderTypePipelineInitializer) {
+                pipelineRegistry.registerPipeline(pipelineInitializer.getPipeline(),
+                                                  ((ProviderTypePipelineInitializer) pipelineInitializer).getProviderType());
+            } else {
+                pipelineRegistry.registerPipeline(pipelineInitializer.getPipeline());
+            }
+        });
     }
 
     @Override

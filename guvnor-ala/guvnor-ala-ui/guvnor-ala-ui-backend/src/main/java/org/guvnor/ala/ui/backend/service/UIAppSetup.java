@@ -95,9 +95,9 @@ public class UIAppSetup {
 
     @PostConstruct
     private void init() {
-        initPipelines();
+        //initPipelines();
         initOpenshiftProvider();
-        initOpenshiftPipeline();
+        //initOpenshiftPipeline();
     }
 
     protected void initPipelines() {
