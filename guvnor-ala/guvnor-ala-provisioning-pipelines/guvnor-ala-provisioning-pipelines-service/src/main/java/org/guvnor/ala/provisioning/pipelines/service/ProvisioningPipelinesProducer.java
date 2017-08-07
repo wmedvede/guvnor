@@ -18,6 +18,7 @@ package org.guvnor.ala.provisioning.pipelines.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -38,8 +39,9 @@ import org.guvnor.ala.openshift.model.OpenShiftProviderType;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineFactory;
-import org.guvnor.ala.pipeline.ProviderTypePipelineInitializer;
 import org.guvnor.ala.pipeline.Stage;
+import org.guvnor.ala.pipeline.SystemPipelineDescriptor;
+import org.guvnor.ala.runtime.providers.ProviderType;
 import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
 import org.guvnor.ala.source.git.config.GitConfig;
 import org.guvnor.ala.wildfly.config.WildflyProviderConfig;
@@ -56,13 +58,12 @@ public class ProvisioningPipelinesProducer {
     }
 
     @Produces
-    public ProviderTypePipelineInitializer getWildflyPipelineFromStagesInitializer() {
+    public SystemPipelineDescriptor getWildflyPipelineFromStages() {
 
-        return new ProviderTypePipelineInitializer() {
-
+        return new SystemPipelineDescriptor() {
             @Override
-            public org.guvnor.ala.runtime.providers.ProviderType getProviderType() {
-                return WildflyProviderType.instance();
+            public Optional<ProviderType> getProviderType() {
+                return Optional.of(WildflyProviderType.instance());
             }
 
             @Override
@@ -121,12 +122,12 @@ public class ProvisioningPipelinesProducer {
     }
 
     @Produces
-    public ProviderTypePipelineInitializer getWildflyPipelineFromConfigsInitializer() {
+    public SystemPipelineDescriptor getWildflyPipelineFromConfigs() {
 
-        return new ProviderTypePipelineInitializer() {
+        return new SystemPipelineDescriptor() {
             @Override
-            public org.guvnor.ala.runtime.providers.ProviderType getProviderType() {
-                return WildflyProviderType.instance();
+            public Optional<ProviderType> getProviderType() {
+                return Optional.of(WildflyProviderType.instance());
             }
 
             @Override
@@ -209,8 +210,14 @@ public class ProvisioningPipelinesProducer {
     }
 
     @Produces
-    public ProviderTypePipelineInitializer getOpenshiftPipelineInitializer() {
-        return new ProviderTypePipelineInitializer() {
+    public SystemPipelineDescriptor getOpenshiftPipeline() {
+        return new SystemPipelineDescriptor() {
+
+            @Override
+            public Optional<ProviderType> getProviderType() {
+                return Optional.of(OpenShiftProviderType.instance());
+            }
+
             @Override
             public Pipeline getPipeline() {
                 final Stage<Input, ProviderConfig> providerConfig =
@@ -228,11 +235,6 @@ public class ProvisioningPipelinesProducer {
                         .buildAs("openshift pipeline");
 
                 return pipe;
-            }
-
-            @Override
-            public org.guvnor.ala.runtime.providers.ProviderType getProviderType() {
-                return OpenShiftProviderType.instance();
             }
         };
     }

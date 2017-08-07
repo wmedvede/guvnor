@@ -38,7 +38,6 @@ import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.config.SourceConfig;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
-import org.guvnor.ala.openshift.config.impl.ContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.KieServerContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.OpenShiftProviderConfigImpl;
 import org.guvnor.ala.openshift.model.OpenShiftProviderType;

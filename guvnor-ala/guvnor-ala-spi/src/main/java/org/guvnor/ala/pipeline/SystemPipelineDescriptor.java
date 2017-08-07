@@ -16,14 +16,23 @@
 
 package org.guvnor.ala.pipeline;
 
+import java.util.Optional;
+
+import org.guvnor.ala.runtime.providers.ProviderType;
+
 /**
- * Contract for components that initializes pipelines.
+ * Contract for components that produces pipelines that will be automatically registered when the system starts.
  */
-public interface PipelineInitializer {
+public interface SystemPipelineDescriptor {
 
     /**
-     * Initializes the pipeline and returns it.
+     * @return the pipeline to be registered.
      */
     Pipeline getPipeline();
 
+    /**
+     * Indicates if the pipeline to be registered must be associated to a given provider type.
+     * @return an optional provider type. If present, the pipeline must be associated to the given provider type.
+     */
+    Optional<ProviderType> getProviderType();
 }

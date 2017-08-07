@@ -29,8 +29,7 @@ import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineConfig;
 import org.guvnor.ala.pipeline.PipelineFactory;
-import org.guvnor.ala.pipeline.PipelineInitializer;
-import org.guvnor.ala.pipeline.ProviderTypePipelineInitializer;
+import org.guvnor.ala.pipeline.SystemPipelineDescriptor;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskManager;
 import org.guvnor.ala.pipeline.execution.impl.PipelineExecutorTaskDefImpl;
@@ -59,20 +58,20 @@ public class RestPipelineServiceImpl implements PipelineService {
     public RestPipelineServiceImpl(PipelineExecutorTaskManager executorTaskManager,
                                    PipelineRegistry pipelineRegistry,
                                    RuntimeRegistry runtimeRegistry,
-                                   final @Any Instance<PipelineInitializer> initializerInstance) {
+                                   final @Any Instance<SystemPipelineDescriptor> pipelineDescriptorInstance) {
         this.executorTaskManager = executorTaskManager;
         this.pipelineRegistry = pipelineRegistry;
         this.runtimeRegistry = runtimeRegistry;
-        registerPipelines(initializerInstance.iterator());
+        registerPipelines(pipelineDescriptorInstance.iterator());
     }
 
-    private void registerPipelines(Iterator<PipelineInitializer> iterator) {
-        iterator.forEachRemaining(pipelineInitializer -> {
-            if (pipelineInitializer instanceof ProviderTypePipelineInitializer) {
-                pipelineRegistry.registerPipeline(pipelineInitializer.getPipeline(),
-                                                  ((ProviderTypePipelineInitializer) pipelineInitializer).getProviderType());
+    private void registerPipelines(Iterator<SystemPipelineDescriptor> iterator) {
+        iterator.forEachRemaining(pipelineDescriptor -> {
+            if (pipelineDescriptor.getProviderType().isPresent()) {
+                pipelineRegistry.registerPipeline(pipelineDescriptor.getPipeline(),
+                                                  pipelineDescriptor.getProviderType().get());
             } else {
-                pipelineRegistry.registerPipeline(pipelineInitializer.getPipeline());
+                pipelineRegistry.registerPipeline(pipelineDescriptor.getPipeline());
             }
         });
     }
