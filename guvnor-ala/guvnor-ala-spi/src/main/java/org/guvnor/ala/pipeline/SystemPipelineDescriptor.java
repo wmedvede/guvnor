@@ -25,6 +25,7 @@ import org.guvnor.ala.runtime.providers.ProviderType;
  */
 public interface SystemPipelineDescriptor {
 
+
     /**
      * @return the pipeline to be registered.
      */
@@ -35,4 +36,10 @@ public interface SystemPipelineDescriptor {
      * @return an optional provider type. If present, the pipeline must be associated to the given provider type.
      */
     Optional<ProviderType> getProviderType();
+
+    /**
+     * @return an option containing the InputProcessor that should be applied for the given pipeline.
+     */
+    Optional<InputProcessor> getInputProcessor();
+
 }

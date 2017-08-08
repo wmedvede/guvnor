@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.pipeline.InputProcessor;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineConfig;
 import org.guvnor.ala.pipeline.PipelineFactory;
@@ -72,6 +73,10 @@ public class RestPipelineServiceImpl implements PipelineService {
                                                   pipelineDescriptor.getProviderType().get());
             } else {
                 pipelineRegistry.registerPipeline(pipelineDescriptor.getPipeline());
+            }
+            if (pipelineDescriptor.getInputProcessor().isPresent()) {
+                pipelineRegistry.registerInputProcessor(pipelineDescriptor.getPipeline(),
+                                                        pipelineDescriptor.getInputProcessor().get());
             }
         });
     }
@@ -154,10 +159,15 @@ public class RestPipelineServiceImpl implements PipelineService {
                               final Input input,
                               final boolean async) throws BusinessException {
         final Pipeline pipeline = pipelineRegistry.getPipelineByName(pipelineId);
+        Input processedInput = input;
         if (pipeline == null) {
             throw new BusinessException("Pipeline: " + pipelineId + " was not found.");
         }
-        String providerName = input.get(ProviderConfig.PROVIDER_NAME);
+        final InputProcessor inputProcessor = pipelineRegistry.getInputProcessor(pipeline.getName());
+        if (inputProcessor != null) {
+            processedInput = inputProcessor.processInput(input);
+        }
+        String providerName = processedInput.get(ProviderConfig.PROVIDER_NAME);
         Provider provider = null;
         ProviderType providerType = null;
         PipelineExecutorTaskDef taskDef;
@@ -171,15 +181,15 @@ public class RestPipelineServiceImpl implements PipelineService {
 
         if (provider != null) {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input,
+                                                      processedInput,
                                                       provider);
         } else if (providerType != null) {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input,
+                                                      processedInput,
                                                       providerType);
         } else {
             taskDef = new PipelineExecutorTaskDefImpl(pipeline,
-                                                      input);
+                                                      processedInput);
         }
 
         return executorTaskManager.execute(taskDef,

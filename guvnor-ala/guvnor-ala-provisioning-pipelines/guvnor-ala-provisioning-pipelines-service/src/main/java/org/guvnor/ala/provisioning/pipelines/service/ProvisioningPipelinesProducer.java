@@ -34,9 +34,11 @@ import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.config.SourceConfig;
 import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
+import org.guvnor.ala.openshift.config.impl.ContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.config.impl.KieServerContextAwareOpenShiftRuntimeExecConfig;
 import org.guvnor.ala.openshift.model.OpenShiftProviderType;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.pipeline.InputProcessor;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineFactory;
 import org.guvnor.ala.pipeline.Stage;
@@ -117,6 +119,11 @@ public class ProvisioningPipelinesProducer {
                         .andThen(runtimeExecStage).buildAs("pipeline from stages");
 
                 return pipeline1;
+            }
+
+            @Override
+            public Optional<InputProcessor> getInputProcessor() {
+                return Optional.empty();
             }
         };
     }
@@ -206,6 +213,11 @@ public class ProvisioningPipelinesProducer {
 
                 return pipeline2;
             }
+
+            @Override
+            public Optional<InputProcessor> getInputProcessor() {
+                return Optional.empty();
+            }
         };
     }
 
@@ -227,7 +239,7 @@ public class ProvisioningPipelinesProducer {
 
                 final Stage<ProviderConfig, RuntimeConfig> runtimeExec =
                         config("OpenShift Runtime Config",
-                               (s) -> new KieServerContextAwareOpenShiftRuntimeExecConfig());
+                               (s) -> new ContextAwareOpenShiftRuntimeExecConfig());
 
                 final Pipeline pipe = PipelineFactory
                         .startFrom(providerConfig)
@@ -235,6 +247,11 @@ public class ProvisioningPipelinesProducer {
                         .buildAs("openshift pipeline");
 
                 return pipe;
+            }
+
+            @Override
+            public Optional<InputProcessor> getInputProcessor() {
+                return Optional.of(new OpenShiftRuntimeInputProcessor());
             }
         };
     }

@@ -23,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 
+import org.guvnor.ala.pipeline.InputProcessor;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.registry.PipelineRegistry;
 import org.guvnor.ala.registry.inmemory.util.PageSortUtil;
@@ -34,11 +35,13 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 public class InMemoryPipelineRegistry
         implements PipelineRegistry {
 
+    protected Map<String, PipelineRegistryEntry> pipelineByName = new ConcurrentHashMap<>();
+
+    protected Map<String, InputProcessor> inputProcessorByName = new ConcurrentHashMap<>();
+
     public InMemoryPipelineRegistry() {
         //Empty constructor for Weld proxying
     }
-
-    protected Map<String, PipelineRegistryEntry> pipelineByName = new ConcurrentHashMap<>();
 
     @Override
     public void registerPipeline(final Pipeline pipeline) {
@@ -131,6 +134,24 @@ public class InMemoryPipelineRegistry
                                      pageSize,
                                      sort,
                                      sortOrder);
+    }
+
+    @Override
+    public void registerInputProcessor(final Pipeline pipeline,
+                                       final InputProcessor inputProcessor) {
+        checkNotNull("pipeline",
+                     pipeline);
+        checkNotNull("inputProcessor",
+                     inputProcessor);
+        inputProcessorByName.put(pipeline.getName(),
+                                 inputProcessor);
+    }
+
+    @Override
+    public InputProcessor getInputProcessor(final String pipelineId) {
+        checkNotNull("pipelineId",
+                     pipelineId);
+        return inputProcessorByName.get(pipelineId);
     }
 
     private static class PipelineRegistryEntry {
