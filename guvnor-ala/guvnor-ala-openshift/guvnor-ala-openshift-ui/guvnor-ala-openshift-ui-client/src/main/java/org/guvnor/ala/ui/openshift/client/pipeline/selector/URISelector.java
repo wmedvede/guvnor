@@ -38,6 +38,8 @@ public class URISelector {
         URISelectorPageRow getSelectedRow();
 
         void show();
+
+        void show(final String title);
     }
 
     private final View view;
@@ -59,7 +61,8 @@ public class URISelector {
         dataProvider.addDataDisplay(view.getDisplay());
     }
 
-    public void show(final List<URIInfo> uriInfos,
+    public void show(final String title,
+                     final List<URIInfo> uriInfos,
                      final ParameterizedCommand<URIInfo> onSelectCommand,
                      final Command onCloseCommand) {
         this.onSelectCommand = onSelectCommand;
@@ -70,7 +73,7 @@ public class URISelector {
             dataProvider.getList().add(new URISelectorPageRow(uriInfo));
         }
         dataProvider.flush();
-        view.show();
+        view.show(title);
     }
 
     public void onClose() {

@@ -70,7 +70,7 @@ public class URISelectorViewImpl
             }
         };
         dataGrid.addColumn(uriColumn,
-                           "URI Column");
+                           "URL Column");
         Column<URISelectorPageRow, String> selectorColumn = new Column<URISelectorPageRow, String>(
                 new ButtonCell(ButtonType.PRIMARY,
                                ButtonSize.SMALL)) {
@@ -90,7 +90,7 @@ public class URISelectorViewImpl
                            "");
 
         this.modal = new BaseModal();
-        this.modal.setTitle("URI Selector");
+        this.modal.setTitle("URL Selector");
         this.modal.setBody(ElementWrapperWidget.getWidget(this.getElement()));
         this.modal.addHiddenHandler(event -> {
             if (!cancelNextHiddenEvent) {
@@ -118,5 +118,11 @@ public class URISelectorViewImpl
     public void show() {
         cancelNextHiddenEvent = false;
         modal.show();
+    }
+
+    @Override
+    public void show(final String title) {
+        this.modal.setTitle(title);
+        show();
     }
 }

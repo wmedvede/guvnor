@@ -21,5 +21,21 @@ import org.jboss.errai.ui.shared.api.annotations.TranslationKey;
 public class GuvnorAlaOpenShiftUIConstants {
 
     @TranslationKey(defaultValue = "")
-    public static final String OSEPipelineParamsFormView_Title = "OSEPipelineParamsFormView.Title";
+    public static final String TemplateParamsFormView_Title = "TemplateParamsFormView.Title";
+
+    @TranslationKey(defaultValue = "")
+    public static final String TemplateParamsFormPresenter_GetTemplateFileConfigError = "TemplateParamsFormPresenter.GetTemplateFileConfigError";
+
+    @TranslationKey(defaultValue = "")
+    public static final String TemplateParamsFormPresenter_RequiredParamsNotCompletedMessage = "TemplateParamsFormPresenter.RequiredParamsNotCompletedMessage";
+
+    @TranslationKey(defaultValue = "")
+    public static final String TemplateParamsTableView_ParamNameColumn="TemplateParamsTableView.ParamNameColumn";
+
+    @TranslationKey(defaultValue = "")
+    public static final String TemplateParamsTableView_ParamValueColumn="TemplateParamsTableView.ParamValueColumn";
+
+    @TranslationKey(defaultValue = "")
+    public static final String TemplateParamsTableView_ParamsEmptyTableCaption="TemplateParamsTableView.ParamsEmptyTableCaption";
+
 }

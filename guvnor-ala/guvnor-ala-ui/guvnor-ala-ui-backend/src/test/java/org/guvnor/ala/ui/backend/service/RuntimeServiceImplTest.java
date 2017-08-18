@@ -39,7 +39,6 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.guvnor.common.services.project.model.Project;
@@ -227,7 +226,6 @@ public class RuntimeServiceImplTest {
 
         service.createRuntime(providerKey,
                               RUNTIME_ID,
-                              gitSource,
                               PIPELINE_KEY,
                               null);
 
@@ -247,7 +245,6 @@ public class RuntimeServiceImplTest {
         expectedException.expectMessage("No provider was found for providerKey: " + providerKey);
         service.createRuntime(providerKey,
                               RUNTIME_ID,
-                              mock(Source.class),
                               PIPELINE_KEY,
                               null);
 
@@ -277,7 +274,6 @@ public class RuntimeServiceImplTest {
         expectedException.expectMessage("A runtime with the given name already exists: " + RUNTIME_ID);
         service.createRuntime(providerKey,
                               RUNTIME_ID,
-                              mock(Source.class),
                               PIPELINE_KEY,
                               null);
 
@@ -303,7 +299,6 @@ public class RuntimeServiceImplTest {
         expectedException.expectMessage(ERROR_MESSAGE);
         service.createRuntime(providerKey,
                               "irrelevant for the test",
-                              mock(Source.class),
                               mock(PipelineKey.class),
                               null);
     }

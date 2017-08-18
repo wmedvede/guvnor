@@ -19,7 +19,6 @@ package org.guvnor.ala.ui.client.wizard.pipeline.params;
 import java.util.Map;
 
 import org.guvnor.ala.ui.client.util.ContentChangeHandler;
-import org.guvnor.ala.ui.model.PipelineKey;
 import org.jboss.errai.common.client.api.IsElement;
 import org.uberfire.client.callbacks.Callback;
 
@@ -34,11 +33,20 @@ public interface PipelineParamsForm {
 
     Map<String, String> buildParams();
 
+    /**
+     * Initialise the form with things that don't change between page visits.
+     */
+    void initialise();
+
+    /**
+     * Prepare the page before it is displayed with things that can change
+     * between page visits
+     */
+    void prepareView();
+
     void clear();
 
-    void isValid(final Callback<Boolean> callback);
+    void isComplete(final Callback<Boolean> callback);
 
     String getWizardTitle();
-
-    boolean accept(final PipelineKey pipelineKey);
 }

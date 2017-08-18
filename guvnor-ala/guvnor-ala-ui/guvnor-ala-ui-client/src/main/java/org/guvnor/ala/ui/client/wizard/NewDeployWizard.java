@@ -16,8 +16,12 @@
 
 package org.guvnor.ala.ui.client.wizard;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -28,13 +32,12 @@ import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.events.RefreshRuntimeEvent;
 import org.guvnor.ala.ui.client.util.PopupHelper;
-import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsPagePresenter;
+import org.guvnor.ala.ui.client.wizard.pipeline.PipelineDescriptor;
 import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsForm;
-import org.guvnor.ala.ui.client.wizard.pipeline.SelectPipelinePagePresenter;
-import org.guvnor.ala.ui.client.wizard.source.SourceConfigurationPagePresenter;
+import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsPagePresenter;
+import org.guvnor.ala.ui.client.wizard.pipeline.select.SelectPipelinePagePresenter;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
-import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
@@ -48,10 +51,11 @@ import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.NewDe
 public class NewDeployWizard
         extends AbstractMultiPageWizard {
 
+    public static final String RUNTIME_NAME = "runtime-name";
+
     private final SelectPipelinePagePresenter selectPipelinePage;
-    private final SourceConfigurationPagePresenter sourceConfigPage;
-    private final PipelineParamsPagePresenter pipelineParamsPage;
-    private final Instance<PipelineParamsForm> pipelineParamForms;
+    private final Instance<PipelineParamsPagePresenter> pipelineParamsPageInstance;
+    private final Instance<PipelineDescriptor> pipelineDescriptorInstance;
     private final PopupHelper popupHelper;
     private final Caller<RuntimeService> runtimeService;
 
@@ -59,13 +63,14 @@ public class NewDeployWizard
 
     private Provider provider;
 
-    private PipelineParamsForm paramsForm;
+    private List<PipelineParamsForm> paramsForms = new ArrayList<>();
+
+    private List<PipelineParamsPagePresenter> paramsPages = new ArrayList<>();
 
     @Inject
     public NewDeployWizard(final SelectPipelinePagePresenter selectPipelinePage,
-                           final SourceConfigurationPagePresenter sourceConfigPage,
-                           final PipelineParamsPagePresenter pipelineParamsPage,
-                           final @Any Instance<PipelineParamsForm> pipelineParamForms,
+                           final Instance<PipelineParamsPagePresenter> pipelineParamsPageInstance,
+                           final @Any Instance<PipelineDescriptor> pipelineDescriptorInstance,
                            final PopupHelper popupHelper,
                            final TranslationService translationService,
                            final Caller<RuntimeService> runtimeService,
@@ -75,9 +80,8 @@ public class NewDeployWizard
               notification);
         this.popupHelper = popupHelper;
         this.selectPipelinePage = selectPipelinePage;
-        this.sourceConfigPage = sourceConfigPage;
-        this.pipelineParamsPage = pipelineParamsPage;
-        this.pipelineParamForms = pipelineParamForms;
+        this.pipelineParamsPageInstance = pipelineParamsPageInstance;
+        this.pipelineDescriptorInstance = pipelineDescriptorInstance;
         this.runtimeService = runtimeService;
         this.refreshRuntimeEvent = refreshRuntimeEvent;
     }
@@ -93,7 +97,6 @@ public class NewDeployWizard
         setDefaultPages();
         clear();
         selectPipelinePage.setup(pipelines);
-        sourceConfigPage.setup();
         super.start();
     }
 
@@ -115,41 +118,44 @@ public class NewDeployWizard
     @Override
     public void complete() {
         final PipelineKey pipeline = selectPipelinePage.getPipeline();
-        final String runtime = sourceConfigPage.getRuntime();
-        final Source source = sourceConfigPage.buildSource();
+
+        Map<String, String> params = buildPipelineParams();
+        final String runtime = params.get(RUNTIME_NAME);
 
         runtimeService.call((Void aVoid) -> onPipelineStartSuccess(),
                             popupHelper.getPopupErrorCallback()).createRuntime(provider.getKey(),
                                                                                runtime,
-                                                                               source,
                                                                                pipeline,
-                                                                               paramsForm != null ? paramsForm.buildParams() : null);
+                                                                               buildPipelineParams());
     }
 
     @Override
     public void onStatusChange(final @Observes WizardPageStatusChangeEvent event) {
         boolean restart = false;
         if (event.getPage() == selectPipelinePage) {
-            PipelineParamsForm oldParamsForm = paramsForm;
+            List<PipelineParamsForm> oldParamsForms = new ArrayList<>();
+            oldParamsForms.addAll(paramsForms);
             if (selectPipelinePage.getPipeline() != null) {
-                paramsForm = getParamsForm(selectPipelinePage.getPipeline());
-                if (paramsForm != null) {
-                    paramsForm.clear();
-                    pipelineParamsPage.setPipelineParamsForm(paramsForm);
+                paramsForms = getParamsForms(selectPipelinePage.getPipeline());
+                if (!paramsForms.isEmpty()) {
+                    paramsForms.forEach(PipelineParamsForm::clear);
+                    paramsForms.forEach(PipelineParamsForm::initialise);
+                    destroyPipelineParamPages(paramsPages);
+                    paramsForms.forEach(form -> paramsPages.add(newPipelineParamsPage(form)));
                     setDefaultPages();
-                    pages.add(pipelineParamsPage);
+                    pages.addAll(paramsPages);
                     restart = true;
-                } else if (oldParamsForm != null) {
+                } else if (!oldParamsForms.isEmpty()) {
                     setDefaultPages();
                     restart = true;
                 }
-            } else if (pages.size() > 2) {
-                paramsForm = null;
+            } else if (pages.size() > 1) {
+                paramsForms.clear();
                 setDefaultPages();
                 restart = true;
             }
-            if (oldParamsForm != null) {
-                oldParamsForm.clear();
+            if (!oldParamsForms.isEmpty()) {
+                oldParamsForms.forEach(PipelineParamsForm::clear);
             }
         }
 
@@ -160,15 +166,19 @@ public class NewDeployWizard
         }
     }
 
-    private PipelineParamsForm getParamsForm(final PipelineKey pipelineKey) {
-        Iterator<PipelineParamsForm> forms = pipelineParamForms.iterator();
-        while (forms.hasNext()) {
-            PipelineParamsForm form = forms.next();
-            if (form.accept(pipelineKey)) {
-                return form;
+    private List<PipelineParamsForm> getParamsForms(final PipelineKey pipelineKey) {
+
+        Iterator<PipelineDescriptor> pipelineDescriptors = pipelineDescriptorInstance.iterator();
+        PipelineDescriptor pipelineDescriptor = null;
+        List<PipelineParamsForm> pipelineForms = new ArrayList<>();
+        while (pipelineDescriptors.hasNext()) {
+            pipelineDescriptor = pipelineDescriptors.next();
+            if (pipelineDescriptor.accept(pipelineKey)) {
+                pipelineForms.addAll(pipelineDescriptor.getParamForms());
+                break;
             }
         }
-        return null;
+        return pipelineForms;
     }
 
     private void onPipelineStartSuccess() {
@@ -178,14 +188,29 @@ public class NewDeployWizard
         refreshRuntimeEvent.fire(new RefreshRuntimeEvent(provider.getKey()));
     }
 
+    private Map<String, String> buildPipelineParams() {
+        Map<String, String> params = new HashMap<>();
+        paramsForms.forEach(form -> params.putAll(form.buildParams()));
+        return params;
+    }
+
     private void setDefaultPages() {
         pages.clear();
         pages.add(selectPipelinePage);
-        pages.add(sourceConfigPage);
     }
 
     private void clear() {
         selectPipelinePage.clear();
-        sourceConfigPage.clear();
+    }
+
+    private PipelineParamsPagePresenter newPipelineParamsPage(PipelineParamsForm paramsForm) {
+        PipelineParamsPagePresenter paramsPage = pipelineParamsPageInstance.get();
+        paramsPage.setPipelineParamsForm(paramsForm);
+        return paramsPage;
+    }
+
+    private void destroyPipelineParamPages(List<PipelineParamsPagePresenter> paramsPages) {
+        paramsPages.forEach(pipelineParamsPageInstance::destroy);
+        paramsPages.clear();
     }
 }

@@ -21,7 +21,6 @@ import javax.inject.Inject;
 
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.ui.client.local.api.IsElement;
-import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
@@ -36,11 +35,8 @@ public class PipelineParamsPageView
     private PipelineParamsPagePresenter presenter;
 
     @Inject
-    @DataField("content")
+    @DataField("page-content")
     private Div content;
-
-    @Inject
-    private TranslationService translationService;
 
     @Override
     public void init(final PipelineParamsPagePresenter presenter) {

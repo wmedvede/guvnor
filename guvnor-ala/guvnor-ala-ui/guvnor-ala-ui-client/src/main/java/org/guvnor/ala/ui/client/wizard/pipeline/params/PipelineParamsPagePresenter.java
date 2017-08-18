@@ -16,8 +16,8 @@
 
 package org.guvnor.ala.ui.client.wizard.pipeline.params;
 
-import java.util.Map;
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -29,6 +29,7 @@ import org.uberfire.client.mvp.UberElement;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPage;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 
+@Dependent
 public class PipelineParamsPagePresenter
         implements WizardPage {
 
@@ -63,15 +64,17 @@ public class PipelineParamsPagePresenter
 
     @Override
     public void initialise() {
+        pipelineParamsForm.initialise();
     }
 
     @Override
     public void prepareView() {
+        pipelineParamsForm.prepareView();
     }
 
     @Override
     public void isComplete(final Callback<Boolean> callback) {
-        pipelineParamsForm.isValid(callback);
+        pipelineParamsForm.isComplete(callback);
     }
 
     @Override
@@ -88,10 +91,6 @@ public class PipelineParamsPagePresenter
         if (pipelineParamsForm != null) {
             pipelineParamsForm.clear();
         }
-    }
-
-    public Map<String, String> buildParams() {
-        return pipelineParamsForm.buildParams();
     }
 
     protected void onContentChanged() {

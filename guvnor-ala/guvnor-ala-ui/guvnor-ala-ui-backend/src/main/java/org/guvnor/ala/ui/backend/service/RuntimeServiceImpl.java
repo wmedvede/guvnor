@@ -156,15 +156,12 @@ public class RuntimeServiceImpl
     @Override
     public PipelineExecutionTraceKey createRuntime(final ProviderKey providerKey,
                                                    final String runtimeName,
-                                                   final Source source,
                                                    final PipelineKey pipelineKey,
                                                    final Map<String, String> params) {
         checkNotNull("providerKey",
                      providerKey);
         checkNotNull("runtimeName",
                      runtimeName);
-        checkNotNull("source",
-                     source);
         checkNotNull("pipelineKey",
                      pipelineKey);
 
@@ -174,7 +171,6 @@ public class RuntimeServiceImpl
             final Input input = PipelineInputBuilder.newInstance()
                     .withRuntimeName(runtimeName)
                     .withProvider(providerKey)
-                    .withSource(source)
                     .withParams(params)
                     .build();
             return new PipelineExecutionTraceKey(pipelineService.runPipeline(pipelineKey.getId(),
