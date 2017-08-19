@@ -19,6 +19,7 @@ package org.guvnor.ala.ui.backend.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.guvnor.ala.pipeline.Input;
@@ -31,7 +32,6 @@ import org.guvnor.ala.ui.events.PipelineExecutionChange;
 import org.guvnor.ala.ui.events.PipelineExecutionChangeEvent;
 import org.guvnor.ala.ui.events.RuntimeChange;
 import org.guvnor.ala.ui.events.RuntimeChangeEvent;
-import org.guvnor.ala.ui.model.InternalGitSource;
 import org.guvnor.ala.ui.model.PipelineExecutionTraceKey;
 import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
@@ -67,12 +67,6 @@ public class RuntimeServiceImplTest {
 
     private static final String RUNTIME_ID = "RUNTIME_ID";
 
-    private static final String OU = "OU";
-
-    private static final String REPOSITORY = "REPOSITORY";
-
-    private static final String BRANCH = "BRANCH";
-
     private static final String PROJECT_NAME = "PROJECT_NAME";
 
     private static final String PIPELINE = "PIPELINE";
@@ -80,6 +74,8 @@ public class RuntimeServiceImplTest {
     private static final String PIPELINE_EXECUTION_ID = "PIPELINE_EXECUTION_ID";
 
     private static final PipelineKey PIPELINE_KEY = new PipelineKey(PIPELINE);
+
+    private static final int PARAMS_COUNT = 5;
 
     @Mock
     private Project project;
@@ -206,11 +202,7 @@ public class RuntimeServiceImplTest {
                                                               PROVIDER_VERSION);
         ProviderKey providerKey = new ProviderKey(providerTypeKey,
                                                   PROVIDER_ID);
-
-        InternalGitSource gitSource = new InternalGitSource(OU,
-                                                            REPOSITORY,
-                                                            BRANCH,
-                                                            project);
+        Map<String, String> params = PipelineInputBuilderTest.mockParams(PARAMS_COUNT);
 
         List<RuntimeQueryResultItem> items = mock(List.class);
         when(providerService.getProvider(providerKey)).thenReturn(provider);
@@ -222,12 +214,12 @@ public class RuntimeServiceImplTest {
         Input expectedInput = PipelineInputBuilder.newInstance()
                 .withProvider(providerKey)
                 .withRuntimeName(RUNTIME_ID)
-                .withSource(gitSource).build();
+                .withParams(params).build();
 
         service.createRuntime(providerKey,
                               RUNTIME_ID,
                               PIPELINE_KEY,
-                              null);
+                              params);
 
         verify(pipelineService,
                times(1)).runPipeline(PIPELINE,
@@ -275,7 +267,7 @@ public class RuntimeServiceImplTest {
         service.createRuntime(providerKey,
                               RUNTIME_ID,
                               PIPELINE_KEY,
-                              null);
+                              mock(Map.class));
 
         verify(pipelineService,
                never()).runPipeline(anyString(),
@@ -300,7 +292,7 @@ public class RuntimeServiceImplTest {
         service.createRuntime(providerKey,
                               "irrelevant for the test",
                               mock(PipelineKey.class),
-                              null);
+                              mock(Map.class));
     }
 
     @Test

@@ -31,9 +31,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import static org.guvnor.ala.ui.openshift.client.provider.OSEProviderConfigPresenter.MASTER_URL;
-import static org.guvnor.ala.ui.openshift.client.provider.OSEProviderConfigPresenter.PASSWORD;
-import static org.guvnor.ala.ui.openshift.client.provider.OSEProviderConfigPresenter.USER;
+import static org.guvnor.ala.ui.openshift.client.provider.OpenShiftProviderConfigPresenter.MASTER_URL;
+import static org.guvnor.ala.ui.openshift.client.provider.OpenShiftProviderConfigPresenter.PASSWORD;
+import static org.guvnor.ala.ui.openshift.client.provider.OpenShiftProviderConfigPresenter.USER;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -51,16 +51,16 @@ public class OpenShiftProviderConfigPresenterTest {
     private static final String EMPTY_VALUE = "";
 
     @Mock
-    private OSEProviderConfigPresenter.View view;
+    private OpenShiftProviderConfigPresenter.View view;
 
-    private OSEProviderConfigPresenter presenter;
+    private OpenShiftProviderConfigPresenter presenter;
 
     @Mock
     private ContentChangeHandler changeHandler;
 
     @Before
     public void setUp() {
-        presenter = new OSEProviderConfigPresenter(view);
+        presenter = new OpenShiftProviderConfigPresenter(view);
         presenter.init();
         verify(view,
                times(1)).init(presenter);

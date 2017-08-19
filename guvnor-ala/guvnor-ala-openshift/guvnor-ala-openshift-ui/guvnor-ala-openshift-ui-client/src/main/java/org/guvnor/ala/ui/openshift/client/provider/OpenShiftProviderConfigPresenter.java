@@ -33,7 +33,7 @@ import org.uberfire.client.mvp.UberElement;
 import static org.guvnor.ala.ui.client.util.UIUtil.getStringValue;
 
 @Dependent
-public class OSEProviderConfigPresenter
+public class OpenShiftProviderConfigPresenter
         extends AbstractHasContentChangeHandlers
         implements ProviderConfigurationForm {
 
@@ -44,7 +44,7 @@ public class OSEProviderConfigPresenter
     protected static final String PASSWORD = "kubernetes-auth-basic-password";
 
     public interface View
-            extends UberElement<OSEProviderConfigPresenter> {
+            extends UberElement<OpenShiftProviderConfigPresenter> {
 
         String getProviderName();
 
@@ -82,7 +82,7 @@ public class OSEProviderConfigPresenter
     private final View view;
 
     @Inject
-    public OSEProviderConfigPresenter(final View view) {
+    public OpenShiftProviderConfigPresenter(final View view) {
         this.view = view;
     }
 

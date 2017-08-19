@@ -18,7 +18,6 @@ package org.guvnor.ala.ui.client.util;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.google.gwt.core.client.Scheduler;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.ErrorCallback;
 import org.uberfire.ext.widgets.common.client.common.BusyPopup;
@@ -57,7 +56,7 @@ public class PopupHelper
 
     @Override
     public void showBusyIndicator(final String message) {
-        Scheduler.get().scheduleDeferred(()-> BusyPopup.showMessage(message));
+        BusyPopup.showMessage(message);
     }
 
     @Override

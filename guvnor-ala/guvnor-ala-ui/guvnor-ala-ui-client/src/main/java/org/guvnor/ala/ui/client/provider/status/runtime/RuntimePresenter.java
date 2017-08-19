@@ -528,11 +528,14 @@ public class RuntimePresenter {
         return popupHelper.getPopupErrorCallback();
     }
 
-    private ErrorCallback<Message> getDefaultErrorCallback(boolean hideBusyPopup) {
-        if (hideBusyPopup) {
-            popupHelper.hideBusyIndicator();
-        }
-        return popupHelper.getPopupErrorCallback();
+    private ErrorCallback<Message> getDefaultErrorCallback(final boolean hideBusyIndicator) {
+        return (message, throwable) -> {
+            if (hideBusyIndicator) {
+                popupHelper.hideBusyIndicator();
+            }
+            return popupHelper.getPopupErrorCallback().error(message,
+                                                             throwable);
+        };
     }
 
     private boolean isFromCurrentPipeline(final PipelineExecutionTraceKey pipelineExecutionTraceKey) {

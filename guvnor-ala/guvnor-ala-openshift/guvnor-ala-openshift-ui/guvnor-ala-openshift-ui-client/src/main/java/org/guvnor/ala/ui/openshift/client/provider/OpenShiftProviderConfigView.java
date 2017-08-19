@@ -37,9 +37,9 @@ import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull
 
 @Dependent
 @Templated
-public class OSEProviderConfigView
+public class OpenShiftProviderConfigView
         implements IsElement,
-                   OSEProviderConfigPresenter.View {
+                   OpenShiftProviderConfigPresenter.View {
 
     @DataField("provider-type-name")
     private HTMLElement providerTypeName = Window.getDocument().createElement("strong");
@@ -76,10 +76,10 @@ public class OSEProviderConfigView
     @DataField("password")
     private TextInput password;
 
-    private OSEProviderConfigPresenter presenter;
+    private OpenShiftProviderConfigPresenter presenter;
 
     @Override
-    public void init(final OSEProviderConfigPresenter presenter) {
+    public void init(final OpenShiftProviderConfigPresenter presenter) {
         this.presenter = presenter;
     }
 

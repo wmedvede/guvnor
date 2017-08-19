@@ -42,7 +42,6 @@ import org.guvnor.ala.ui.model.ProviderKey;
 import org.guvnor.ala.ui.model.ProviderTypeKey;
 import org.guvnor.ala.ui.model.RuntimeKey;
 import org.guvnor.ala.ui.model.RuntimeListItem;
-import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.ProviderService;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.guvnor.common.services.backend.exceptions.ExceptionUtilities;

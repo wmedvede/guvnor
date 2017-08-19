@@ -18,10 +18,12 @@ package org.guvnor.ala.ui.client.wizard.source;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwtmockito.GwtMockitoTestRunner;
+import org.guvnor.ala.ui.client.util.ContentChangeHandler;
 import org.guvnor.ala.ui.client.widget.FormStatus;
-import org.guvnor.ala.ui.model.InternalGitSource;
+import org.guvnor.ala.ui.client.wizard.NewDeployWizard;
 import org.guvnor.ala.ui.service.SourceService;
 import org.guvnor.common.services.project.model.Project;
 import org.jboss.errai.common.client.api.Caller;
@@ -30,9 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 import org.uberfire.mocks.CallerMock;
-import org.uberfire.mocks.EventSourceMock;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -65,7 +65,7 @@ public class SourceConfigurationParamsPresenterTest {
     private Caller<SourceService> sourceServiceCaller;
 
     @Mock
-    private EventSourceMock<WizardPageStatusChangeEvent> wizardPageStatusChangeEvent;
+    private ContentChangeHandler changeHandler;
 
     private SourceConfigurationParamsPresenter presenter;
 
@@ -87,15 +87,16 @@ public class SourceConfigurationParamsPresenterTest {
         sourceServiceCaller = spy(new CallerMock<>(sourceService));
         presenter = new SourceConfigurationParamsPresenter(view,
                                                            sourceServiceCaller);
+        presenter.addContentChangeHandler(changeHandler);
         presenter.init();
         verify(view,
                times(1)).init(presenter);
     }
 
     @Test
-    public void testSetup() {
+    public void testInitialize() {
         when(sourceService.getOrganizationUnits()).thenReturn(ous);
-        presenter.setup();
+        presenter.initialise();
         ous.forEach(ou -> verify(view,
                                  times(1)).addOrganizationUnit(ou));
         verify(view,
@@ -143,7 +144,7 @@ public class SourceConfigurationParamsPresenterTest {
     }
 
     @Test
-    public void testBuildSource() {
+    public void testBuildParams() {
         //emulate the page is completed and that there is a selected project.
         when(view.getRuntimeName()).thenReturn(RUNTIME_NAME);
         when(view.getOU()).thenReturn(OU);
@@ -158,15 +159,15 @@ public class SourceConfigurationParamsPresenterTest {
         String projectName = projects.get(selectedProject).getProjectName();
         when(view.getProject()).thenReturn(projectName);
 
-        InternalGitSource source = (InternalGitSource) presenter.buildSource();
-        assertEquals(OU,
-                     source.getOu());
+        Map<String, String> params = presenter.buildParams();
+        assertEquals(RUNTIME_NAME,
+                     params.get(NewDeployWizard.RUNTIME_NAME));
         assertEquals(REPOSITORY,
-                     source.getRepository());
+                     params.get(SourceConfigurationParamsPresenter.REPO_NAME));
         assertEquals(BRANCH,
-                     source.getBranch());
-        assertEquals(projects.get(selectedProject),
-                     source.getProject());
+                     params.get(SourceConfigurationParamsPresenter.BRANCH));
+        assertEquals(projectName,
+                     params.get(SourceConfigurationParamsPresenter.PROJECT_DIR));
     }
 
     @Test
@@ -174,13 +175,6 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.clear();
         verify(view,
                times(1)).clear();
-    }
-
-    @Test
-    public void testGetRuntime() {
-        when(view.getRuntimeName()).thenReturn(RUNTIME_NAME);
-        assertEquals(RUNTIME_NAME,
-                     presenter.getRuntime());
     }
 
     @Test
@@ -196,7 +190,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onRuntimeNameChange();
         verify(view,
                times(1)).setRuntimeStatus(FormStatus.VALID);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -205,7 +199,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onRuntimeNameChange();
         verify(view,
                times(1)).setRuntimeStatus(FormStatus.ERROR);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -227,7 +221,7 @@ public class SourceConfigurationParamsPresenterTest {
                times(2)).clearProjects();
 
         verityRepositoriesWereLoaded();
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -236,7 +230,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onOrganizationalUnitChange();
         verify(view,
                times(1)).setOUStatus(FormStatus.ERROR);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -254,7 +248,7 @@ public class SourceConfigurationParamsPresenterTest {
                times(2)).clearProjects();
 
         verifyBranchesWereLoaded();
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -263,7 +257,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onRepositoryChange();
         verify(view,
                times(1)).setRepositoryStatus(FormStatus.ERROR);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -282,7 +276,7 @@ public class SourceConfigurationParamsPresenterTest {
                times(2)).clearProjects();
 
         verifyProjectsWereLoaded();
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -291,7 +285,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onBranchChange();
         verify(view,
                times(1)).setBranchStatus(FormStatus.ERROR);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -300,7 +294,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onProjectChange();
         verify(view,
                times(1)).setProjectStatus(FormStatus.VALID);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     @Test
@@ -309,7 +303,7 @@ public class SourceConfigurationParamsPresenterTest {
         presenter.onProjectChange();
         verify(view,
                times(1)).setProjectStatus(FormStatus.ERROR);
-        verifyWizardEvent();
+        verifyHandlerNotified();
     }
 
     private void verityRepositoriesWereLoaded() {
@@ -361,8 +355,8 @@ public class SourceConfigurationParamsPresenterTest {
         return elements;
     }
 
-    private void verifyWizardEvent() {
-        verify(wizardPageStatusChangeEvent,
-               times(1)).fire(any(WizardPageStatusChangeEvent.class));
+    private void verifyHandlerNotified() {
+        verify(changeHandler,
+               times(1)).onContentChange();
     }
 }

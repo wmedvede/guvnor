@@ -87,12 +87,6 @@ public class PipelineParamsPagePresenter
         return ElementWrapperWidget.getWidget(view.getElement());
     }
 
-    public void clear() {
-        if (pipelineParamsForm != null) {
-            pipelineParamsForm.clear();
-        }
-    }
-
     protected void onContentChanged() {
         wizardPageStatusChangeEvent.fire(new WizardPageStatusChangeEvent(PipelineParamsPagePresenter.this));
     }

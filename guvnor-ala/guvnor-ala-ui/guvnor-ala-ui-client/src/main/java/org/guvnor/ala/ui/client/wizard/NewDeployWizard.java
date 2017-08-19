@@ -40,6 +40,7 @@ import org.guvnor.ala.ui.model.PipelineKey;
 import org.guvnor.ala.ui.model.Provider;
 import org.guvnor.ala.ui.service.RuntimeService;
 import org.jboss.errai.common.client.api.Caller;
+import org.jboss.errai.ioc.client.api.ManagedInstance;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.uberfire.ext.widgets.core.client.wizards.WizardPageStatusChangeEvent;
 import org.uberfire.workbench.events.NotificationEvent;
@@ -54,7 +55,7 @@ public class NewDeployWizard
     public static final String RUNTIME_NAME = "runtime-name";
 
     private final SelectPipelinePagePresenter selectPipelinePage;
-    private final Instance<PipelineParamsPagePresenter> pipelineParamsPageInstance;
+    private final ManagedInstance<PipelineParamsPagePresenter> pipelineParamsPageInstance;
     private final Instance<PipelineDescriptor> pipelineDescriptorInstance;
     private final PopupHelper popupHelper;
     private final Caller<RuntimeService> runtimeService;
@@ -69,7 +70,7 @@ public class NewDeployWizard
 
     @Inject
     public NewDeployWizard(final SelectPipelinePagePresenter selectPipelinePage,
-                           final Instance<PipelineParamsPagePresenter> pipelineParamsPageInstance,
+                           final ManagedInstance<PipelineParamsPagePresenter> pipelineParamsPageInstance,
                            final @Any Instance<PipelineDescriptor> pipelineDescriptorInstance,
                            final PopupHelper popupHelper,
                            final TranslationService translationService,
@@ -95,7 +96,6 @@ public class NewDeployWizard
                       final Collection<PipelineKey> pipelines) {
         this.provider = provider;
         setDefaultPages();
-        clear();
         selectPipelinePage.setup(pipelines);
         super.start();
     }
@@ -167,9 +167,8 @@ public class NewDeployWizard
     }
 
     private List<PipelineParamsForm> getParamsForms(final PipelineKey pipelineKey) {
-
         Iterator<PipelineDescriptor> pipelineDescriptors = pipelineDescriptorInstance.iterator();
-        PipelineDescriptor pipelineDescriptor = null;
+        PipelineDescriptor pipelineDescriptor;
         List<PipelineParamsForm> pipelineForms = new ArrayList<>();
         while (pipelineDescriptors.hasNext()) {
             pipelineDescriptor = pipelineDescriptors.next();
@@ -199,17 +198,17 @@ public class NewDeployWizard
         pages.add(selectPipelinePage);
     }
 
-    private void clear() {
-        selectPipelinePage.clear();
+    protected PipelineParamsPagePresenter newPipelineParamsPage() {
+        return pipelineParamsPageInstance.get();
     }
 
-    private PipelineParamsPagePresenter newPipelineParamsPage(PipelineParamsForm paramsForm) {
-        PipelineParamsPagePresenter paramsPage = pipelineParamsPageInstance.get();
+    protected PipelineParamsPagePresenter newPipelineParamsPage(PipelineParamsForm paramsForm) {
+        PipelineParamsPagePresenter paramsPage = newPipelineParamsPage();
         paramsPage.setPipelineParamsForm(paramsForm);
         return paramsPage;
     }
 
-    private void destroyPipelineParamPages(List<PipelineParamsPagePresenter> paramsPages) {
+    protected void destroyPipelineParamPages(List<PipelineParamsPagePresenter> paramsPages) {
         paramsPages.forEach(pipelineParamsPageInstance::destroy);
         paramsPages.clear();
     }

@@ -26,8 +26,6 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsForm;
-import org.guvnor.ala.ui.model.InternalGitSource;
-import org.guvnor.ala.ui.model.Source;
 import org.guvnor.ala.ui.service.SourceService;
 import org.guvnor.common.services.project.model.Project;
 import org.jboss.errai.common.client.api.Caller;
@@ -151,23 +149,16 @@ public class SourceConfigurationParamsPresenter
         return params;
     }
 
-    public Source buildSource() {
-        return new InternalGitSource(getOU(),
-                                     getRepository(),
-                                     getBranch(),
-                                     getProject());
-    }
-
     public void clear() {
         view.clear();
         clearProjects();
     }
 
-    public void setup() {
+    private void setup() {
         loadOUs();
     }
 
-    public String getRuntime() {
+    private String getRuntime() {
         return view.getRuntimeName();
     }
 
