@@ -38,6 +38,7 @@ import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.ArtifactSelectorView_SelectColumn;
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 
 @Dependent
 @Templated
@@ -111,7 +112,7 @@ public class ArtifactSelectorView
 
     @Override
     public void clear() {
-        filter.setValue("");
+        filter.setValue(EMPTY_STRING);
     }
 
     @EventHandler("search-button")

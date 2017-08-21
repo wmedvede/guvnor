@@ -32,6 +32,7 @@ import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
@@ -175,10 +176,10 @@ public class OpenShiftProviderConfigView
     @Override
     public void clear() {
         resetFormState();
-        this.providerName.setValue("");
-        this.masterURL.setValue("");
-        this.username.setValue("");
-        this.password.setValue("");
+        this.providerName.setValue(EMPTY_STRING);
+        this.masterURL.setValue(EMPTY_STRING);
+        this.username.setValue(EMPTY_STRING);
+        this.password.setValue(EMPTY_STRING);
     }
 
     @Override

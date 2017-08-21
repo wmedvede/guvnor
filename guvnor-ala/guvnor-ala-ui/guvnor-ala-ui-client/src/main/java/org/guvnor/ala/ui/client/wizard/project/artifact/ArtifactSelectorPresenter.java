@@ -47,7 +47,9 @@ public class ArtifactSelectorPresenter {
 
     private final ArtifactListPresenter artifactListPresenter;
 
-    private final List<String> FORMATS = Arrays.asList("*.jar");
+    protected final List<String> FORMATS = Arrays.asList("*.jar");
+
+    protected static final String SEARCH_ALL_FILTER = "";
 
     private ArtifactSelectHandler artifactSelectHandler;
 
@@ -63,7 +65,7 @@ public class ArtifactSelectorPresenter {
         artifactListPresenter.notifyOnRefresh(false);
         artifactListPresenter.setup(ColumnType.GAV);
         view.init(this);
-        search("");
+        search(SEARCH_ALL_FILTER);
     }
 
     public View getView() {
@@ -72,7 +74,7 @@ public class ArtifactSelectorPresenter {
 
     public void clear() {
         view.clear();
-        search("");
+        search(SEARCH_ALL_FILTER);
     }
 
     public void refresh() {

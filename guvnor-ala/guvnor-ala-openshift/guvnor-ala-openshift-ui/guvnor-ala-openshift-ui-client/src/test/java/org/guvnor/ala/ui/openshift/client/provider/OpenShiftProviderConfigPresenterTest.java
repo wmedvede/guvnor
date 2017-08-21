@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.guvnor.ala.ui.openshift.client.provider.OpenShiftProviderConfigPresenter.MASTER_URL;
 import static org.guvnor.ala.ui.openshift.client.provider.OpenShiftProviderConfigPresenter.PASSWORD;
 import static org.guvnor.ala.ui.openshift.client.provider.OpenShiftProviderConfigPresenter.USER;
@@ -47,8 +48,6 @@ public class OpenShiftProviderConfigPresenterTest {
     private static final String USER_VALUE = "USER_VALUE";
 
     private static final String PASSWORD_VALUE = "PASSWORD_VALUE";
-
-    private static final String EMPTY_VALUE = "";
 
     @Mock
     private OpenShiftProviderConfigPresenter.View view;
@@ -155,10 +154,10 @@ public class OpenShiftProviderConfigPresenterTest {
 
     @Test
     public void testIsValid() {
-        when(view.getProviderName()).thenReturn(EMPTY_VALUE);
-        when(view.getMasterURL()).thenReturn(EMPTY_VALUE);
-        when(view.getUsername()).thenReturn(EMPTY_VALUE);
-        when(view.getPassword()).thenReturn(EMPTY_VALUE);
+        when(view.getProviderName()).thenReturn(EMPTY_STRING);
+        when(view.getMasterURL()).thenReturn(EMPTY_STRING);
+        when(view.getUsername()).thenReturn(EMPTY_STRING);
+        when(view.getPassword()).thenReturn(EMPTY_STRING);
 
         presenter.isValid(Assert::assertFalse);
 
@@ -199,7 +198,7 @@ public class OpenShiftProviderConfigPresenterTest {
 
     @Test
     public void testOnProviderNameChangeInvalid() {
-        when(view.getProviderName()).thenReturn(EMPTY_VALUE);
+        when(view.getProviderName()).thenReturn(EMPTY_STRING);
         presenter.onProviderNameChange();
         verify(view,
                times(1)).setProviderNameStatus(FormStatus.ERROR);
@@ -219,7 +218,7 @@ public class OpenShiftProviderConfigPresenterTest {
 
     @Test
     public void testOnMasterURLChangeInvalid() {
-        when(view.getMasterURL()).thenReturn(EMPTY_VALUE);
+        when(view.getMasterURL()).thenReturn(EMPTY_STRING);
         presenter.onMasterURLChange();
         verify(view,
                times(1)).setMasterURLStatus(FormStatus.ERROR);
@@ -239,7 +238,7 @@ public class OpenShiftProviderConfigPresenterTest {
 
     @Test
     public void testOnUserChangeInvalid() {
-        when(view.getUsername()).thenReturn(EMPTY_VALUE);
+        when(view.getUsername()).thenReturn(EMPTY_STRING);
         presenter.onUserNameChange();
         verify(view,
                times(1)).setUsernameStatus(FormStatus.ERROR);
@@ -259,7 +258,7 @@ public class OpenShiftProviderConfigPresenterTest {
 
     @Test
     public void testOnPasswordChangeInvalid() {
-        when(view.getPassword()).thenReturn(EMPTY_VALUE);
+        when(view.getPassword()).thenReturn(EMPTY_STRING);
         presenter.onPasswordChange();
         verify(view,
                times(1)).setPasswordStatus(FormStatus.ERROR);

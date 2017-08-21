@@ -23,6 +23,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.guvnor.ala.ui.client.util.AbstractHasContentChangeHandlers;
+import org.guvnor.ala.ui.client.util.PopupHelper;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.guvnor.ala.ui.client.wizard.pipeline.params.PipelineParamsForm;
 import org.guvnor.ala.ui.client.wizard.project.artifact.ArtifactSelectorPresenter;
@@ -33,9 +34,13 @@ import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.ErrorCallback;
 import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.api.RemoteCallback;
-import org.jboss.errai.common.client.dom.HTMLElement;
+import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
+
+import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.GAVConfigurationParamsPresenter_LoadGAVErrorMessage;
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
+import static org.guvnor.ala.ui.client.util.UIUtil.trimOrGetEmpty;
 
 @ApplicationScoped
 public class GAVConfigurationParamsPresenter
@@ -59,7 +64,7 @@ public class GAVConfigurationParamsPresenter
 
         void setVersion(final String version);
 
-        void setArtifactSelectorPresenter(final HTMLElement artifactSelector);
+        void setArtifactSelectorPresenter(final IsElement artifactSelector);
 
         void clear();
 
@@ -80,6 +85,10 @@ public class GAVConfigurationParamsPresenter
 
     private final ArtifactSelectorPresenter artifactSelector;
 
+    private PopupHelper popupHelper;
+
+    private TranslationService translationService;
+
     private final Caller<M2RepoService> m2RepoService;
 
     private final Event<GAVConfigurationChangeEvent> gavConfigurationChangeEvent;
@@ -87,10 +96,14 @@ public class GAVConfigurationParamsPresenter
     @Inject
     public GAVConfigurationParamsPresenter(final View view,
                                            final ArtifactSelectorPresenter artifactSelector,
+                                           final TranslationService translationService,
+                                           final PopupHelper popupHelper,
                                            final Caller<M2RepoService> m2RepoService,
                                            final Event<GAVConfigurationChangeEvent> gavConfigurationChangeEvent) {
         this.view = view;
         this.artifactSelector = artifactSelector;
+        this.popupHelper = popupHelper;
+        this.translationService = translationService;
         this.m2RepoService = m2RepoService;
         this.gavConfigurationChangeEvent = gavConfigurationChangeEvent;
     }
@@ -99,7 +112,7 @@ public class GAVConfigurationParamsPresenter
     public void init() {
         view.init(this);
         artifactSelector.setArtifactSelectHandler(this::onArtifactSelected);
-        view.setArtifactSelectorPresenter(artifactSelector.getView().getElement());
+        view.setArtifactSelectorPresenter(artifactSelector.getView());
     }
 
     @Override
@@ -146,16 +159,16 @@ public class GAVConfigurationParamsPresenter
         return view.getWizardTitle();
     }
 
-    public String getGroupId() {
-        return view.getGroupId().trim();
+    private String getGroupId() {
+        return trimOrGetEmpty(view.getGroupId());
     }
 
-    public String getArtifactId() {
-        return view.getArtifactId().trim();
+    private String getArtifactId() {
+        return trimOrGetEmpty(view.getArtifactId());
     }
 
-    public String getVersion() {
-        return view.getVersion().trim();
+    private String getVersion() {
+        return trimOrGetEmpty(view.getVersion());
     }
 
     protected void onArtifactSelected(final String path) {
@@ -164,7 +177,7 @@ public class GAVConfigurationParamsPresenter
     }
 
     protected void onGroupIdChange() {
-        if (!view.getGroupId().trim().isEmpty()) {
+        if (!getGroupId().isEmpty()) {
             view.setGroupIdStatus(FormStatus.VALID);
         } else {
             view.setGroupIdStatus(FormStatus.ERROR);
@@ -173,7 +186,7 @@ public class GAVConfigurationParamsPresenter
     }
 
     protected void onArtifactIdChange() {
-        if (!view.getArtifactId().trim().isEmpty()) {
+        if (!getArtifactId().isEmpty()) {
             view.setArtifactIdStatus(FormStatus.VALID);
         } else {
             view.setArtifactIdStatus(FormStatus.ERROR);
@@ -182,7 +195,7 @@ public class GAVConfigurationParamsPresenter
     }
 
     protected void onVersionChange() {
-        if (!view.getVersion().trim().isEmpty()) {
+        if (!getVersion().isEmpty()) {
             view.setVersionStatus(FormStatus.VALID);
         } else {
             view.setVersionStatus(FormStatus.ERROR);
@@ -207,15 +220,17 @@ public class GAVConfigurationParamsPresenter
 
     private ErrorCallback<Message> getLoadGAVErrorCallback() {
         return (message, throwable) -> {
-            view.setGroupId("");
-            view.setArtifactId("");
-            view.setVersion("");
+            view.setGroupId(EMPTY_STRING);
+            view.setArtifactId(EMPTY_STRING);
+            view.setVersion(EMPTY_STRING);
+            popupHelper.showErrorPopup(translationService.format(GAVConfigurationParamsPresenter_LoadGAVErrorMessage,
+                                                                 throwable.getMessage()));
             onContentChange();
             return false;
         };
     }
 
-    private void onContentChange() {
+    protected void onContentChange() {
         fireGAVChangeEvent();
         fireChangeHandlers();
     }

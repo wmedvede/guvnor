@@ -27,7 +27,8 @@ import org.uberfire.client.mvp.UberElement;
 
 public class TemplateParamsTablePresenter {
 
-    public interface View extends UberElement<TemplateParamsTablePresenter> {
+    public interface View
+            extends UberElement<TemplateParamsTablePresenter> {
 
         HasData<TemplateParam> getDisplay();
 
@@ -43,7 +44,7 @@ public class TemplateParamsTablePresenter {
 
     private final View view;
 
-    private ListDataProvider<TemplateParam> dataProvider = new ListDataProvider<>();
+    private ListDataProvider<TemplateParam> dataProvider = createDataProvider();
 
     private ParamChangeHandler paramChangeHandler;
 
@@ -85,5 +86,12 @@ public class TemplateParamsTablePresenter {
                                              newValue,
                                              oldValue);
         }
+    }
+
+    /**
+     * for testing purposes.
+     */
+    ListDataProvider<TemplateParam> createDataProvider() {
+        return new ListDataProvider<>();
     }
 }

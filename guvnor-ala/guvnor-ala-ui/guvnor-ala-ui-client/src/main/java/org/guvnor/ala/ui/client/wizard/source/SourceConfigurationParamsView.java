@@ -36,6 +36,7 @@ import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_SelectOption_placeholder;
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.SourceConfigurationPageView_Title;
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
@@ -184,11 +185,11 @@ public class SourceConfigurationParamsView
         clearRepositories();
         clearBranches();
         clearProjects();
-        this.runtimeName.setValue("");
-        this.ous.setValue("");
-        this.repos.setValue("");
-        this.branches.setValue("");
-        this.projects.setValue("");
+        this.runtimeName.setValue(EMPTY_STRING);
+        this.ous.setValue(EMPTY_STRING);
+        this.repos.setValue(EMPTY_STRING);
+        this.branches.setValue(EMPTY_STRING);
+        this.projects.setValue(EMPTY_STRING);
     }
 
     @Override
@@ -305,7 +306,7 @@ public class SourceConfigurationParamsView
         for (int i = 0; i < select.getOptions().getLength(); i++) {
             select.remove(i);
         }
-        select.setInnerHTML("");
+        select.setInnerHTML(EMPTY_STRING);
         select.add(defaultOption(),
                    null);
     }

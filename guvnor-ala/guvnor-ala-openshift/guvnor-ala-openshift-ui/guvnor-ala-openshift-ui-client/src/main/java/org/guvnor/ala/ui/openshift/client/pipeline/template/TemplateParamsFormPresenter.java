@@ -46,12 +46,13 @@ import org.guvnor.common.services.project.model.GAV;
 import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.ErrorCallback;
+import org.jboss.errai.common.client.api.IsElement;
 import org.jboss.errai.common.client.api.RemoteCallback;
-import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.trimOrGetEmpty;
 import static org.guvnor.ala.ui.openshift.client.resources.i18n.GuvnorAlaOpenShiftUIConstants.TemplateParamsFormPresenter_GetTemplateFileConfigError;
 import static org.guvnor.ala.ui.openshift.client.resources.i18n.GuvnorAlaOpenShiftUIConstants.TemplateParamsFormPresenter_RequiredParamsNotCompletedMessage;
 
@@ -135,7 +136,7 @@ public class TemplateParamsFormPresenter
 
         String getWizardTitle();
 
-        void setParamsEditorPresenter(HTMLElement paramsEditorPresenter);
+        void setParamsEditorPresenter(IsElement paramsEditorPresenter);
     }
 
     private final View view;
@@ -170,7 +171,7 @@ public class TemplateParamsFormPresenter
     @PostConstruct
     public void init() {
         view.init(this);
-        view.setParamsEditorPresenter(paramsEditorPresenter.getView().getElement());
+        view.setParamsEditorPresenter(paramsEditorPresenter.getView());
         paramsEditorPresenter.setParamChangeHandler((paramName, newValue, oldValue) -> {
             updateRequiredParamsHelpText();
             onContentChange();
@@ -214,6 +215,13 @@ public class TemplateParamsFormPresenter
         pipelineParams.put(RESOURCE_SECRETS_URI,
                            getSecretsFileURL());
 
+        //if the GAV is selected, add it to the template params.
+        if (selectedGAV != null) {
+            pipelineParams.put(KIE_SERVER_CONTAINER_DEPLOYMENT,
+                               buildContainerParamValue(container,
+                                                        selectedGAV));
+        }
+
         StringBuilder builder = new StringBuilder();
         params.forEach(param -> {
             if (!isBanned(param.getName()) && !isEmpty(param.getValue())) {
@@ -231,15 +239,6 @@ public class TemplateParamsFormPresenter
         addTemplateParam(builder,
                          APPLICATION_NAME_TEMPLATE_PARAM,
                          applicationName);
-
-        //if the GAV is selected, add it to the template params.
-        if (selectedGAV != null) {
-            String containerParamName = container + CONTAINER_SUFFIX;
-            addTemplateParam(builder,
-                             containerParamName,
-                             buildContainerParamValue(container,
-                                                      selectedGAV));
-        }
 
         pipelineParams.put(RESOURCE_TEMPLATE_PARAM_VALUES,
                            builder.toString());
@@ -314,7 +313,7 @@ public class TemplateParamsFormPresenter
         };
     }
 
-    private void setup(final List<TemplateParam> templateParams) {
+    protected void setup(final List<TemplateParam> templateParams) {
         this.params = templateParams.stream().filter(param -> !bannedParameters.contains(param.getName())).collect(Collectors.toList());
         paramsEditorPresenter.setItems(params);
         updateRequiredParamsHelpText();
@@ -371,19 +370,19 @@ public class TemplateParamsFormPresenter
     }
 
     private String getRuntimeName() {
-        return view.getRuntimeName().trim();
+        return trimOrGetEmpty(view.getRuntimeName());
     }
 
     private String getTemplateURL() {
-        return view.getTemplateURL().trim();
+        return trimOrGetEmpty(view.getTemplateURL());
     }
 
     private String getImageStreamsURL() {
-        return view.getImageStreamsURL().trim();
+        return trimOrGetEmpty(view.getImageStreamsURL());
     }
 
     private String getSecretsFileURL() {
-        return view.getSecretsFileURL().trim();
+        return trimOrGetEmpty(view.getSecretsFileURL());
     }
 
     private boolean isEmpty(String value) {
@@ -437,7 +436,8 @@ public class TemplateParamsFormPresenter
 
     private String buildContainerParamValue(final String container,
                                             final GAV gav) {
-        return container + gav.getGroupId() +
+        return container + CONTAINER_SUFFIX + "=" +
+                container + gav.getGroupId() +
                 ":" + container + gav.getArtifactId() +
                 ":" + container + gav.getVersion();
     }

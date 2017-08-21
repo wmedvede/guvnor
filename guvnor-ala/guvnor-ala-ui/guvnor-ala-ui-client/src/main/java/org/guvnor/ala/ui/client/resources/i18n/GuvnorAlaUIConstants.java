@@ -16,7 +16,6 @@
 
 package org.guvnor.ala.ui.client.resources.i18n;
 
-import org.guvnor.ala.ui.client.wizard.project.GAVConfigurationParamsView;
 import org.jboss.errai.ui.shared.api.annotations.TranslationKey;
 
 public class GuvnorAlaUIConstants {
@@ -41,7 +40,7 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String NewProviderWizard_ProviderCreateSuccessMessage = "NewProviderWizard.ProviderCreateSuccessMessage";
-    
+
     @TranslationKey(defaultValue = "")
     public static final String NewProviderWizard_ProviderNotProperlyConfiguredInSystemErrorMessage = "NewProviderWizard.ProviderNotProperlyConfiguredInSystemErrorMessage";
 
@@ -62,6 +61,9 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String GAVConfigurationParamsView_Title = "GAVConfigurationParamsView.Title";
+
+    @TranslationKey(defaultValue = "")
+    public static final String GAVConfigurationParamsPresenter_LoadGAVErrorMessage = "GAVConfigurationParamsPresenter.LoadGAVErrorMessage";
 
     @TranslationKey(defaultValue = "")
     public static final String ArtifactSelectorView_SelectColumn = "ArtifactSelectorView.SelectColumn";
@@ -176,5 +178,4 @@ public class GuvnorAlaUIConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String RuntimePresenter_PipelineExecutionAlreadyStoppedMessage = "RuntimePresenter.PipelineExecutionAlreadyStoppedMessage";
-
 }

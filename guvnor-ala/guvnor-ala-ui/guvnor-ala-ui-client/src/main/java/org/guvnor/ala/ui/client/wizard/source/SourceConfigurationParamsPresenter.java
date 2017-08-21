@@ -34,6 +34,7 @@ import org.uberfire.client.callbacks.Callback;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.ext.widgets.common.client.callbacks.DefaultErrorCallback;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.trimOrGetEmpty;
 import static org.guvnor.ala.ui.client.wizard.NewDeployWizard.RUNTIME_NAME;
 
 @ApplicationScoped
@@ -159,7 +160,7 @@ public class SourceConfigurationParamsPresenter
     }
 
     private String getRuntime() {
-        return view.getRuntimeName();
+        return trimOrGetEmpty(view.getRuntimeName());
     }
 
     private String getBranch() {
@@ -179,7 +180,7 @@ public class SourceConfigurationParamsPresenter
     }
 
     private boolean isValid() {
-        return !getRuntime().trim().isEmpty() &&
+        return !getRuntime().isEmpty() &&
                 !getOU().isEmpty() &&
                 !getRepository().isEmpty() &&
                 !getBranch().isEmpty() &&
@@ -191,7 +192,7 @@ public class SourceConfigurationParamsPresenter
     }
 
     protected void onRuntimeNameChange() {
-        if (!view.getRuntimeName().trim().isEmpty()) {
+        if (!getRuntime().isEmpty()) {
             view.setRuntimeStatus(FormStatus.VALID);
         } else {
             view.setRuntimeStatus(FormStatus.ERROR);

@@ -23,7 +23,6 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
-import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.Span;
 import org.jboss.errai.common.client.dom.TextInput;
 import org.jboss.errai.ui.client.local.api.IsElement;
@@ -33,6 +32,7 @@ import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.guvnor.ala.ui.openshift.client.resources.i18n.GuvnorAlaOpenShiftUIConstants.TemplateParamsFormView_Title;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
@@ -183,15 +183,15 @@ public class TemplateParamsFormView
     public void clearRequiredParamsHelpText() {
         requitedParamsHelpForm.getStyle().setProperty("display",
                                                       "none");
-        requiredParamsHelp.setInnerHTML("");
+        requiredParamsHelp.setInnerHTML(EMPTY_STRING);
     }
 
     @Override
     public void clear() {
-        setRuntimeName("");
-        setTemplateURL("");
-        setImageStreamsURL("");
-        setSecretsFileURL("");
+        setRuntimeName(EMPTY_STRING);
+        setTemplateURL(EMPTY_STRING);
+        setImageStreamsURL(EMPTY_STRING);
+        setSecretsFileURL(EMPTY_STRING);
         clearRequiredParamsHelpText();
         resetFormState();
     }
@@ -202,8 +202,8 @@ public class TemplateParamsFormView
     }
 
     @Override
-    public void setParamsEditorPresenter(HTMLElement paramsEditorPresenter) {
-        paramsEditorPresenterContainer.appendChild(paramsEditorPresenter);
+    public void setParamsEditorPresenter(org.jboss.errai.common.client.api.IsElement paramsEditorPresenter) {
+        paramsEditorPresenterContainer.appendChild(paramsEditorPresenter.getElement());
     }
 
     private void resetFormState() {

@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import org.guvnor.ala.ui.client.widget.FormStatus;
 import org.jboss.errai.common.client.dom.Div;
 import org.jboss.errai.common.client.dom.Event;
-import org.jboss.errai.common.client.dom.HTMLElement;
 import org.jboss.errai.common.client.dom.TextInput;
 import org.jboss.errai.ui.client.local.api.IsElement;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
@@ -31,6 +30,7 @@ import org.jboss.errai.ui.shared.api.annotations.ForEvent;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 import static org.guvnor.ala.ui.client.resources.i18n.GuvnorAlaUIConstants.GAVConfigurationParamsView_Title;
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.guvnor.ala.ui.client.widget.StyleHelper.setFormStatus;
 import static org.uberfire.commons.validation.PortablePreconditions.checkNotNull;
 
@@ -85,9 +85,9 @@ public class GAVConfigurationParamsView
 
     @Override
     public void clear() {
-        groupId.setValue("");
-        artifactId.setValue("");
-        version.setValue("");
+        groupId.setValue(EMPTY_STRING);
+        artifactId.setValue(EMPTY_STRING);
+        version.setValue(EMPTY_STRING);
         resetFormState();
     }
 
@@ -122,8 +122,8 @@ public class GAVConfigurationParamsView
     }
 
     @Override
-    public void setArtifactSelectorPresenter(final HTMLElement artifactSelector) {
-        artifactSelectorContainer.appendChild(artifactSelector);
+    public void setArtifactSelectorPresenter(final org.jboss.errai.common.client.api.IsElement artifactSelector) {
+        artifactSelectorContainer.appendChild(artifactSelector.getElement());
     }
 
     @Override

@@ -32,4 +32,23 @@ public class GAVConfigurationChangeEvent {
     public GAV getGav() {
         return gav;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        GAVConfigurationChangeEvent that = (GAVConfigurationChangeEvent) o;
+
+        return gav != null ? gav.equals(that.gav) : that.gav == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return gav != null ? gav.hashCode() : 0;
+    }
 }

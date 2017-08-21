@@ -32,6 +32,7 @@ import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 import org.uberfire.ext.widgets.common.client.tables.SimpleTable;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.guvnor.ala.ui.openshift.client.resources.i18n.GuvnorAlaOpenShiftUIConstants.TemplateParamsTableView_ParamNameColumn;
 import static org.guvnor.ala.ui.openshift.client.resources.i18n.GuvnorAlaOpenShiftUIConstants.TemplateParamsTableView_ParamValueColumn;
 import static org.guvnor.ala.ui.openshift.client.resources.i18n.GuvnorAlaOpenShiftUIConstants.TemplateParamsTableView_ParamsEmptyTableCaption;
@@ -95,7 +96,7 @@ public class TemplateParamsTableView
                 if (templateParam.getValue() != null) {
                     return templateParam.getValue();
                 } else {
-                    return "";
+                    return EMPTY_STRING;
                 }
             }
         };

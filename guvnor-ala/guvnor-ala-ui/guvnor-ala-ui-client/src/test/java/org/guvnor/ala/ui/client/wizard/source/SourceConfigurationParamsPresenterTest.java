@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.uberfire.mocks.CallerMock;
 
+import static org.guvnor.ala.ui.client.util.UIUtil.EMPTY_STRING;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -43,8 +44,6 @@ public class SourceConfigurationParamsPresenterTest {
     private static final int ELEMENTS_SIZE = 5;
 
     private static final String SOME_VALUE = "SOME_VALUE";
-
-    private static final String EMPTY_VALUE = "";
 
     private static final String RUNTIME_NAME = "RUNTIME_NAME";
 
@@ -111,11 +110,11 @@ public class SourceConfigurationParamsPresenterTest {
 
     @Test
     public void testIsComplete() {
-        when(view.getRuntimeName()).thenReturn(EMPTY_VALUE);
-        when(view.getOU()).thenReturn(EMPTY_VALUE);
-        when(view.getRepository()).thenReturn(EMPTY_VALUE);
-        when(view.getBranch()).thenReturn(EMPTY_VALUE);
-        when(view.getProject()).thenReturn(EMPTY_VALUE);
+        when(view.getRuntimeName()).thenReturn(EMPTY_STRING);
+        when(view.getOU()).thenReturn(EMPTY_STRING);
+        when(view.getRepository()).thenReturn(EMPTY_STRING);
+        when(view.getBranch()).thenReturn(EMPTY_STRING);
+        when(view.getProject()).thenReturn(EMPTY_STRING);
 
         presenter.isComplete(Assert::assertFalse);
 
@@ -195,7 +194,7 @@ public class SourceConfigurationParamsPresenterTest {
 
     @Test
     public void testOnRuntimeChangeInvalid() {
-        when(view.getRuntimeName()).thenReturn(EMPTY_VALUE);
+        when(view.getRuntimeName()).thenReturn(EMPTY_STRING);
         presenter.onRuntimeNameChange();
         verify(view,
                times(1)).setRuntimeStatus(FormStatus.ERROR);
@@ -226,7 +225,7 @@ public class SourceConfigurationParamsPresenterTest {
 
     @Test
     public void testOnOrganizationalUnitChangeInvalid() {
-        when(view.getOU()).thenReturn(EMPTY_VALUE);
+        when(view.getOU()).thenReturn(EMPTY_STRING);
         presenter.onOrganizationalUnitChange();
         verify(view,
                times(1)).setOUStatus(FormStatus.ERROR);
@@ -253,7 +252,7 @@ public class SourceConfigurationParamsPresenterTest {
 
     @Test
     public void testOnRepositoryChangeInvalid() {
-        when(view.getRepository()).thenReturn(EMPTY_VALUE);
+        when(view.getRepository()).thenReturn(EMPTY_STRING);
         presenter.onRepositoryChange();
         verify(view,
                times(1)).setRepositoryStatus(FormStatus.ERROR);
@@ -281,7 +280,7 @@ public class SourceConfigurationParamsPresenterTest {
 
     @Test
     public void testOnBranchChangeInvalid() {
-        when(view.getBranch()).thenReturn(EMPTY_VALUE);
+        when(view.getBranch()).thenReturn(EMPTY_STRING);
         presenter.onBranchChange();
         verify(view,
                times(1)).setBranchStatus(FormStatus.ERROR);
@@ -299,7 +298,7 @@ public class SourceConfigurationParamsPresenterTest {
 
     @Test
     public void testOnProjectChangeInValid() {
-        when(view.getProject()).thenReturn(EMPTY_VALUE);
+        when(view.getProject()).thenReturn(EMPTY_STRING);
         presenter.onProjectChange();
         verify(view,
                times(1)).setProjectStatus(FormStatus.ERROR);

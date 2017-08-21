@@ -53,4 +53,35 @@ public abstract class ConfigRequest<T> {
     public void setConfigType(ConfigType configType) {
         this.configType = configType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ConfigRequest<?> that = (ConfigRequest<?>) o;
+
+        if (sourceType != that.sourceType) {
+            return false;
+        }
+        if (source != null ? !source.equals(that.source) : that.source != null) {
+            return false;
+        }
+        return configType == that.configType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = sourceType != null ? sourceType.hashCode() : 0;
+        result = ~~result;
+        result = 31 * result + (source != null ? source.hashCode() : 0);
+        result = ~~result;
+        result = 31 * result + (configType != null ? configType.hashCode() : 0);
+        result = ~~result;
+        return result;
+    }
 }
