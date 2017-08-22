@@ -172,10 +172,7 @@ public class TemplateParamsFormPresenter
     public void init() {
         view.init(this);
         view.setParamsEditorPresenter(paramsEditorPresenter.getView());
-        paramsEditorPresenter.setParamChangeHandler((paramName, newValue, oldValue) -> {
-            updateRequiredParamsHelpText();
-            onContentChange();
-        });
+        paramsEditorPresenter.setParamChangeHandler((paramName, newValue, oldValue) -> onParamChange());
     }
 
     @Override
@@ -313,7 +310,7 @@ public class TemplateParamsFormPresenter
         };
     }
 
-    protected void setup(final List<TemplateParam> templateParams) {
+    private void setup(final List<TemplateParam> templateParams) {
         this.params = templateParams.stream().filter(param -> !bannedParameters.contains(param.getName())).collect(Collectors.toList());
         paramsEditorPresenter.setItems(params);
         updateRequiredParamsHelpText();
@@ -345,6 +342,7 @@ public class TemplateParamsFormPresenter
         } else {
             view.setImageStreamsURLStatus(FormStatus.VALID);
         }
+        onContentChange();
     }
 
     protected void onSecretsFileURLChange() {
@@ -353,13 +351,19 @@ public class TemplateParamsFormPresenter
         } else {
             view.setSecretsFileURLStatus(FormStatus.VALID);
         }
+        onContentChange();
     }
 
     protected void onGAVConfigurationChange(@Observes final GAVConfigurationChangeEvent event) {
         selectedGAV = event.getGav();
     }
 
-    private void onContentChange() {
+    protected void onParamChange() {
+        updateRequiredParamsHelpText();
+        onContentChange();
+    }
+
+    protected void onContentChange() {
         fireChangeHandlers();
     }
 
