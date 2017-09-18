@@ -18,9 +18,14 @@ package org.guvnor.ala.pipeline.execution;
 
 /**
  * Base class for exceptions related to the pipeline execution.
+ * The cause of the exception is automatically wrapped into an instance of ExceptionWrapper. This wrapping facilitates
+ * the json marshalling/unmarshalling of arbitrary causes. Clients of this class that wants to consume the entire
+ * cause chain should use the getWrappedCause method.
  */
 public class PipelineExecutorException
         extends Exception {
+
+    private ExceptionWrapper wrappedCause;
 
     public PipelineExecutorException(final String message) {
         super(message);
@@ -28,11 +33,11 @@ public class PipelineExecutorException
 
     public PipelineExecutorException(final String message,
                                      final Throwable cause) {
-        super(message,
-              cause);
+        super(message);
+        wrappedCause = ExceptionWrapper.wrapException(cause);
     }
 
-    public PipelineExecutorException(final Throwable cause) {
-        super(cause);
+    public ExceptionWrapper getWrappedCause() {
+        return wrappedCause;
     }
 }
