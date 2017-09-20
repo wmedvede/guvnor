@@ -92,5 +92,13 @@
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
+
+
+    <dependency>
+      <groupId>org.guvnor</groupId>
+      <artifactId>guvnor-ala-openshift-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 </project>
