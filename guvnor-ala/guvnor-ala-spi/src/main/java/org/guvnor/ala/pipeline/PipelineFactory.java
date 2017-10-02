@@ -20,14 +20,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.guvnor.ala.config.Config;
+import org.guvnor.ala.pipeline.impl.BasePipeline;
+import org.guvnor.ala.pipeline.impl.ConfigBasedPipelineImpl;
+import org.guvnor.ala.pipeline.impl.PipelineConfigImpl;
 
-/*
- * Base implementation for the Fluent PipelineBuilder Factory. 
+/**
+ * Base implementation for the pipeline builders instantiation.
  */
 public final class PipelineFactory {
 
     private PipelineFactory() {
-
     }
 
     public static <INPUT extends Config, OUTPUT extends Config> PipelineBuilder<INPUT, OUTPUT> startFrom(final Stage<INPUT, OUTPUT> stage) {
@@ -49,17 +51,33 @@ public final class PipelineFactory {
                 return new BasePipeline(name,
                                         stages);
             }
+        };
+    }
+
+    public static ConfigBasedPipelineBuilder startFrom(final String name,
+                                                       final Config config) {
+
+        return new ConfigBasedPipelineBuilder() {
+
+            private final List<PipelineConfigStage> configStages = new ArrayList<>();
+
+            {
+                configStages.add(new PipelineConfigStage(name,
+                                                         config));
+            }
 
             @Override
-            public Pipeline build(final PipelineConfig config) {
-                stages.clear();
-                for (final Config c : config.getConfigStages()) {
-                    stages.add(StageUtil.config(c.toString(),
-                                                f -> c));
-                }
-                return new BasePipeline(config.getName(),
-                                        stages,
-                                        config);
+            public ConfigBasedPipelineBuilder andThen(final String name,
+                                                      final Config config) {
+                configStages.add(new PipelineConfigStage(name,
+                                                         config));
+                return this;
+            }
+
+            @Override
+            public ConfigBasedPipeline buildAs(String name) {
+                return new ConfigBasedPipelineImpl(new PipelineConfigImpl(name,
+                                                                          configStages));
             }
         };
     }

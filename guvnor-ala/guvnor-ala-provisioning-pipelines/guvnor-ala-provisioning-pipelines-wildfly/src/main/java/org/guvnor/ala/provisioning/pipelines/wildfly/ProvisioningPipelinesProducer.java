@@ -28,7 +28,6 @@ import org.guvnor.ala.build.maven.config.MavenBuildExecConfig;
 import org.guvnor.ala.build.maven.config.MavenProjectConfig;
 import org.guvnor.ala.config.BinaryConfig;
 import org.guvnor.ala.config.BuildConfig;
-import org.guvnor.ala.config.Config;
 import org.guvnor.ala.config.ProjectConfig;
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
@@ -39,7 +38,6 @@ import org.guvnor.ala.pipeline.PipelineFactory;
 import org.guvnor.ala.pipeline.Stage;
 import org.guvnor.ala.pipeline.SystemPipelineDescriptor;
 import org.guvnor.ala.runtime.providers.ProviderType;
-import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
 import org.guvnor.ala.source.git.config.GitConfig;
 import org.guvnor.ala.wildfly.config.WildflyProviderConfig;
 import org.guvnor.ala.wildfly.config.impl.ContextAwareWildflyRuntimeExecConfig;
@@ -138,25 +136,12 @@ public class ProvisioningPipelinesProducer {
 
                 // Create Wildfly Pipeline Configuration
                 final GitConfig gitConfig = new GitConfig() {
-                    @Override
-                    public String toString() {
-                        return "GitConfig";
-                    }
                 };
 
                 final MavenProjectConfig projectConfig = new MavenProjectConfig() {
-                    @Override
-                    public String toString() {
-                        return "MavenProjectConfig";
-                    }
                 };
 
                 final MavenBuildConfig mavenBuildConfig = new MavenBuildConfig() {
-                    @Override
-                    public String toString() {
-                        return "MavenBuildConfig";
-                    }
-
                     @Override
                     public List<String> getGoals() {
                         final List<String> result = new ArrayList<>();
@@ -175,37 +160,28 @@ public class ProvisioningPipelinesProducer {
                 };
 
                 final MavenBuildExecConfig mavenBuildExecConfig = new MavenBuildExecConfig() {
-                    @Override
-                    public String toString() {
-                        return "MavenBuildExecConfig";
-                    }
                 };
 
                 final WildflyProviderConfig wildflyProviderConfig = new WildflyProviderConfig() {
-                    @Override
-                    public String toString() {
-                        return "WildflyProviderConfig";
-                    }
                 };
 
                 final ContextAwareWildflyRuntimeExecConfig wildflyRuntimeExecConfig = new ContextAwareWildflyRuntimeExecConfig() {
-                    @Override
-                    public String toString() {
-                        return "WildflyRuntimeExecConfig";
-                    }
                 };
 
-                final List<Config> configs = new ArrayList<>();
-                configs.add(gitConfig);
-                configs.add(projectConfig);
-                configs.add(mavenBuildConfig);
-                configs.add(mavenBuildExecConfig);
-                configs.add(wildflyProviderConfig);
-                configs.add(wildflyRuntimeExecConfig);
-
-                final PipelineConfigImpl pipelineConfig = new PipelineConfigImpl("pipeline from configs",
-                                                                                 configs);
-                final Pipeline pipeline2 = PipelineFactory.startFrom(null).build(pipelineConfig);
+                final Pipeline pipeline2 = PipelineFactory
+                        .startFrom("GitConfig",
+                                   gitConfig)
+                        .andThen("MavenProjectConfig",
+                                 projectConfig)
+                        .andThen("MavenBuildConfig",
+                                 mavenBuildConfig)
+                        .andThen("MavenBuildExecConfig",
+                                 mavenBuildExecConfig)
+                        .andThen("WildflyProviderConfig",
+                                 wildflyProviderConfig)
+                        .andThen("WildflyRuntimeExecConfig",
+                                 wildflyRuntimeExecConfig)
+                        .buildAs("pipeline from configs");
 
                 return pipeline2;
             }

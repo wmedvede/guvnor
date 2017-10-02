@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.guvnor.ala.marshalling.BaseMarshallerTest;
 import org.guvnor.ala.marshalling.Marshaller;
-import org.guvnor.ala.pipeline.BasePipeline;
+import org.guvnor.ala.pipeline.impl.BasePipeline;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.Stage;

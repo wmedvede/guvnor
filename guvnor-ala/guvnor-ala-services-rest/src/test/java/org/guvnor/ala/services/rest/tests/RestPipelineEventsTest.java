@@ -36,6 +36,7 @@ import org.guvnor.ala.pipeline.BiFunctionConfigExecutor;
 import org.guvnor.ala.pipeline.ConfigExecutor;
 import org.guvnor.ala.pipeline.FunctionConfigExecutor;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.pipeline.PipelineConfigStage;
 import org.guvnor.ala.pipeline.events.AfterPipelineExecutionEvent;
 import org.guvnor.ala.pipeline.events.AfterStageExecutionEvent;
 import org.guvnor.ala.pipeline.events.BeforePipelineExecutionEvent;
@@ -55,7 +56,7 @@ import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderBuilder;
 import org.guvnor.ala.runtime.providers.ProviderType;
 import org.guvnor.ala.services.api.PipelineService;
-import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
+import org.guvnor.ala.pipeline.impl.PipelineConfigImpl;
 import org.guvnor.ala.services.rest.RestPipelineServiceImpl;
 import org.guvnor.ala.services.rest.RestRuntimeProvisioningServiceImpl;
 import org.guvnor.ala.services.rest.factories.ProviderFactory;
@@ -181,9 +182,11 @@ public class RestPipelineEventsTest {
     @Test
     public void testEventsPropagation() {
 
-        List<Config> configs = new ArrayList<>();
-        configs.add(new GitConfigImpl());
-        configs.add(new MavenProjectConfigImpl());
+        List<PipelineConfigStage> configs = new ArrayList<>();
+        configs.add(new PipelineConfigStage("GitConfig",
+                    new GitConfigImpl()));
+        configs.add(new PipelineConfigStage("MavenProjectConfig",
+                                            new MavenProjectConfigImpl()));
 
         pipelineService.newPipeline(new PipelineConfigImpl("mypipe",
                                                            configs));

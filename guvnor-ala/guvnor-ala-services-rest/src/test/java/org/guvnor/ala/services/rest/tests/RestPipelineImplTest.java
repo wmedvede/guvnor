@@ -43,6 +43,7 @@ import org.guvnor.ala.pipeline.BiFunctionConfigExecutor;
 import org.guvnor.ala.pipeline.ConfigExecutor;
 import org.guvnor.ala.pipeline.FunctionConfigExecutor;
 import org.guvnor.ala.pipeline.Input;
+import org.guvnor.ala.pipeline.PipelineConfigStage;
 import org.guvnor.ala.pipeline.execution.PipelineExecutor;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTask;
 import org.guvnor.ala.pipeline.execution.impl.PipelineExecutorTaskManagerImpl;
@@ -61,7 +62,7 @@ import org.guvnor.ala.runtime.providers.ProviderType;
 import org.guvnor.ala.services.api.PipelineService;
 import org.guvnor.ala.services.api.RuntimeProvisioningService;
 import org.guvnor.ala.services.api.RuntimeQueryBuilder;
-import org.guvnor.ala.services.api.backend.PipelineConfigImpl;
+import org.guvnor.ala.pipeline.impl.PipelineConfigImpl;
 import org.guvnor.ala.services.api.itemlist.PipelineConfigsList;
 import org.guvnor.ala.services.api.itemlist.ProviderList;
 import org.guvnor.ala.services.api.itemlist.ProviderTypeList;
@@ -230,15 +231,23 @@ public class RestPipelineImplTest {
         assertEquals(systemPipelines,
                      allPipelineConfigs.getItems().size());
 
-        List<Config> configs = new ArrayList<>();
-        configs.add(new GitConfigImpl());
-        configs.add(new MavenProjectConfigImpl());
-        configs.add(new MavenBuildConfigImpl());
-        configs.add(new DockerBuildConfigImpl());
-        configs.add(new MavenBuildExecConfigImpl());
-        configs.add(new DockerProviderConfigImpl());
-        configs.add(new ContextAwareDockerProvisioningConfig());
-        configs.add(new ContextAwareDockerRuntimeExecConfig());
+        List<PipelineConfigStage> configs = new ArrayList<>();
+        configs.add(new PipelineConfigStage("GitConfig",
+                                            new GitConfigImpl()));
+        configs.add(new PipelineConfigStage("MavenProjectConfig",
+                                            new MavenProjectConfigImpl()));
+        configs.add(new PipelineConfigStage("MavenBuildConfig",
+                                            new MavenBuildConfigImpl()));
+        configs.add(new PipelineConfigStage("DockerBuildConfig",
+                                            new DockerBuildConfigImpl()));
+        configs.add(new PipelineConfigStage("MavenBuildExecConfigImpl",
+                                            new MavenBuildExecConfigImpl()));
+        configs.add(new PipelineConfigStage("DockerProviderConfig",
+                                            new DockerProviderConfigImpl()));
+        configs.add(new PipelineConfigStage("ContextAwareDockerProvisioningConfig",
+                                            new ContextAwareDockerProvisioningConfig()));
+        configs.add(new PipelineConfigStage("ContextAwareDockerRuntimeExecConfig",
+                                            new ContextAwareDockerRuntimeExecConfig()));
 
         pipelineService.newPipeline(new PipelineConfigImpl("mypipe",
                                                            configs));

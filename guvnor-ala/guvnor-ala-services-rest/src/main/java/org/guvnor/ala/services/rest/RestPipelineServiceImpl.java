@@ -25,6 +25,7 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 import org.guvnor.ala.config.ProviderConfig;
+import org.guvnor.ala.pipeline.ConfigBasedPipeline;
 import org.guvnor.ala.pipeline.Input;
 import org.guvnor.ala.pipeline.Pipeline;
 import org.guvnor.ala.pipeline.PipelineConfig;
@@ -33,6 +34,7 @@ import org.guvnor.ala.pipeline.SystemPipelineDescriptor;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskDef;
 import org.guvnor.ala.pipeline.execution.PipelineExecutorTaskManager;
 import org.guvnor.ala.pipeline.execution.impl.PipelineExecutorTaskDefImpl;
+import org.guvnor.ala.pipeline.impl.ConfigBasedPipelineImpl;
 import org.guvnor.ala.registry.PipelineRegistry;
 import org.guvnor.ala.registry.RuntimeRegistry;
 import org.guvnor.ala.runtime.providers.Provider;
@@ -86,8 +88,8 @@ public class RestPipelineServiceImpl implements PipelineService {
                                               pageSize,
                                               sort,
                                               sortOrder).stream()
-                        .filter(p -> p.getConfig() != null)
-                        .map(Pipeline::getConfig)
+                        .filter(p -> p instanceof ConfigBasedPipeline)
+                        .map(p -> ((ConfigBasedPipeline) p).getConfig())
                         .collect(Collectors.toList());
 
         return new PipelineConfigsList(configs);
@@ -108,8 +110,8 @@ public class RestPipelineServiceImpl implements PipelineService {
                                               sort,
                                               sortOrder)
                         .stream()
-                        .filter(p -> p.getConfig() != null)
-                        .map(Pipeline::getConfig)
+                        .filter(p -> p instanceof ConfigBasedPipeline)
+                        .map(p -> ((ConfigBasedPipeline) p).getConfig())
                         .collect(Collectors.toList());
 
         return new PipelineConfigsList(configs);
@@ -135,7 +137,7 @@ public class RestPipelineServiceImpl implements PipelineService {
 
     @Override
     public String newPipeline(PipelineConfig config) throws BusinessException {
-        final Pipeline pipeline = PipelineFactory.startFrom(null).build(config);
+        final Pipeline pipeline = new ConfigBasedPipelineImpl(config);
         pipelineRegistry.registerPipeline(pipeline);
         return config.getName();
     }
@@ -143,7 +145,7 @@ public class RestPipelineServiceImpl implements PipelineService {
     @Override
     public String newPipeline(PipelineConfig config,
                               ProviderType providerType) throws BusinessException {
-        final Pipeline pipeline = PipelineFactory.startFrom(null).build(config);
+        final Pipeline pipeline = new ConfigBasedPipelineImpl(config);
         pipelineRegistry.registerPipeline(pipeline,
                                           providerType);
         return config.getName();

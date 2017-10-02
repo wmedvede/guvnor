@@ -38,10 +38,4 @@ public interface PipelineBuilder<INPUT extends Config, OUTPUT extends Config> {
      */
     Pipeline buildAs(final String name);
 
-    /*
-     * This method builds the pipeline based on the provided PipelineConfig
-     * @param PipelineConfig containing the pipeline configuration
-     * @return the constructed Pipeline
-     */
-    Pipeline build(final PipelineConfig config);
 }

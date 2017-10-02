@@ -38,5 +38,5 @@ public interface PipelineConfig {
      * @return List<Config> for all the stages in the pipeline that will 
      *   be built using this configuration
     */
-    List<Config> getConfigStages();
+    List<PipelineConfigStage> getConfigStages();
 }
