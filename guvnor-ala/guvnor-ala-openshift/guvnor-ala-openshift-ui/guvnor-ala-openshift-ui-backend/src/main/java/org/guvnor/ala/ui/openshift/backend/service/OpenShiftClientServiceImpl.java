@@ -20,11 +20,17 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 import org.guvnor.ala.openshift.access.OpenShiftTemplate;
+import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
+import org.guvnor.ala.services.api.backend.RuntimeProvisioningServiceBackend;
+import org.guvnor.ala.ui.model.ProviderConfiguration;
+import org.guvnor.ala.ui.openshift.backend.handler.OpenShiftBackendProviderHandler;
 import org.guvnor.ala.ui.openshift.model.DefaultSettings;
 import org.guvnor.ala.ui.openshift.model.TemplateDescriptorModel;
 import org.guvnor.ala.ui.openshift.model.TemplateParam;
+import org.guvnor.ala.ui.openshift.model.TestConnectionResult;
 import org.guvnor.ala.ui.openshift.service.OpenShiftClientService;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.slf4j.Logger;
@@ -43,8 +49,19 @@ public class OpenShiftClientServiceImpl
 
     private static final String PROJECT_NAME_EXPRESSION = "(([a-z]+)|([0-9]+)|([\\-]+))+";
 
+    private OpenShiftBackendProviderHandler backendProviderHandler;
+
+    private RuntimeProvisioningServiceBackend runtimeProvisioningService;
+
     public OpenShiftClientServiceImpl() {
         //Empty constructor for Weld proxying
+    }
+
+    @Inject
+    public OpenShiftClientServiceImpl(final OpenShiftBackendProviderHandler backendProviderHandler,
+                                      final RuntimeProvisioningServiceBackend runtimeProvisioningService) {
+        this.backendProviderHandler = backendProviderHandler;
+        this.runtimeProvisioningService = runtimeProvisioningService;
     }
 
     @Override
@@ -82,6 +99,18 @@ public class OpenShiftClientServiceImpl
                 !projectName.startsWith("-") &&
                 !projectName.endsWith("-") &&
                 Pattern.compile(PROJECT_NAME_EXPRESSION).matcher(projectName).matches();
+    }
+
+    //TODO continue here
+    public TestConnectionResult testConnection(final ProviderConfiguration providerConfiguration) {
+
+        @SuppressWarnings("unchecked")
+        OpenShiftProviderConfig openShiftProviderConfig =
+                (OpenShiftProviderConfig) backendProviderHandler.getProviderConfigConverter().toDomain(providerConfiguration);
+
+        org.guvnor.ala.runtime.providers.TestConnectionResult internalResult = runtimeProvisioningService.testConnection(openShiftProviderConfig);
+        return new TestConnectionResult(internalResult.isSuccessful(),
+                                        internalResult.getMessage());
     }
 
     private List<TemplateParam> buildTemplateParams(final OpenShiftTemplate template) {

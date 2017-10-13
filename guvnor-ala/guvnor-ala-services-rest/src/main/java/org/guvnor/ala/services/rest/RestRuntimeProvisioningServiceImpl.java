@@ -30,6 +30,7 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
@@ -40,7 +41,9 @@ import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.runtime.RuntimeEndpoint;
 import org.guvnor.ala.runtime.RuntimeId;
 import org.guvnor.ala.runtime.providers.Provider;
+import org.guvnor.ala.runtime.providers.ProviderId;
 import org.guvnor.ala.runtime.providers.ProviderType;
+import org.guvnor.ala.runtime.providers.TestConnectionResult;
 import org.guvnor.ala.services.api.PipelineStageItem;
 import org.guvnor.ala.services.api.RuntimeProvisioningService;
 import org.guvnor.ala.services.api.RuntimeQuery;
@@ -52,6 +55,7 @@ import org.guvnor.ala.services.api.itemlist.RuntimeList;
 import org.guvnor.ala.services.api.itemlist.RuntimeQueryResultItemList;
 import org.guvnor.ala.services.exceptions.BusinessException;
 import org.guvnor.ala.services.rest.factories.ProviderFactory;
+import org.guvnor.ala.services.rest.factories.ProviderManagerFactory;
 import org.guvnor.ala.services.rest.factories.RuntimeFactory;
 import org.guvnor.ala.services.rest.factories.RuntimeManagerFactory;
 import org.slf4j.Logger;
@@ -68,6 +72,8 @@ public class RestRuntimeProvisioningServiceImpl
 
     private ProviderFactory providerFactory;
 
+    private ProviderManagerFactory providerManagerFactory;
+
     private RuntimeRegistry runtimeRegistry;
 
     private RuntimeFactory runtimeFactory;
@@ -83,12 +89,14 @@ public class RestRuntimeProvisioningServiceImpl
     @Inject
     public RestRuntimeProvisioningServiceImpl(final BeanManager beanManager,
                                               final ProviderFactory providerFactory,
+                                              final ProviderManagerFactory providerManagerFactory,
                                               final RuntimeRegistry runtimeRegistry,
                                               final RuntimeFactory runtimeFactory,
                                               final RuntimeManagerFactory runtimeManagerFactory,
                                               final PipelineExecutorRegistry pipelineExecutorRegistry) {
         this.beanManager = beanManager;
         this.providerFactory = providerFactory;
+        this.providerManagerFactory = providerManagerFactory;
         this.runtimeRegistry = runtimeRegistry;
         this.runtimeFactory = runtimeFactory;
         this.runtimeManagerFactory = runtimeManagerFactory;
@@ -158,6 +166,20 @@ public class RestRuntimeProvisioningServiceImpl
     @Override
     public void deregisterProvider(String name) throws BusinessException {
         runtimeRegistry.deregisterProvider(name);
+    }
+
+    @Override
+    public TestConnectionResult testConnection(String providerId) throws BusinessException {
+        final ProviderId providerById = runtimeRegistry.getProvider(providerId);
+        if (providerById == null) {
+            throw new BusinessException("No provider was found for providerId: " + providerId);
+        }
+        return providerManagerFactory.testConnection(providerById);
+    }
+
+    @Override
+    public TestConnectionResult testConnection(@NotNull ProviderConfig conf) throws BusinessException {
+        return providerManagerFactory.testConnection(conf);
     }
 
     @Override
@@ -387,9 +409,9 @@ public class RestRuntimeProvisioningServiceImpl
                 String host = endpoint.getHost();
                 if (host == null) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn( String.format(
-                                 "Host undefined in RuntimeEndpoint: %s. defaulting to \"localhost\".",
-                                 endpoint) );
+                        LOG.warn(String.format(
+                                "Host undefined in RuntimeEndpoint: %s. defaulting to \"localhost\".",
+                                endpoint));
                     }
                     host = "localhost";
                 }

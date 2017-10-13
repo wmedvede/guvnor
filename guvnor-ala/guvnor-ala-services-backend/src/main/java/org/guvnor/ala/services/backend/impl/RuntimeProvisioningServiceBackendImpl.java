@@ -25,6 +25,7 @@ import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderType;
+import org.guvnor.ala.runtime.providers.TestConnectionResult;
 import org.guvnor.ala.services.api.RuntimeProvisioningService;
 import org.guvnor.ala.services.api.RuntimeQuery;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
@@ -89,6 +90,16 @@ public class RuntimeProvisioningServiceBackendImpl
     @Override
     public void unregisterProvider(String name) throws BusinessException {
         runtimeProvisioningService.deregisterProvider(name);
+    }
+
+    @Override
+    public TestConnectionResult testConnection(final String providerId) throws BusinessException {
+        return runtimeProvisioningService.testConnection(providerId);
+    }
+
+    @Override
+    public TestConnectionResult testConnection(final ProviderConfig conf) throws BusinessException {
+        return runtimeProvisioningService.testConnection(conf);
     }
 
     @Override

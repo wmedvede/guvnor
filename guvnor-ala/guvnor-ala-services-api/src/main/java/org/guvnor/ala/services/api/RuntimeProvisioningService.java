@@ -31,6 +31,7 @@ import javax.ws.rs.QueryParam;
 
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
+import org.guvnor.ala.runtime.providers.TestConnectionResult;
 import org.guvnor.ala.services.api.itemlist.ProviderList;
 import org.guvnor.ala.services.api.itemlist.ProviderTypeList;
 import org.guvnor.ala.services.api.itemlist.RuntimeList;
@@ -96,6 +97,27 @@ public interface RuntimeProvisioningService {
     @DELETE
     @Path("providers")
     void deregisterProvider(@FormParam(value = "name") String name) throws BusinessException;
+
+    /**
+     * Executes a connectivity check with an already registered provider.
+     * @param providerId a provider identifier for an already registered provider.
+     * @return the connectivity test results.
+     * @throws BusinessException in case no provider is registered with the given provider identifier or if unexpected
+     * errors occurs.
+     */
+    @GET
+    @Path("providers/{providerId}/testConnection")
+    TestConnectionResult testConnection(@PathParam("providerId") String providerId) throws BusinessException;
+
+    /**
+     * Executes a connectivity check with a provider by using the a provider configuration.
+     * @param conf a provider configuration.
+     * @return the connectivity test results.
+     * @throws BusinessException in case of a mal formed provider configuration, or unexpected errors.
+     */
+    @GET
+    @Path("providers/testConnection")
+    TestConnectionResult testConnection(@NotNull ProviderConfig conf) throws BusinessException;
 
     /**
      * Create a new Runtime

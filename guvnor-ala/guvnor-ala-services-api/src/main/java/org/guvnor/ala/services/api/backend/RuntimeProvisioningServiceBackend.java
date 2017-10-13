@@ -18,11 +18,17 @@ package org.guvnor.ala.services.api.backend;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
 import org.guvnor.ala.config.ProviderConfig;
 import org.guvnor.ala.config.RuntimeConfig;
 import org.guvnor.ala.runtime.Runtime;
 import org.guvnor.ala.runtime.providers.Provider;
 import org.guvnor.ala.runtime.providers.ProviderType;
+import org.guvnor.ala.runtime.providers.TestConnectionResult;
 import org.guvnor.ala.services.api.RuntimeQuery;
 import org.guvnor.ala.services.api.RuntimeQueryResultItem;
 import org.guvnor.ala.services.exceptions.BusinessException;
@@ -69,6 +75,23 @@ public interface RuntimeProvisioningServiceBackend {
      * @throw BusinessException in case of an internal exception
      */
     void unregisterProvider(final String name) throws BusinessException;
+
+    /**
+     * Executes a connectivity check with an already registered provider.
+     * @param providerId a provider identifier for an already registered provider.
+     * @return the connectivity test results.
+     * @throws BusinessException in case no provider is registered with the given provider identifier or if unexpected
+     * errors occurs.
+     */
+    TestConnectionResult testConnection(final String providerId) throws BusinessException;
+
+    /**
+     * Executes a connectivity check with a provider by using the a provider configuration.
+     * @param conf a provider configuration.
+     * @return the connectivity test results.
+     * @throws BusinessException in case of a mal formed provider configuration, or unexpected errors.
+     */
+    TestConnectionResult testConnection(final ProviderConfig conf) throws BusinessException;
 
     /**
      * Create a new Runtime

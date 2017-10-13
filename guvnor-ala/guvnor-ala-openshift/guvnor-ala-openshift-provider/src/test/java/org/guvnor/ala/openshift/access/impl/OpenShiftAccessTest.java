@@ -15,6 +15,9 @@
  */
 package org.guvnor.ala.openshift.access.impl;
 
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_PASSWORD;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_AUTH_BASIC_USERNAME;
+import static org.guvnor.ala.openshift.config.OpenShiftProperty.KUBERNETES_MASTER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -22,9 +25,11 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import io.fabric8.openshift.client.OpenShiftConfig;
+import org.guvnor.ala.openshift.access.OpenShiftClient;
 import org.guvnor.ala.openshift.access.OpenShiftRuntimeId;
 import org.guvnor.ala.openshift.access.OpenShiftTemplate;
 import org.guvnor.ala.openshift.access.OpenShiftTemplate.Parameter;
+import org.guvnor.ala.openshift.config.OpenShiftProviderConfig;
 import org.guvnor.ala.openshift.config.impl.OpenShiftProviderConfigImpl;
 import org.junit.Test;
 
@@ -118,7 +123,29 @@ public class OpenShiftAccessTest {
                         "expression",
                         "[a-zA-Z]{6}[0-9]{1}!",
                         null);
-}
+    }
+
+    @Test
+    public void testTestConnection() {
+
+        OpenShiftProviderConfigImpl providerConfig = new OpenShiftProviderConfigImpl();
+        providerConfig.clear();
+
+        providerConfig.setKubernetesAuthBasicUsername("admin");
+        providerConfig.setKubernetesAuthBasicPassword("55admin2345");
+        providerConfig.setKubernetesMaster("https://ce-os-rhel-master.usersys.redhat.com:8443");
+
+
+        OpenShiftClient openShiftClient = new OpenShiftAccessInterfaceImpl().newOpenShiftClient(providerConfig);
+        openShiftClient.getDelegate().namespaces().list().getItems().forEach(namespace -> System.out.println("ns: " + namespace.toString()));
+        openShiftClient.getDelegate().projectrequests().list().getMetadata().toString();
+
+        System.out.println("API version: " );
+
+
+
+
+    }
 
     private void verifyParameter(Map<String,Parameter> params,
                                  String name,

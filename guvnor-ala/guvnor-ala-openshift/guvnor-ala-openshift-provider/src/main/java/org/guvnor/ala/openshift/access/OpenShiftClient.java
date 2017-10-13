@@ -84,9 +84,10 @@ public class OpenShiftClient {
         String pcl = System.getProperty(OpenShiftClientListener.class.getName() + ".postCreate");
         if (pcl != null) {
             try {
-                return (OpenShiftClientListener)Class.forName(pcl).newInstance();
+                return (OpenShiftClientListener) Class.forName(pcl).newInstance();
             } catch (Exception e) {
-                throw new RuntimeException(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(),
+                                           e);
             }
         }
         return null;
@@ -107,24 +108,30 @@ public class OpenShiftClient {
             String prjName = runtimeConfig.getProjectName();
             String svcName = runtimeConfig.getServiceName();
             String appName = runtimeConfig.getApplicationName();
-            OpenShiftRuntimeId runtimeId = new OpenShiftRuntimeId(prjName, svcName, appName);
+            OpenShiftRuntimeId runtimeId = new OpenShiftRuntimeId(prjName,
+                                                                  svcName,
+                                                                  appName);
             OpenShiftRuntimeState runtimeState = getRuntimeState(runtimeId);
             if (OpenShiftRuntimeState.UNKNOWN.equals(runtimeState.getState())) {
                 createProject(prjName);
-                createFromUri(prjName, runtimeConfig.getResourceSecretsUri());
-                createFromUri(prjName, runtimeConfig.getResourceStreamsUri());
+                createFromUri(prjName,
+                              runtimeConfig.getResourceSecretsUri());
+                createFromUri(prjName,
+                              runtimeConfig.getResourceStreamsUri());
                 createFromTemplate(runtimeConfig);
                 runtimeState = getRuntimeState(runtimeId);
             }
             if (postCreateListener != null) {
-                postCreateListener.trigger(this, runtimeConfig);
+                postCreateListener.trigger(this,
+                                           runtimeConfig);
             }
             return runtimeState;
         } catch (Throwable t) {
             if (t instanceof OpenShiftClientException) {
-                throw (OpenShiftClientException)t;
+                throw (OpenShiftClientException) t;
             } else {
-                throw new OpenShiftClientException(t.getMessage(), t);
+                throw new OpenShiftClientException(t.getMessage(),
+                                                   t);
             }
         }
     }
@@ -132,27 +139,78 @@ public class OpenShiftClient {
     private void createProject(String prjName) {
         if (delegate.projects().withName(prjName).get() == null) {
             delegate.projectrequests()
-                .createNew()
-                .editOrNewMetadata()
-                .withName(prjName)
-                .endMetadata()
-                .done();
+                    .createNew()
+                    .editOrNewMetadata()
+                    .withName(prjName)
+                    .endMetadata()
+                    .done();
             delegate.namespaces()
-                .withName(prjName)
-                .edit()
-                .editOrNewMetadata()
-                .addToAnnotations(GUVNOR_ALA_GENERATED, Boolean.TRUE.toString())
+                    .withName(prjName)
+                    .edit()
+                    .editOrNewMetadata()
+                    .addToAnnotations(GUVNOR_ALA_GENERATED,
+                                      Boolean.TRUE.toString())
+                    .endMetadata()
+                    .done();
+        }
+        addServiceAccountRole(prjName,
+                              "builder",
+                              "system:image-builder");
+        addServiceAccountRole(prjName,
+                              "default",
+                              "admin");
+        addServiceAccountRole(prjName,
+                              "default",
+                              "view");
+        addServiceAccountRole(prjName,
+                              "deployer",
+                              "system:deployer");
+        addSystemGroupRole(prjName,
+                           "deployer",
+                           "system:image-puller");
+    }
+
+    private void addServiceAccountRole(String prjName,
+                                       String name,
+                                       String role) {
+        Resource<PolicyBinding, DoneablePolicyBinding> bindingResource =
+                delegate.policyBindings().inNamespace(prjName).withName(":default");
+        DoneablePolicyBinding binding;
+        if (bindingResource.get() == null) {
+            binding = bindingResource.createNew();
+        } else {
+            binding = bindingResource.edit();
+        }
+        binding.editOrNewMetadata()
+                .withName(":default")
                 .endMetadata()
+                .editOrNewPolicyRef()
+                .withName("default")
+                .endPolicyRef()
+                .addNewRoleBinding()
+                .withName(role)
+                .editOrNewRoleBinding()
+                .editOrNewMetadata()
+                .withName(role)
+                .withNamespace(prjName)
+                .endMetadata()
+                .addToUserNames("system:serviceaccount:" + prjName + ":" + name)
+                .addNewSubject()
+                .withName("default")
+                .withNamespace(prjName)
+                .withKind("ServiceAccount")
+                .endSubject()
+                .withNewRoleRef()
+                .withName(role)
+                .endRoleRef()
+                .endRoleBinding()
+                .endRoleBinding()
                 .done();
-        }
-        addServiceAccountRole(prjName, "builder", "system:image-builder");
-        addServiceAccountRole(prjName, "default", "admin");
-        addServiceAccountRole(prjName, "default", "view");
-        addServiceAccountRole(prjName, "deployer", "system:deployer");
-        addSystemGroupRole(prjName, "deployer", "system:image-puller");
     }
 
-    private void addServiceAccountRole(String prjName, String name, String role) {
+    private void addSystemGroupRole(String prjName,
+                                    String name,
+                                    String role) {
         Resource<PolicyBinding, DoneablePolicyBinding> bindingResource =
                 delegate.policyBindings().inNamespace(prjName).withName(":default");
         DoneablePolicyBinding binding;
@@ -162,69 +220,34 @@ public class OpenShiftClient {
             binding = bindingResource.edit();
         }
         binding.editOrNewMetadata()
-            .withName(":default")
-            .endMetadata()
-            .editOrNewPolicyRef()
-            .withName("default")
-            .endPolicyRef()
-            .addNewRoleBinding()
-            .withName(role)
-            .editOrNewRoleBinding()
-            .editOrNewMetadata()
-            .withName(role)
-            .withNamespace(prjName)
-            .endMetadata()
-            .addToUserNames("system:serviceaccount:" + prjName + ":" + name)
-            .addNewSubject()
-            .withName("default")
-            .withNamespace(prjName)
-            .withKind("ServiceAccount")
-            .endSubject()
-            .withNewRoleRef()
-            .withName(role)
-            .endRoleRef()
-            .endRoleBinding()
-            .endRoleBinding()
-            .done();
+                .withName(":default")
+                .endMetadata()
+                .editOrNewPolicyRef()
+                .withName("default")
+                .endPolicyRef()
+                .addNewRoleBinding()
+                .withName(role)
+                .editOrNewRoleBinding()
+                .editOrNewMetadata()
+                .withName(role)
+                .withNamespace(prjName)
+                .endMetadata()
+                .addToGroupNames("system:serviceaccounts:" + prjName)
+                .addNewSubject()
+                .withName("default")
+                .withNamespace(prjName)
+                .withKind("SystemGroup")
+                .endSubject()
+                .withNewRoleRef()
+                .withName(role)
+                .endRoleRef()
+                .endRoleBinding()
+                .endRoleBinding()
+                .done();
     }
 
-    private void addSystemGroupRole(String prjName, String name, String role) {
-        Resource<PolicyBinding, DoneablePolicyBinding> bindingResource =
-                delegate.policyBindings().inNamespace(prjName).withName(":default");
-        DoneablePolicyBinding binding;
-        if (bindingResource.get() == null) {
-            binding = bindingResource.createNew();
-        } else {
-            binding = bindingResource.edit();
-        }
-        binding.editOrNewMetadata()
-            .withName(":default")
-            .endMetadata()
-            .editOrNewPolicyRef()
-            .withName("default")
-            .endPolicyRef()
-            .addNewRoleBinding()
-            .withName(role)
-            .editOrNewRoleBinding()
-            .editOrNewMetadata()
-            .withName(role)
-            .withNamespace(prjName)
-            .endMetadata()
-            .addToGroupNames("system:serviceaccounts:" + prjName)
-            .addNewSubject()
-            .withName("default")
-            .withNamespace(prjName)
-            .withKind("SystemGroup")
-            .endSubject()
-            .withNewRoleRef()
-            .withName(role)
-            .endRoleRef()
-            .endRoleBinding()
-            .endRoleBinding()
-            .done();
-    }
-
-    private void createFromUri(String prjName, String uri) throws OpenShiftClientException {
+    private void createFromUri(String prjName,
+                               String uri) throws OpenShiftClientException {
         URL url = toUrl(uri);
         if (url != null) {
             KubernetesList kubeList = delegate.lists().load(url).get();
@@ -252,29 +275,34 @@ public class OpenShiftClient {
     }
 
     private void createFromTemplate(OpenShiftRuntimeConfig runtimeConfig) throws OpenShiftClientException {
-        OpenShiftTemplate template = new OpenShiftTemplate(this, runtimeConfig);
+        OpenShiftTemplate template = new OpenShiftTemplate(this,
+                                                           runtimeConfig);
         Map<String, String> parameters = new LinkedHashMap<String, String>();
         parameters.putAll(OpenShiftParameters.fromRuntimeConfig(runtimeConfig));
         String kieServerContainerDeployment = runtimeConfig.getKieServerContainerDeployment();
         if (kieServerContainerDeployment != null && !kieServerContainerDeployment.trim().isEmpty()) {
-            parameters.put(OpenShiftProperty.KIE_SERVER_CONTAINER_DEPLOYMENT.envKey(), kieServerContainerDeployment);
+            parameters.put(OpenShiftProperty.KIE_SERVER_CONTAINER_DEPLOYMENT.envKey(),
+                           kieServerContainerDeployment);
         }
         KubernetesList kubeList = template.process(parameters);
         if (kubeList != null && kubeList.getItems().size() > 0) {
             try {
-                DeploymentConfig dc = getDeploymentConfig(kubeList, runtimeConfig.getServiceName());
+                DeploymentConfig dc = getDeploymentConfig(kubeList,
+                                                          runtimeConfig.getServiceName());
                 if (dc != null) {
                     dc.getSpec().setReplicas(0);
                 }
                 String prjName = runtimeConfig.getProjectName();
                 delegate.lists().inNamespace(prjName).create(kubeList);
             } catch (Throwable t) {
-                throw new OpenShiftClientException(t.getMessage(), t);
+                throw new OpenShiftClientException(t.getMessage(),
+                                                   t);
             }
         }
     }
 
-    private DeploymentConfig getDeploymentConfig(KubernetesList list, String svcName) {
+    private DeploymentConfig getDeploymentConfig(KubernetesList list,
+                                                 String svcName) {
         if (list != null) {
             List<HasMetadata> items = list.getItems();
             String dcName = null;
@@ -305,9 +333,11 @@ public class OpenShiftClient {
             try {
                 return new URI(uri).toURL();
             } catch (URISyntaxException use) {
-                throw new OpenShiftClientException(use.getMessage(), use);
+                throw new OpenShiftClientException(use.getMessage(),
+                                                   use);
             } catch (MalformedURLException mue) {
-                throw new OpenShiftClientException(mue.getMessage(), mue);
+                throw new OpenShiftClientException(mue.getMessage(),
+                                                   mue);
             }
         }
         return null;
@@ -337,8 +367,10 @@ public class OpenShiftClient {
              */
             delegate.deploymentConfigs().inNamespace(prjName).withName(svcName).cascading(true).delete();
             if (appName != null) {
-                delegate.services().inNamespace(prjName).withLabel(APP_LABEL, appName).delete();
-                delegate.routes().inNamespace(prjName).withLabel(APP_LABEL, appName).delete();
+                delegate.services().inNamespace(prjName).withLabel(APP_LABEL,
+                                                                   appName).delete();
+                delegate.routes().inNamespace(prjName).withLabel(APP_LABEL,
+                                                                 appName).delete();
             } else {
                 delegate.services().inNamespace(prjName).delete();
                 delegate.routes().inNamespace(prjName).delete();
@@ -364,7 +396,8 @@ public class OpenShiftClient {
                 delegate.projects().withName(prjName).delete();
             }
         } catch (Throwable t) {
-            throw new OpenShiftClientException(t.getMessage(), t);
+            throw new OpenShiftClientException(t.getMessage(),
+                                               t);
         }
     }
 
@@ -376,7 +409,8 @@ public class OpenShiftClient {
                 annotations = new HashMap<String, String>();
                 metadata.setAnnotations(annotations);
             }
-            annotations.put(GUVNOR_ALA_GENERATED, Boolean.TRUE.toString());
+            annotations.put(GUVNOR_ALA_GENERATED,
+                            Boolean.TRUE.toString());
         }
     }
 
@@ -412,7 +446,8 @@ public class OpenShiftClient {
             }
             return endpoint;
         } catch (Throwable t) {
-            throw new OpenShiftClientException(t.getMessage(), t);
+            throw new OpenShiftClientException(t.getMessage(),
+                                               t);
         }
     }
 
@@ -422,7 +457,8 @@ public class OpenShiftClient {
         try {
             return getRuntimeState(OpenShiftRuntimeId.fromString(id));
         } catch (Throwable t) {
-            throw new OpenShiftClientException(t.getMessage(), t);
+            throw new OpenShiftClientException(t.getMessage(),
+                                               t);
         }
     }
 
@@ -444,22 +480,27 @@ public class OpenShiftClient {
             state = OpenShiftRuntimeState.UNKNOWN;
             startedAt = new Date().toString();
         }
-        return new OpenShiftRuntimeState(state, startedAt);
+        return new OpenShiftRuntimeState(state,
+                                         startedAt);
     }
 
     public void start(String id) throws OpenShiftClientException {
         try {
-            setReplicas(id, 1);
+            setReplicas(id,
+                        1);
         } catch (Throwable t) {
-            throw new OpenShiftClientException(t.getMessage(), t);
+            throw new OpenShiftClientException(t.getMessage(),
+                                               t);
         }
     }
 
     public void stop(String id) throws OpenShiftClientException {
         try {
-            setReplicas(id, 0);
+            setReplicas(id,
+                        0);
         } catch (Throwable t) {
-            throw new OpenShiftClientException(t.getMessage(), t);
+            throw new OpenShiftClientException(t.getMessage(),
+                                               t);
         }
     }
 
@@ -474,7 +515,8 @@ public class OpenShiftClient {
         stop(id);
     }
 
-    private void setReplicas(String id, int replicas) throws InterruptedException {
+    private void setReplicas(String id,
+                             int replicas) throws InterruptedException {
         OpenShiftRuntimeId runtimeId = OpenShiftRuntimeId.fromString(id);
         String prjName = runtimeId.project();
         String svcName = runtimeId.service();
@@ -484,7 +526,18 @@ public class OpenShiftClient {
             DeploymentConfig dc = dcr.get();
             dc.getSpec().setReplicas(replicas);
             dcr.replace(dc);
-            dcr.waitUntilReady(buildTimeout, TimeUnit.MILLISECONDS);
+            dcr.waitUntilReady(buildTimeout,
+                               TimeUnit.MILLISECONDS);
+        }
+    }
+
+    public void testConnection() throws OpenShiftClientException {
+        try {
+            //TODO check if there's a better way to check connectivity
+            delegate.namespaces().list().getItems().size();
+        } catch (Exception e) {
+            throw new OpenShiftClientException(e.getMessage(),
+                                               e);
         }
     }
 
@@ -507,5 +560,4 @@ public class OpenShiftClient {
         }
         return null;
     }
-
 }
